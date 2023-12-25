@@ -1,0 +1,176 @@
+{% load static %}
+{{ form.media }}  
+{% load bootstrap5 %}  
+
+
+<!-- Button trigger modal -->
+{% comment %} <div class="d-flex justify-content-end ">
+    <a class="btn btn-primary shadow-none mb-2" data-bs-toggle="modal" href="#modal" role="button" style="width:200px;">Ajouter</a>
+</div> {% endcomment %}
+
+
+<!-- First modal dialog -->
+{% if model_id == None  %}
+    <div class="modal fade" id="modal" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+{% else %}
+    <div class="modal fade" id="{{ model_id }}" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+{% endif %}
+
+  <div class="modal-dialog  modal-lg modal-dialog-centered">
+    <div class="modal-content ">
+
+        <form   method="POST" id="tonerForm">
+        <div class="modal-body">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> {{ title }}</span>
+
+            {% csrf_token %}
+            {% for field in form %}
+
+                    {% if  field.id_for_label == "id_client" %}
+                  
+                    <div class="row mb-3">
+
+                        <div class="col-12">
+                          <div class="row">
+                          <div class="col-8">
+                            <div class="form-floating ">
+
+                                {{field}}             
+                                <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                            </div>
+                          </div>
+                          
+                          <div class="col-4">
+
+                            <div class="form-floating">
+                              <input type="search" class="form-control" id="client-search-box" oninput="searchClient()">
+                              <label for="floatingInput">Search</label>
+                            </div>
+                          </div>
+                      </div>
+                        </div>
+
+                    </div>        
+                {% elif field.id_for_label == "id_class_tc" %}
+                    <div class="row mb-3">
+                        <div class="col-10">
+                        <div class="form-floating">
+                            {{field}}             
+                            <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                        </div>
+                        </div>
+                        <div class="col-2 d-flex align-items-end">
+                                <a class="btn btn-outline-primary shadow-none w-100 h-100" data-bs-toggle="modal" href="#class_tc_model_id" role="button" ></a>
+                        </div>
+                    </div>
+                {% elif field.id_for_label == "id_groupage" or field.id_for_label == "id_dangereux" or field.id_for_label == "id_frigo" or field.id_for_label == "id_entreposage"  or field.id_for_label == "id_tva" or field.id_for_label == "id_remise" or  field.id_for_label == "id_a_terme" or  field.id_for_label == "id_debeur"  %}
+                    <div class="form-check form-switch my-4">
+                        {{field}}
+                        <label class="form-check-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                    </div>
+                {% else %}
+                    <div class="form-floating mb-3">
+                        {{field}}             
+                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                    </div>
+
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="modal-footer">
+            <a  class="btn btn-light float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+            <input type="submit" class="btn btn-primary float-right" id="butt" name="{{ submit_button }}" value="soumettre"></a>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+
+{% include 'app/components/custom_add.html' with form=type_tc_form form_id='type_tc_form_id' model_id='type_tc_model_id' form_title="+ Type" %}
+
+
+
+
+
+<script>
+    client_search_box = document.getElementById("client-search-box");
+    client_options = document.getElementById("id_client");
+
+    function searchSelect(opetions, text){
+        var options = opetions; //select options
+        for (var i = 0; i < options.length; i++) {
+            var option = options[i]; //current option
+            var optionText = option.text; //option text ("Somalia")
+            var lowerOptionText = optionText.toLowerCase(); //option text lowercased for case insensitive testing
+            var lowerText = text.toLowerCase(); //searchBox value lowercased for case insensitive testing
+            var regex = new RegExp("^" + text, "i"); //regExp, explained in post
+            var match = optionText.match(regex); //test if regExp is true
+            var contains = lowerOptionText.indexOf(lowerText) != -1; //test if searchBox value is contained by the option text
+            if (match || contains) { //if one or the other goes through
+                option.selected = true; //select that option
+                return; //prevent other code inside this event from executing
+            }
+        }
+    }
+
+    
+    function searchClient(){
+        var text = client_search_box.value;
+        searchSelect(client_options.options,text );  
+    }
+    
+    
+ 
+    $("#type_tc_form_id").submit(function(e){
+        var select_field = $('#id_type_tc');
+        form = $("#type_tc_form_id");
+        can_add_new(e, select_field, form,"{% url 'post_type_tc' %}");
+  }) ;
+   $("#class_tc_form_id").submit(function(e){
+        var select_field = $('#id_class_tc');
+        form = $("#class_tc_form_id");
+        can_add_new(e, select_field, form,"{% url 'post_class_tc' %}");
+  }) ;
+
+  $("#butt").disabled = True;
+    function can_add_new(e, select_field, form, api) {
+        e.preventDefault();
+        var serializedData = form.serialize();
+        $.ajax({
+            type: 'POST',
+            url: api,
+            data: serializedData,
+            success: function (response) {
+                data = JSON.parse(response.instance)[0].fields;
+                id = JSON.parse(response.instance)[0].pk;
+                console.log(data);
+                switch (select_field.attr('id')) { 
+                    case 'id_type_tc' : 
+                        select_field.append(`<option value="`+ id +`"> `+ data.designation +` </option>`)
+                        break;                           
+                }
+                select_field.val(id);
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                console.log(response);
+            }
+        })
+    }
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+ 
+
+
+<!-- end -->

@@ -1,0 +1,45 @@
+<div class="table-responsive table-hover mb-4">
+  <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+      <thead class="thead-light border-0">
+    <tr>
+          <th class="rounded-start">Visite</th>
+          <th>Gros</th>
+          <th>Article</th>
+          <th>Date de création</th>
+          <th>Date de visite</th>
+          <th>Type</th>
+          <th>Transitaire</th>
+          <th>Badge</th>
+          <th class="rounded-end text-center">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+
+      {% for item in data %}
+      <tr>
+              <td  class="rounded-start align-middle">
+                <a class="btn btn-sm btn-gray-100 shadow-none" type="button" href="{% url 'visite_details' item.id %}"> 
+                  <small>{{ item.numero }}</small>
+                </a >
+              </td>
+              <td class="align-middle">{{ item.gros}}</td>
+              <td class="align-middle">{{ item.article.numero }}</td>
+              <td class="align-middle">{{ item.date_creation|date:"l, d-m-Y"  }}</td>
+              <td class="align-middle">{{ item.date_visite|date:"l, d-m-Y"  }}</td>
+              <td class="align-middle">{{ item.type_visite }}</td>
+              <td class="align-middle">{{ item.transitaire }}</td>
+              <td class="align-middle">{{ item.badge }}</td>
+              <td class="rounded-end text-center align-middle">
+
+                <a class="btn btn-sm btn-secondary shadow-none" type="button" target="_blank" href="{% url 'print_visite' item.id %}"> 
+                  <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                </a>
+              </td>
+
+        <tr>
+      {% endfor %}
+    </tbody>
+  </table>
+                     
+
+</div>

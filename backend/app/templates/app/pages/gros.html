@@ -1,0 +1,262 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+{% include 'app/components/navbar.html' with title='Rotation' %}
+{% include 'app/components/messages.html' %}
+
+
+<div class="row mb-2">
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        {% include 'app/components/search.html' with form=search_form%}
+    </div> 
+    <div class="col-lg-2 offset-lg-6">
+        <a type="link" class="btn btn btn-secondary shadow-none  d-none d-lg-block" data-bs-toggle="modal" href="#modal">
+            + Gros
+        </a>       
+        <a type="link" class="btn btn btn-secondary shadow-none w-100  mt-2 d-block d-lg-none" data-bs-toggle="modal" href="#modal">
+            + Gros
+        </a>      
+    </div> 
+</div>
+
+
+<div class="card mt-4 mt-lg-2 border-0" >
+    <div class="card-body p-2 p-lg-3">
+        {% include 'app/components/gros_table.html' %}
+    </div>
+</div>
+
+
+
+<!-- Add gros model -->
+<div class="modal fade" id="modal" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+  <div class="modal-dialog  modal-lg modal-dialog-centered">
+    <div class="modal-content ">
+
+        <form   method="POST" id="grosForm">
+        <div class="modal-body">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> +Gros </span>
+
+                    {% csrf_token %}
+                    {% for field in form_gros %}
+                    
+                        {% if  field.id_for_label == "id_port_emission" %}
+
+                            <div class="row mb-3">
+                                <div class="col-lg-10">
+                                    <div class="form-floating ">
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                </div>
+                                <div class="col-2  d-none d-lg-block">
+                                        <a class="btn btn-outline-primary shadow-none h-100 w-100" data-bs-toggle="modal" href="#port_emission_model_id" role="button" >
+                                            <div class="container-fluid d-flex align-items-center justify-content-center h-100">
+                                                <div class="text-center">
+                                                   + 
+                                                </div>
+                                            </div>
+                                        </a>
+                                </div>
+                            </div>
+
+                        {% elif field.id_for_label == "id_port_reception"%}
+
+                            <div class="row mb-3">
+                                <div class="col-lg-10">
+                                    <div class="form-floating ">
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                </div>
+                                <div class="col-2 d-none d-lg-block">
+                                    <a class="btn btn-outline-primary shadow-none w-100 h-100" data-bs-toggle="modal" href="#port_reception_model_id" role="button" >
+                                        <div class="container-fluid d-flex align-items-center justify-content-center h-100">
+                                            <div class="text-center">
+                                               + 
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+
+                         {% elif field.id_for_label == "id_navire"%}
+
+                            <div class="row mb-3">
+                                <div class="col-lg-10">
+                                    <div class="form-floating ">
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                </div>
+                                <div class="col-2  d-none d-lg-block">
+                                    <a class="btn btn-outline-primary shadow-none w-100 h-100" data-bs-toggle="modal" href="#navire_model_id" role="button" >
+                                        <div class="container-fluid d-flex align-items-center justify-content-center h-100">
+                                            <div class="text-center">
+                                               + 
+                                            </div>
+                                        </div>                                    
+                                    </a>
+                                </div>
+                            </div>
+
+                        {% elif field.id_for_label == "id_armateur"%}
+
+                            <div class="row mb-3">
+                                <div class="col-lg-10">
+                                    <div class="form-floating ">
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                </div>
+                                <div class="col-2  d-none d-lg-block">
+                                    <a class="btn btn-outline-primary shadow-none w-100 h-100" data-bs-toggle="modal" href="#armateur_model_id" role="button" >
+                                        <div class="container-fluid d-flex align-items-center justify-content-center h-100">
+                                            <div class="text-center">
+                                               + 
+                                            </div>
+                                        </div>                                    
+                                    </a>
+                                </div>
+                            </div>
+
+                        {% elif field.id_for_label == "id_consignataire"%}
+
+                            <div class="row mb-3">
+                                <div class="col-lg-10">
+                                    <div class="form-floating ">
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                </div>
+                                <div class="col-2  d-none d-lg-block">
+                                    <a class="btn btn-outline-primary shadow-none w-100 h-100" data-bs-toggle="modal" href="#consignataire_model_id" role="button" >
+                                        <div class="container-fluid d-flex align-items-center justify-content-center h-100">
+                                            <div class="text-center">
+                                               + 
+                                            </div>
+                                        </div>                                    
+                                    </a>
+                                </div>
+                            </div>
+                                 
+                        {% else %}
+
+                                <div class="form-floating mb-3">
+                                    {{field}}             
+                                    <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                </div>
+
+
+
+                        {% endif %}
+
+                    {% endfor %}
+
+        </div>
+        <div class="modal-footer">
+            <a  class="btn btn-light float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+            <input type="submit" class="btn btn-primary float-right" id="butt" name="SUBMIT" value="Soumettre"></a>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+
+
+{% include 'app/components/custom_add.html' with form=port_form form_id='port_reception_form_id' model_id='port_reception_model_id' form_title='+ Port de récéption'  %}
+{% include 'app/components/custom_add.html' with form=port_form form_id='port_emission_form_id' model_id='port_emission_model_id' form_title="+ Port d'emission"   %}
+{% include 'app/components/custom_add.html' with form=navire_form form_id='navire_form_id' model_id='navire_model_id' form_title='+ Navire'   %}
+{% include 'app/components/custom_add.html' with form=armateur_form form_id='armateur_form_id' model_id='armateur_model_id' form_title='+ Armateur'   %}
+{% include 'app/components/custom_add.html' with form=consignataire_form form_id='consignataire_form_id' model_id='consignataire_model_id' form_title='+ Consignataire'   %}
+ 
+  
+
+ 
+
+
+
+<script>
+
+    window.onload = (event) => {
+        printitems('nav2');
+    };
+      
+    $("#port_reception_form_id").submit(function(e){
+        var select_field = $('#id_port_reception');
+        form = $("#port_reception_form_id");
+        can_add_new(e, select_field, form,"{% url 'post_port' %}");
+    }) ;
+    $("#port_emission_form_id").submit(function(e){
+        var select_field = $('#id_port_emission');
+        form = $("#port_emission_form_id");
+        can_add_new(e, select_field, form,"{% url 'post_port' %}");
+    }) ;
+    $("#navire_form_id").submit(function(e){
+        var select_field = $('#id_navire');
+        form = $("#navire_form_id");
+        can_add_new(e, select_field, form,"{% url 'post_navire' %}");
+    }) ;
+    $("#armateur_form_id").submit(function(e){
+        var select_field = $('#id_armateur');
+        form = $("#armateur_form_id");
+        can_add_new(e, select_field, form,"{% url 'post_armateur' %}");
+    }) ;
+
+    $("#consignataire_form_id").submit(function(e){
+        var select_field = $('#id_consignataire');
+        form = $("#consignataire_form_id");
+        can_add_new(e, select_field, form,"{% url 'post_consignataire' %}");
+    }) ;
+
+    function can_add_new(e, select_field, form, api) {
+        e.preventDefault();
+        var serializedData = form.serialize();
+        $.ajax({
+            type: 'POST',
+            url: api,
+            data: serializedData,
+            success: function (response) {
+                data = JSON.parse(response.instance)[0].fields;
+                id = JSON.parse(response.instance)[0].pk;
+                console.log(data);
+                switch (select_field.attr('id')) { 
+                    case 'id_port_reception' : 
+                        select_field.append(`<option value="`+ id +`"> `+ data.raison_sociale +` </option>`)
+                        break;
+                    case 'id_port_emission': 
+                        select_field.append(`<option value="`+ id +`"> `+ data.raison_sociale +` </option>`)
+                        break;
+                    case 'id_armateur': 
+                        select_field.append(`<option value="`+ id +`"> `+ data.raison_sociale +` </option>`)
+                        break;
+                    case 'id_consignataire': 
+                        select_field.append(`<option value="`+ id +`"> `+ data.raison_sociale +` </option>`)
+                        break;
+                    case 'id_navire': 
+                        select_field.append(`<option value="`+ id +`"> `+ data.nom +` </option>`)
+                        break;
+                  
+                }
+                select_field.val(id);
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                console.log(response.responseText);
+            }
+        })
+    }
+
+function close_model(model_id) {
+  var myModalEl = model_id
+  var modal = bootstrap.Modal.getInstance(myModalEl)
+  modal.hide();
+}
+    
+</script>
+
+
+{% endblock content %}
+
+

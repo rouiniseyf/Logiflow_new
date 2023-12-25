@@ -1,0 +1,272 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title=gros.gros  %}
+{% include 'app/components/messages.html' %}
+
+
+
+<div class="row mt-4">
+    <div class="mb-4 d-block d-lg-none">
+        GROS  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{  gros.gros  }} </span>
+    </div>
+    <div class="col-12 col-lg-3" >
+        <div class="card border-0 shadow">
+            <div class="card-body shadow-md p-2 border-0">
+                <div class="form-floating mb-3">
+                    <select class="form-select shadow-none" aria-label="Default select example" id="select_type">
+                        <option  selected> aucune sélection </option>  
+                        {% for type in types %}  
+                            <option value="{{ type.id }}" >{{ type }} </option>              
+                        {% endfor %}
+                    </select>               
+                    <label for="type" >Type</label>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input " type="checkbox"  id="dangereux">
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Dangereux</label>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox"  id="frigo">
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Frigo</label>
+                </div>
+
+                <div>
+                    <div>
+                        <button type="submit" class="btn btn-secondary w-100 shadow-none" onclick="setTypeClass()">Soumettre</button>
+                    </div>  
+                </div>
+
+        </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 d-none d-lg-block">
+        
+        <div class="mb-2 d-block d-lg-none">
+            GROS  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{  gros.gros  }} </span>
+        </div>
+
+        <div class="mb-2">
+            ESCALE &nbsp; &nbsp; <span class="badge bg-primary p-2"> {% if gros.escale is None %} - {% else %}{{ gros.escale }} {% endif %}</span>
+        </div> 
+
+        <div class="mb-2">
+            ACCOSTAGE &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ gros.accostage|date:"d/m/Y" }}</span>
+        </div>
+
+        <div class="mb-2">
+            REGIME DOUANE &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.regime.designation }}</span>
+        </div> 
+
+        <div class="mb-2">
+            NAVIRE &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.navire }}</span>
+        </div> 
+
+        <div class="mb-2">
+            ARMATEUR &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.armateur }}</span>
+        </div> 
+
+        <div class="mb-2">
+            CONSIGNATAIRE &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.consignataire }}</span>
+        </div> 
+
+
+
+    </div> 
+
+
+</div>
+
+<div class="card my-4">
+    <div class="card-body p-2 p-lg-4">
+
+        <div class="table-responsive table-hover mb-4">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                    <tr>
+                        <th class="rounded-start"><input class="form-check-input shadow-none" type="checkbox" value="" id="th_check" onchange="checkAll('th_check')"></th>
+                        <th scope="col">Article</th>
+                        <th scope="col">Tc</th>
+                        <th scope="col">Tar</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Poids</th>
+                        <th class="rounded-end">Client</th>
+                    </tr>
+                </thead>
+                <tbody id="tcs_table" />
+            </table>
+        </div> 
+    </div> 
+</div>
+
+
+
+
+
+
+
+<script>
+
+// Global variable checks for all the checked boxs 
+var checks = [];
+// On wondows load get the data 
+window.onload = function(){
+    printitems('nav2');
+    get_data();
+}
+
+// add a new row to table body 
+function addRow(table, data){
+    var row = table.insertRow(0);
+    var checkbox = row.insertCell(0);
+    var article_cell = row.insertCell(1);
+    var tc_cell = row.insertCell(2);
+    var tar_cell = row.insertCell(3);
+    var type_cell = row.insertCell(4);
+    type_cell.id = "type_"+data.id;
+    var poids_cell = row.insertCell(5);
+    var client_cell = row.insertCell(6);
+    checks.push(data.id);
+    checkbox.innerHTML= ('<input type="checkbox" class="form-check-input shadow-none" id="' + data.id + '"/>');
+    article_cell.innerHTML= data.article__numero;
+    tc_cell.innerHTML= data.tc;
+    tar_cell.innerHTML= data.tar;
+    type_cell.innerHTML= data.type_tc__designation;
+    poids_cell.innerHTML= data.poids;
+    client_cell.innerHTML= slice(data.article__client__raison_sociale);
+   
+}
+
+// check if the string has more then 20 caracters in length, if so slice it to 20 caracters and add 3 dots at the end 
+function slice(str){
+    if(str.length > 20){
+        return (str.slice(0, 20) + "...");
+    }
+    return str;
+}
+
+// Ajax request - get all the manifest 
+function get_data(page){
+    table = document.getElementById("tcs_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+      $.ajax({
+          type: 'GET',
+          url: "{% url 'get_manifest' %}",
+          data: {
+              "id":"{{ gros.id }}",
+          },
+          success: function (response) { 
+            data = response.data; 
+            for(i=0;i<data.length; i++){
+                addRow(table, data[i]);     
+            }  
+          },
+          error: function (response) {
+              console.log(response);
+          }
+      })
+}
+
+// loop true the checks array and check the chekced element then add them to the chekced list 
+    function getcheckedBoxs(){
+        var checked_list = [];
+        checks.forEach(item => {
+                if ( document.getElementById(item).checked){
+                    checked_list.push(item);
+                }
+            });
+        return checked_list;
+    }
+
+// when the top check box is checks, check all the boxs end if unchecked, uncheck all the boxs 
+    function checkAll(id){
+        let check_all = document.getElementById(id);
+        if(check_all.checked){
+            checks.forEach(item => document.getElementById(item).checked = true );
+        }else{
+            checks.forEach(item => document.getElementById(item).checked = false );
+        }     
+    }
+
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+ }
+
+// Get the list of selected rows and the ckeck for the selected type and class then send them all to the backend 
+function setTypeClass(){
+    let selected_type = document.getElementById('select_type');
+    let dangereux = document.getElementById("dangereux").checked;
+    let frigo = document.getElementById("frigo").checked;
+    if(dangereux == true){
+        dangereux = 1 
+    }else{
+        dangereux = 0
+    }
+    if(frigo == true){
+        frigo = 1 
+    }else{
+        frigo = 0
+    }
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'set_type_class' %}",
+        data: {
+            'ids': getcheckedBoxs() , 
+            'selected_type': selected_type.value, 
+            'frigo' : frigo, 
+            'dangereux': dangereux
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            if (response.message == 'success'){
+                applyChanges(getcheckedBoxs(),selected_type );
+            }
+            Notification('Succès',"L'opération a été effectuée avec succès.",'success');  
+            reset();
+           
+        },
+        error: function (response) {
+            console.log(response)
+        }
+      })   
+}
+
+ function reset(){
+            let selected_type = document.getElementById('select_type');
+            selected_type.selectedIndex = 0;
+            checks.forEach(item => document.getElementById(item).checked = false );
+            document.getElementById('th_check').checked = false;
+      }
+
+function applyChanges(ids, selected_type){
+    ids.forEach( row => {
+
+        if(selected_type.value != 'aucune sélection'){
+            document.getElementById('type_'+row).innerHTML = selected_type.options[selected_type.selectedIndex].text;
+            document.getElementById('type_'+row).style.color = 'black';
+        }
+    })
+ }
+
+</script>
+{% endblock %}
+

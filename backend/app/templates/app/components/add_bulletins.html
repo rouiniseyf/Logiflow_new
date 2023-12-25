@@ -1,0 +1,139 @@
+{% load static %}
+{{ form.media }}  
+{% load bootstrap5 %}  
+
+
+<!-- First modal dialog -->
+<div class="modal fade" id="modal" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content ">
+        <form   method="POST" id="tonerForm" autocomplete="off">
+        <div class="modal-body">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> + Bulletins d'Escort</span>
+
+                    {% csrf_token %}
+                    {% for field in form %}
+
+                        {% if field.id_for_label == "id_charge_chargement" %}
+                            <div class="row mb-3">
+                                <div class="col-10">
+                                <div class="form-floating">
+                                    {{field}}             
+                                    <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                </div>
+                                </div>
+                               <div class="col-2 d-flex align-items-end">
+                                    <a class="btn btn-primary shadow-none w-100" data-bs-toggle="modal" href="#agent_model_id" role="button" >+</a>
+                                </div>
+                            </div>
+                            {% elif  field.id_for_label == "id_gros" %}
+                  
+                            <div class="row mb-3">
+        
+                                <div class="col-12">
+                                  <div class="row">
+                                  <div class="col-8">
+                                    <div class="form-floating ">
+      
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                  </div>
+                                  
+                                  <div class="col-4">
+      
+                                    <div class="form-floating">
+                                      <input type="search" class="form-control" id="gros-search-box" oninput="searchGros()">
+                                      <label for="floatingInput">Search</label>
+                                    </div>
+                                  </div>
+                              </div>
+                                </div>
+        
+                            </div>
+      
+                        {% elif field.id_for_label == "id_charge_reception" %}
+                             <div class="row mb-3">
+                                <div class="col-10">
+                                    <div class="form-floating">
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                </div>
+                               <div class="col-2 d-flex align-items-end">
+                                    <a class="btn btn-primary shadow-none w-100" data-bs-toggle="modal" href="#agent_model_id" role="button" >+</a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="form-floating mb-3">
+                                {{field}}             
+                                <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                            </div>
+                            
+                        {% endif %}
+                    {% endfor %}
+        </div>
+        <div class="modal-footer">
+            <a  class="btn btn-light float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+            <input type="submit" class="btn btn-primary float-right" id="butt" name="SUBMIT" value="Soumettre"></a>
+
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+    var now = new Date();
+
+    var day = ("0" + now.getDate()).slice(-2);
+    var month = ("0" + (now.getMonth() + 1)).slice(-2);
+
+    var today = now.getFullYear()+"-"+(month)+"-"+(day) ;
+
+    $('#id_date_creation').val(today);
+
+
+    function searchSelect(opetions, text){
+        var options = opetions; //select options
+        for (var i = 0; i < options.length; i++) {
+            var option = options[i]; //current option
+            var optionText = option.text; //option text ("Somalia")
+            var lowerOptionText = optionText.toLowerCase(); //option text lowercased for case insensitive testing
+            var lowerText = text.toLowerCase(); //searchBox value lowercased for case insensitive testing
+            var regex = new RegExp("^" + text, "i"); //regExp, explained in post
+            var match = optionText.match(regex); //test if regExp is true
+            var contains = lowerOptionText.indexOf(lowerText) != -1; //test if searchBox value is contained by the option text
+            if (match || contains) { //if one or the other goes through
+                option.selected = true; //select that option
+                return; //prevent other code inside this event from executing
+            }
+        }
+    }
+
+    
+    
+    gros_search_box = document.getElementById("gros-search-box");
+    gros_options = document.getElementById("id_gros");
+    function searchGros(){
+        var text = gros_search_box.value;
+        searchSelect(gros_options.options,text );  
+    }
+
+
+    
+
+</script>
+
+
+
+
+
+ 
+
+
+<!-- end -->

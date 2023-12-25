@@ -1,0 +1,137 @@
+{% load my_filters %}
+{% load static %}
+
+{% load humanize %}
+<html>
+<head>
+<style>
+@page {
+size: a4 landscape;
+
+@frame header_frame { /* Static Frame */
+-pdf-frame-content: header_content;
+left: 40pt; width: 760pt; top: 30px; height: 140px;
+}
+@frame content_frame { /* Content Frame */
+left: 20pt; width: 760pt; top: 140px; height: 740px;
+}
+@frame footer_frame { /* Another static Frame */
+-pdf-frame-content: footer_content;
+left: 40pt; width: 760pt; top: 750px; height: 40px;
+}
+
+}
+</style>
+<style type="text/css">
+.title {
+  font-size : 9pt;
+  color: #1E5799;
+  font-weight : bold;
+} 
+.body{
+  font-size : 9pt;
+  
+}
+.info{
+  margin-top: 5px;
+}
+.footer{
+  text-align: center;
+  font-size : 7pt;
+}
+.content-table th{ 
+  line-height: 20px; 
+  padding-top: 3px;
+  border : 0px; 
+  background-color: #F2F2F2;
+  font-size : 7pt;
+}
+.content-table tr{
+  
+}
+
+.content-table td{ 
+  line-height: 80px; 
+  padding-top: 2px;
+  padding-bottom: 0px;
+  border: 0px;
+  font-size : 65pt;
+  text-align : left;
+  font-weight: Bold;
+  font-family: "Times New Roman", Times, serif;
+  white-space: nowrap;
+}
+
+.cell-groupeur{
+  padding-left : 240px;
+}
+.cell-gros{
+  padding-left : 150px;}
+
+.cell-article{
+  padding-left : 120px;
+}
+.cell-client{
+  padding-left : 180px;
+  color:white;
+}
+.cell-colis{
+  padding-left : 300px;
+}
+.cell-poids{
+  padding-left : 150px;
+}
+.paiement-td {
+  font-size : 8pt;line-height: 10px;
+}
+.avoid-split {
+   -pdf-keep-with-next: true; 
+}
+</style>
+</head>
+<body class="body">
+<!-- Content for Static Frame 'header_frame' -->
+
+<!-- Content for Static Frame 'footer_frame' -->
+<div id="footer_content">
+<div class="footer">
+  
+</div>
+</div>
+<!-- HTML Content -->
+
+      {% for item in sous_articles %}
+        {% for i in item.nombre_colis|times %}      
+          <table class="table content-table" style="margin-bottom: 20px;">
+                <tbody >
+                    <tr>
+                        <td class='cell-groupeur'> {{ article.client}} </td>
+                    </tr>
+                    <tr>
+                        <td class='cell-gros' style='padding-top:12px'>  {{ article.gros }}</td>
+                    </tr>
+                    <tr>
+                        <td class='cell-article'>  {{ article.numero }} / {{ item.numero }} </td>
+                    </tr>
+                    <tr>
+                        <td class='cell-client'>  hidden </td>
+                    </tr>
+                    <tr>
+                      <td >  {{ item.client }}  </td>
+                  </tr>
+                    <tr>
+                        <td class='cell-colis'> {{ item.nombre_colis }}</td>
+                    </tr>
+                    <tr>
+                        <td class='cell-poids'> {{ item.poids }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div> 
+                <pdf:nextpage /> 
+            </div> 
+          {% endfor %}
+        {% endfor %}
+    
+</body>
+</html>

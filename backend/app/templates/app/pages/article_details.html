@@ -1,0 +1,288 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+{% load humanize %}
+
+{% include 'app/components/navbar.html' with title=article.numero  %}
+{% include 'app/components/messages.html' %}
+
+<div class="card bg-gray-200 mb-3 mt-4">
+    <div class="card-body p-3">
+        <div class="row">
+            <div class="col-lg-6">
+                {% if article.groupage %}
+                    <span class="badge bg-secondary p-2 mb-3"> GROUPAGE </span>
+                {% endif %}
+                <div class="mb-2">
+                    BL &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ article.bl }} </span>
+                </div> 
+
+                <div class="mb-2">
+                    Transitaire &nbsp; &nbsp; 
+                    
+                    <span class="badge bg-primary p-2"> 
+                        {% if article.transitaire == None %}  
+                            -
+                        {% else %}
+                            {{ article.transitaire }}
+                        {% endif %}
+                    </span>
+                </div> 
+
+
+            </div> 
+
+            {% comment %} col 2 {% endcomment %}
+            <div class="col-lg-6">
+                <div class="mb-2">
+                    Client &nbsp; &nbsp; <span> {{ article.client }}</span>
+                </div> 
+
+                <div class="mb-2">
+                    Désignation &nbsp; &nbsp; <span>{{ article.designation }}</span>
+                </div> 
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+{% if article.gros.regime.designation == "OT" %}
+
+<div class="row mb-3">
+    <div class="col-12 col-lg-6">
+        <div class="card border-0">
+            <div class="card-body">
+                <div class="mb-2">
+                    Frais portuaires &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ frais_portuaires | intcomma }} DA </span>
+                </div>         
+                <div class="row">
+                    <div class="col-7">
+                        <input type="number" min="1" step="0.01"  class="form-control w-100" id="frais-input" placeholder="Frais portuaires"  >
+                    </div>
+                    <div class="col-5">    
+                        <button type="button" class="btn btn-primary w-100" id="add-btn" onclick="add_frais()">Sumettre</button>
+                    </div>
+                </div>
+        
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6 mt-2 mt-lg-0">
+        <div class="card border-0">
+            <div class="card-body">
+                <div class="mb-2">
+                    Immobilisation &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ immobilisation | intcomma }} DA </span>
+                </div>             
+                <div class="row">
+                    <div class="col-7">
+                        <input type="number" min="1" step="0.01"  class="form-control w-100" id="immobilisation-input" placeholder="Immobilisation"  >
+                    </div>
+                    <div class="col-5">    
+                        <button type="button" class="btn btn-primary w-100" id="add-immo-btn" onclick="add_immobilisation()">Sumettre</button>
+                    </div>
+                </div>
+        
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endif %}
+
+
+
+
+    <div class="card border-0 mb-4">
+        <div class="card-body p-2 p-0 p-lg-3">
+
+            <div class="row mb-3">
+                <div class="col-lg-4">
+                    {% include 'app/components/search.html' with form=search_form%}
+                </div> 
+                <div class="col-lg-2 offset-lg-6">
+                    <a type="link" class="btn btn-secondary shadow-none float-end w-100 d-block d-lg-none" data-bs-toggle="modal" href="#modal">
+                        + Conteneur
+                    </a>
+                    <a type="link" class="btn btn-secondary shadow-none float-end d-none d-lg-block" data-bs-toggle="modal" href="#modal">
+                        + Conteneur
+                    </a>
+                </div> 
+            </div>
+            {% include 'app/components/tcs_table.html' with data=tcs groupage=article.groupage %}
+            
+        </div>
+    </div>
+</div>
+</div>
+{% if article.groupage %}
+<div class="card border-0 mb-4">
+    <div class="card-body p-2 p-lg-3">
+        <div class="row mb-3 mt-2">
+            <div class="col-12 col-lg-6 d-none d-lg-block">
+                 <b>Sous Articles</b> 
+            </div>
+            <div class="col-12 col-lg-6 justify-content-end">
+                {% if article.groupage %}
+                    <a type="link" class="btn btn -sm btn-secondary shadow-none float-end w-100 d-block d-lg-none" data-bs-toggle="modal" href="#sous_articles_model_id">
+                        + Sous Article
+                    </a>  
+              
+                    <a type="link" class="btn btn -sm btn-secondary shadow-none float-end d-none d-lg-block" data-bs-toggle="modal" href="#sous_articles_model_id">
+                        + Sous Article
+                    </a>                 
+                {% endif %}
+            </div>
+        </div>
+        
+        {% include 'app/components/sousArticles_table.html' with data=sous_articles  %}
+    </div>
+</div>
+{% endif %}
+
+
+
+
+
+{% include 'app/components/add_without_button.html' with form=form_tc title="+ Conteneur" submit_button="tc_submit"%}
+{% include 'app/components/add_without_button.html' with form=form_sous_article title="+ Sous Article" model_id="sous_articles_model_id" submit_button="sous_article_submit" %}
+
+
+<!-- Confirmation Modal -->
+<div class="modal fade " id="add-frais" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+      <div class="modal-content">
+          <div class="modal-body">
+              <h6 class="mt-3">Confirmer les modifications ?</h6>
+          </div>
+          
+          <div class="modal-footer">
+              <button type="button" class="btn btn-light shadow-none" data-bs-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-danger shadow-none" id="yes-button-add-frais" data-bs-dismiss="modal">Confirmer</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+<script>
+    window.onload = (event) => {
+        printitems('nav2');
+    };
+function add_immobilisation(id){
+
+    var message = document.getElementById("add-frais");
+    var yes_button = document.getElementById("yes-button-add-frais");
+    var add_btn = document.getElementById("add-immo-btn");
+    url = "{% url 'add_immobilisation' %}"; 
+
+    let immobilisation = document.getElementById("immobilisation-input");
+    errors = false;
+    if(immobilisation.value == ""){
+        errors = true ;
+    }
+    
+    if(errors){
+        alert("error")
+    }else{
+            yes_button.onclick = function (){
+                add_btn.disabled = true;
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        "immobilisation": immobilisation.value,
+                        "article_id": "{{ article.id }}",
+                    },
+                    dataType: 'json', 
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (response) { 
+                            add_btn.disabled = false;
+                            Notification('Succès',"L'opération a été effectuée avec succès.",'success'); 
+                            immobilisation.value = "" ;
+                            immobilisation_sum = document.getElementById('immobilisation-sum');
+                            immobilisation_sum.innerHTML = response.data + " DA";
+                    },
+                    error: function (response) {
+                        add_btn.disabled = false;
+                        console.log(response);
+                    }
+                  }) 
+        }
+                    
+        var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+        visits_panel.show();
+    }
+
+}
+
+function add_frais(){
+
+    var message = document.getElementById("add-frais");
+    var yes_button = document.getElementById("yes-button-add-frais");
+    var add_btn = document.getElementById("add-btn");
+    url = "{% url 'add_frais_portuaires' %}"; 
+
+    let frais = document.getElementById("frais-input");
+    errors = false;
+    if(frais.value == ""){
+        errors = true ;
+    }
+    
+    if(errors){
+        alert("error")
+    }else{
+            yes_button.onclick = function (){
+                add_btn.disabled = true;
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        "frais": frais.value,
+                        "article_id": "{{ article.id }}",
+                    },
+                    dataType: 'json', 
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (response) { 
+                            add_btn.disabled = false;
+                            Notification('Succès',"L'opération a été effectuée avec succès.",'success'); 
+                            frais.value = "" ;
+                            frais_portuaires = document.getElementById('frais-portuaires');
+                            frais_portuaires.innerHTML = response.data + " DA";
+                    },
+                    error: function (response) {
+                        add_btn.disabled = false;
+                        console.log(response);
+                    }
+                  }) 
+        }
+                    
+        var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+        visits_panel.show();
+    }
+
+}
+
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+ }
+ 
+
+</script>
+{% endblock content %}
+
+

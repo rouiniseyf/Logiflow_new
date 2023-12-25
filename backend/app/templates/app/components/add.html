@@ -1,0 +1,43 @@
+{% load static %}
+{{ form.media }}  
+{% load bootstrap5 %}  
+
+
+<!-- Button trigger modal -->
+<div class="d-flex justify-content-end ">
+    <a class="btn btn-primary shadow-none mb-2" data-bs-toggle="modal" href="#modal" role="button" style="width:200px;">Ajouter</a>
+</div>
+
+
+<!-- First modal dialog -->
+<div class="modal fade" id="modal" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content ">
+        <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+        </div>
+        <form   method="POST" id="tonerForm">
+        <div class="modal-body">
+            
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{field.id_for_label}}">{{field.label}}</label>
+                            {{field}}
+                        </div>
+                    {% endfor %}
+
+                    {% comment %} <Button class="btn btn-primary rounded-0 float-right" type="submit" name="Submit"><span class="pl-3 pr-3" style="font-size: 11pt;">SUBMIT</span></Button>
+                    
+                    <Button class="btn btn-danger rounded-0 float-right mr-2" data-dismiss="modal" ><span class="pl-3 pr-3" style="font-size: 11pt;">CLOSE</span></Button> {% endcomment %}
+
+        </div>
+        <div class="modal-footer">
+            <input type="submit" class="btn btn-primary float-right" id="butt" name="SUBMIT"></a>
+            <a  class="btn btn-light float-right mr-2" data-bs-dismiss="modal">Annule</a>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>

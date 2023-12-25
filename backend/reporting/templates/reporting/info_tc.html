@@ -1,0 +1,58 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+                <!-- app content -->
+                <div class="row">
+                    <div class="card" >
+                        <div class="card-body p-2 pt-4">
+                            {% include "app/components/search.html" %}
+                        </div>
+                    </div>
+
+                        <div class="card" style="min-height: 80vh;">
+                            <div class="card-body p-2 pt-4">
+                                <table class="table table-hover table-responsive"> 
+                                    <tbody>
+                                    {% for item in data %}
+                                        <tr>
+                                            <td><a href={% url 'update_position_details' item.id %} class="btn btn-outline-primary btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.tc }}</a></td>            
+                                            <td>
+                                            {% if item.type_tc == None %}
+                                                -
+                                            {% else %}
+                                               <span class="badge bg-light text-dark"> {{ item.type_tc }} </span>
+                                            {% endif %}                                             
+                                            {% if item.dangereux %}
+                                                <span class="badge bg-danger">Dangereux</span>
+                                            {% endif %} 
+                                            {% if item.frigo %}
+                                                <span class="badge bg-primary">Frigo</span>
+                                            {% endif %}
+                                            </td>                          
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                </table>
+
+                                {% if data|length <= 0 %}
+                                    {% include 'app/components/no_data.html' %}   
+                                {% endif %}        
+  
+                            </div>
+                        </div>
+
+                </div>
+
+            </div>
+            
+            <div>
+
+              
+            </div>
+           
+        </div>
+    </div>
+  
+
+
+{% endblock content %}

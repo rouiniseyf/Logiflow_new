@@ -1,0 +1,40 @@
+<div class="table-responsive table-hover mb-3">
+  <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded" id="pink">
+      <thead class="thead-light border-0">
+    <tr>
+          <th class="rounded-start">Rubrique</th>
+          <th>Tcs</th>
+          <th>Quantite</th>
+          <th>Traif</th>
+          <th>HT</th>
+          <th>TVA</th>
+          <th class="rounded-end">TTC</th>
+   
+    </tr>
+    </thead>
+    <tbody>
+    {% if data|length > 0 %}
+        {% for item in data %}
+          {% if item.groupe == current_groupe %}
+              <tr>       
+                  <td class="rounded-start"> {{ item.rubrique}} </td>
+                  <td> {{ item.tcs}} </td>
+                  <td> {{ item.quantite}} </td>
+                  <td> {{ item.tarif}} </td>
+                  <td> {{ item.HT}} </td>
+                  <td> {{ item.TVA}} </td>
+                  <td class="rounded-end"> {{ item.TTC}} </td>    
+              </tr>       
+          {% endif %}
+        {% endfor %}
+    {% else %}
+          <tr>
+              <td colspan="7" class="text-center p-4">
+                  <h1><i class="bi bi-inboxes mt-4" ></i></h1>
+              </td>
+          </tr>    
+    {% endif %}
+
+    </tbody>
+  </table>                 
+</div>

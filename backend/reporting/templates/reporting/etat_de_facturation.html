@@ -1,0 +1,206 @@
+{% extends 'app/components/base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+
+<section class="row">
+<div class="card">
+    <div class="card-body">
+        <div class="row gx-5">
+        <div class="col col-8">
+            <div class="row">
+            
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control form-control-sm shadow-none" />                    
+                            <label for="gros" >De</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control form-control-sm shadow-none" /> 
+                            <label for="article" >A</label>
+                        </div>
+
+                    </div> 
+                
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-gros" name="gros" onchange="get_articles()">
+                                <option >à terme</option> 
+                                <option >chèque</option> 
+                                <option >espace</option> 
+                            </select>                     
+                            <label for="gros" >Type de paiement</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-gros" name="gros" onchange="get_articles()">
+                                <option >payeé</option> 
+                                <option >non payée</option> 
+                            </select>     
+                            <label for="article" >Status</label>
+                        </div>
+                    </div>
+            </div> 
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-outline-primary w-100"> Sumettre </button>
+                </div>
+            </div> 
+        </div>
+        <div class="col col-4">
+           <div class="row h-100">
+                <div class="col">
+                    <button class="btn btn-outline-primary h-100 w-100 shadow-none"><img src="{% static 'images/csv.png' %}" alt="My image"> </button> 
+                </div>
+                <div class="col">
+                    <button class="btn btn-outline-primary h-100 w-100 shadow-none"> <img src="{% static 'images/xls.png' %}" alt="My image"> </button> 
+                </div>
+           </div>
+        </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>
+<section class="row">
+    <!-- The table column -->
+        <div class="card" style="min-height: 64vh;">
+             <div class="card-body">
+              <table class="table table-hover table-responsive">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Facture</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Gros</th>
+                            <th scope="col">Article</th>
+                            <th scope="col">Client</th>
+                            <th scope="col">Transitaire</th>
+                            <th scope="col">Total TTC</th>
+                            <th scope="col">Total HT</th>
+                            <th scope="col">Echéance</th>
+                            <th scope="col">Montant payé</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data_table">
+                        
+                    </tbody>
+                </table>
+                
+                <div class="container-fluid d-flex align-items-center justify-content-center" style="margin-top: 150px;" id="no_data">
+                    <div class="text-center mb-4">
+                        <h1 class="display-1 mb-4"><i class="bi bi-inboxes mt-4" ></i></h1>
+                        <h6 class="display-6"> NO DATA TO DISPLAY</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% include 'app/components/update_bulletins.html'  %}
+    </div>
+
+</section>
+
+
+
+<script> 
+window.onload = function() {
+    get_articles();
+};
+
+function get_articles(){
+    let gros = document.getElementById('select-gros');
+    let selected_gros_id = gros.options[gros.selectedIndex].id;
+    let select_article = document.getElementById('select-article');
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'articles_by_gros' %}",
+            data: {
+                "gros_id": selected_gros_id,
+            },
+            success: function (response) { 
+                select_article.innerHTML = "";
+                response.data.forEach(item => {
+                    var option = document.createElement("option");
+                    option.text = item.numero;
+                    option.id = item.id;
+                    select_article.add(option);
+                    }
+                )
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        })  
+}
+function setValue(value,type){
+    if((typeof value != 'undefined') && (value!=null)){
+        value = value.replace('T',' ');
+        value = value.replace(':00Z','');
+        return "<span class='badge px-4 py-2 rounded-pill bg-"+type+"'>"+ value +"</span>";
+    }else{
+        return "-";
+    }
+}
+
+function setInfo(data){
+    document.getElementById('article_number').innerHTML =  data.article;
+    document.getElementById('gros_number').innerHTML =  data.gros;
+    document.getElementById('client').innerHTML =  data.client;
+}
+  function addSelectedRow(table, data){
+            var row = table.insertRow(0);
+            var tc_cell = row.insertCell(0);
+            var type_cell = row.insertCell(1);
+            var a_quai_cell = row.insertCell(2);
+            var camion_cell = row.insertCell(3);
+            var entree_port_sec_cell = row.insertCell(4);
+
+            row.id = data.tc;
+            tc_cell.innerHTML= data.tc;
+            type_cell.innerHTML= data.type_tc__designation+" "+data.class_tc__designation;
+
+            a_quai_cell.innerHTML= setValue(data.article__gros__accostage,'warning'); 
+            camion_cell.innerHTML = setValue(data.date_sortie_port,'primary');
+            entree_port_sec_cell.innerHTML = setValue(data.date_entree_port_sec,'success');
+    }
+
+
+function get_tcs(){
+    document.getElementById("badge-vuaquai").innerHTML = "";
+    table = document.getElementById("data_table");
+    let article = document.getElementById('select-article');
+    let selected_article_id = article.options[article.selectedIndex].id;
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'get_tcs_by_article' %}",
+            data: {
+                "selected_article_id": selected_article_id,
+            },
+            success: function (response) { 
+                if (response.info.vuaquai) {
+                    document.getElementById("badge-vuaquai").innerHTML = "vu à quai";
+                }
+                setInfo(response.info);
+
+                document.getElementById("no_data").innerHTML = "";
+                response.data.forEach(item => {
+                    addSelectedRow(table, item);         
+                })             
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        })  
+}
+
+
+</script>
+
+{% endblock content %}
+

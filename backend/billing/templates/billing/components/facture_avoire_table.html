@@ -1,0 +1,46 @@
+<div class="table-responsive table-hover">
+    <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+        <thead class="thead-light border-0">
+    <tr>
+          <th class="rounded-start">Facture</th>
+          <th>Numéro</th>
+          <th>Date de création</th>
+          <th>HT</th>
+          <th>TVA</th>
+          <th>TTC</th>
+          <th class="rounded-end">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+       {% if data|length > 0 %}
+          {% for item in data %}
+              <tr>
+                  <td class="rounded-start">
+                      <a href={% url 'facture_avoire_details' item.id %} class="btn btn-gray-100 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.full_number }}</a>           
+                  </td>
+                  <td>{{ item.facture }}</td>
+                  <td>{{ item.date_creation|date:"d-m-Y" }}</td>
+                  <td>{{ item.HT }}</td>
+                  <td>{{ item.TVA }}</td>
+                  <td>{{ item.TTC }}</td>
+                  <td class="rounded-end">
+                          <a href={% url 'print_facture_avoire' item.id %} target="_blank" class="btn btn-sm btn-secondary shadow-none" tabindex="-1" role="button" aria-disabled="true"> 
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+
+                          </a>         
+                  </td>
+              </tr>
+          {% endfor %}         
+
+      {% else %}
+              <tr>
+                  <td colspan="9" class="text-lg-center p-4 rounded-start rounded-end">
+                    <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                  </td>
+              </tr>
+      {% endif %}
+        
+
+    </tbody>
+  </table>                 
+</div>

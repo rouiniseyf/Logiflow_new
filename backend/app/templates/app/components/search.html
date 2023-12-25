@@ -1,0 +1,17 @@
+
+{% load static %}
+
+<form method="GET">
+		<div class="row mb-2">
+			<div class="col-9">
+				{% csrf_token %}		
+                <input type="text" class="form-control shadow-none" placeholder="Searchr..."  name="search" value="{{ request.GET.search }}" aria-describedby="basic-addon1">
+			</div>
+
+			<div class="col-3">
+				<button type="submit" class="btn btn-primary w-100 shadow-none">
+					<img class="image image-small"  src="{% static 'img/search.svg' %}">
+				</button>
+			</div>
+		</div>
+</form>

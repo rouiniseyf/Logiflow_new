@@ -1,0 +1,79 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+  	<head>
+		<title>LOGIXPERT</title>
+		<meta charset="utf-8">
+		<link rel="icon" href="{% static 'img/logo.ico' %}">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="{% static 'css/login.css' %}">
+	</head>
+
+	<body>
+
+		<section class="ftco-section">
+			<div class="container">
+				<div class="row justify-content-center">
+					<div class="col-lg-6 text-center">
+						<h2 class="heading-section" style="font-size: 24pt;letter-spacing: 5px;">LOGIXPERT</h2>
+					</div>
+				</div>
+				<div class="row justify-content-center">
+					<div class="col-lg-6 text-center mb-5">
+						<P class="heading-section" style="font-size: 11pt;letter-spacing: 5px;">EPE SPA RAIL LOGISTIC</P>
+					</div>
+				</div>
+				<div class="row justify-content-center">
+
+					<div class="col-lg-9">
+						<div class="wrap d-lg-flex">
+
+							<div class="img p-4 d-none d-lg-block" style="background-image: url({% static 'img/login.jpg' %}); padding: 20px;"> </div>
+							<div class="login-wrap p-4 p-lg-5">
+
+								<div class="d-flex">
+									<div class="w-100">
+										<h3 class="mb-4">LOGIN</h3>
+									</div>		
+								</div>
+
+								<form class="auth-form login-form" method="POST">   
+									{% csrf_token %}  
+
+									<div class="form-group mb-3">
+										<label class="label" for="name">NOM D'UTILISATEUR</label>
+										<input type="text" class="form-control" placeholder="Nom d'utilisateur" name="username" required>
+									</div>
+
+									<div class="form-group mb-3">
+										<label class="label" for="password">MOT DE PASSE</label>
+										<input type="password" class="form-control" placeholder="Mot de passe" name="password" required>
+									</div>
+
+									<div class="form-group">
+										<button type="submit" class="form-control btn btn-primary rounded submit px-3">Se connecter</button>
+									</div>
+										
+								</form>
+
+							</div>
+
+						</div>
+					</div>
+					{% include 'app/components/messages.html' %}
+				</div>
+				
+
+			</div>
+		</section>
+
+		<script src="{% static 'js/login.js' %}"></script>  	
+		<script src="{% static 'vendor/@popperjs/core/dist/umd/popper.min.js' %}"></script>
+		<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+	</body>
+</html>
+

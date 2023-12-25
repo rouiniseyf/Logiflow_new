@@ -1,0 +1,40 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+  
+<section class="row">
+    <div class="col-12">
+        <div class="card" style="min-height: 94vh;">
+            <div class="card-header">
+                <h5 class="card-title">Bareme</h5>
+            </div>
+            <div class="card-body px-3">
+                <div class="row mb-3">
+                    <div class="col">
+                        <a type="link" class="btn btn  btn-outline-primary shadow-none float-end w-100" data-bs-toggle="modal" href="#form_bareme_model_id">
+                            Créer un Bareme
+                        </a>
+                    </div>
+                </div>
+                <!-- Add gros modal trigger -->
+               <div class="row mb-3">
+                    <div class="col">
+                        {% include 'app/components/search.html' with form=search_form%}
+                    </div> 
+
+                </div>
+                {% include 'app/components/messages.html' %}
+                {% include 'bareme/components/bareme_table.html' %}
+
+            </div>
+        </div>
+    </div>
+    {% include 'app/components/custom_add.html' with form=form_bareme form_id='form_bareme_id' model_id='form_bareme_model_id' form_title='+ Bareme'  %}
+
+</section>
+
+
+
+{% endblock content %}
+
+

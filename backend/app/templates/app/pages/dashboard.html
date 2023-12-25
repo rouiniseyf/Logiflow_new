@@ -1,0 +1,474 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+{% include 'app/components/navbar.html' with title='Dashboard' %}
+
+
+   <div class="row">
+        <div class="col-12 col-lg-3 mt-3 mt-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    
+                    <div class="row d-block d-xl-flex align-items-center">
+                        
+                        <!-- income by YEAR small devices -->
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-3 me-sm-0">
+                                <img src="{% static 'img/money.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                                <h2 class="fw-extrabold h5">Année actuelle</h2>
+
+                                {% if total_this_year|length > 6 %}
+                                    <h3 class="fw-extrabold mb-2">{{total_this_year | intcomma}} DA</h3>
+                                {% else %}
+                                    <h4 class="fw-extrabold mb-2">{{total_this_year | intcomma}} DA</h4>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                        <!-- income by YEAR large devices -->
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h2 class="h6 text-gray-400 mb-0">Année actuelle</h2>
+                                {% if total_this_year|length > 6 %}
+                                    <h3 class="fw-extrabold mb-2">{{total_this_year | intcomma}} DA</h3>
+                                {% else %}
+                                    <h4 class="fw-extrabold mb-2">{{total_this_year | intcomma}} DA</h4>
+                                {% endif %}
+                            </div>
+                            <small class="text-gray-500">
+                                 {{ last_year }} - {{ this_year }}
+                            </small> 
+                            <div class="small d-flex mt-1">   
+                              
+                                  <small>( {{total_last_year | intcomma}} DA )</small>
+                                       
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+   
+            <div class="col-12 col-lg-3 mt-3 mt-lg-0">
+                <div class="card border-0 shadow">
+                    <div class="card-body">
+                        <div class="row d-block d-xl-flex align-items-center">
+                            <!-- Income by MONTH small devices  -->
+                            <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                                <div class="icon-shape rounded me-4 me-sm-0">
+                                    <img src="{% static 'img/money.png' %}" >                            
+                                </div>
+                                <div class="d-sm-none">
+                                    <h2 class="fw-extrabold h5">
+                                        Mois en cours</h2>
+                                    {% if total_this_year|length > 6 %}
+                                        <h3 class="fw-extrabold mb-2">{{total_this_month | intcomma}} DA</h3>
+                                    {% else %}
+                                        <h4 class="fw-extrabold mb-2">{{total_this_month | intcomma}} DA</h4>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Income by MONTH large devices  -->
+                            <div class="col-12 col-xl-7 px-xl-0">
+                                <div class="d-none d-sm-block">
+                                    <h2 class="h6 text-gray-400 mb-0">
+                                        Mois en cours</h2>
+
+                                    {% if total_this_month|length > 6 %}
+                                        <h3 class="fw-extrabold mb-2">{{total_this_month | intcomma}} DA</h3>
+                                    {% else %}
+                                        <h4 class="fw-extrabold mb-2">{{total_this_month | intcomma}} DA</h4>
+                                    {% endif %}
+                                </div>
+                                <small class="text-gray-500">
+                                    {{ this_month }}
+                                </small> 
+
+                                   
+                                    <div>
+                                       <small> ( {{total_last_month | intcomma}} DA )</small>
+                                        
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            
+<!-- Income by WEEK  -->
+
+                <div class="col-12 col-lg-3 mt-3 mt-lg-0">
+                    <div class="card border-0 shadow">
+                        <div class="card-body">
+                            <div class="row d-block d-xl-flex align-items-center">
+
+                                <!-- Income by WEEK small devices  -->
+                                <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                                    <div class="icon-shape rounded me-4 me-sm-0">
+                                        <img src="{% static 'img/money.png' %}" >                            
+                                    </div>
+                                    <div class="d-sm-none">
+                                        <h2 class="fw-extrabold h5">Cette semaine </h2>
+                                        {% if total_this_week|length > 6 %}
+                                            <h3 class="fw-extrabold mb-2">{{total_this_week | intcomma}} DA</h3>
+                                        {% else %}
+                                            <h4 class="fw-extrabold mb-2">{{total_this_week | intcomma}} DA</h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Income by WEEK large devices  -->
+                                <div class="col-12 col-xl-7 px-xl-0">
+                                    <div class="d-none d-sm-block">
+                                        <h2 class="h6 text-gray-400 mb-0">Cette semaine</h2>
+                                        {% if total_this_week|length < 6 %}
+                                            <h3 class="fw-extrabold mb-2">{{total_this_week | intcomma}} DA</h3>
+                                        {% else %}
+                                            <h4 class="fw-extrabold mb-2">{{total_this_week | intcomma}} DA</h4>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-gray-500">
+                                        {{ first_day_this_week }} {{ this_month }} - {{ last_day_this_week }} {{ this_month }} 
+                                    </small> 
+                                    <div>
+                                        <small>( {{total_last_week| intcomma}} DA )</small>   
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+<!-- Income by DAY   -->
+
+                    <div class="col-12 col-lg-3 mt-3 mt-lg-0">
+                        <div class="card border-0 shadow">
+                            <div class="card-body">
+                                <div class="row d-block d-xl-flex align-items-center">
+                                    
+                                    <!-- Income by DAY small devices   -->
+                                    <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                                        <div class="icon-shape rounded me-4 me-sm-0">
+                                            <img src="{% static 'img/money.png' %}" >                            
+                                        </div>
+                                        <div class="d-sm-none">
+                                            <h2 class="fw-extrabold h5"> Aujourd'hui</h2>
+                                          
+                                            <h3 class="fw-extrabold mb-2">{{total_this_day | intcomma}} DA</h3>
+                                            
+                                        </div>
+                                    </div>
+
+                                    <!-- Income by DAY large devices   -->
+                                    <div class="col-12 col-xl-7 px-xl-0">
+                                        <div class="d-none d-sm-block">
+                                            <h2 class="h6 text-gray-400 mb-0"> Aujourd'hui</h2>
+                                            <h3 class="fw-extrabold mb-2">{{total_this_day | intcomma}} DA</h3>
+
+                                        </div>
+                                        <small class="text-gray-500">
+                                            {{today}}
+                                        </small> 
+                                                                       
+                                           
+                                            <div class="small d-flex mt-1">
+                                                <small>( {{total_yesterday| intcomma}} DA )</small>
+                                                
+                                            </div>
+                                                                               
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+      
+                    <hr>
+
+    <div class="row mt-0 mt-lg-2">
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/truck.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_this_year}}</h2>
+                              
+                             
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_this_year}}</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                               Année actuelle
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/truck.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_this_month}}</h2>
+                              
+                             
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_this_month}}</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                                Mois en cours
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+           
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/truck.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_this_week}}</h2>
+                              
+                             
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_this_week}}</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                               Cette semaine
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/truck.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_today}}</h2>
+                              
+                             
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Entré</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{got_in_today}}</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                                Aujourd'hui
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+       <hr>      
+       
+       
+       <div class="row mt-0 mt-lg-2">
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/folder.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_this_year}} File</h2>
+                              
+                             
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_this_year}} File</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                               Année actuelle
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/folder.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_this_month}} File</h2>
+                              
+                             
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_this_month}} File</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                                Mois en cours
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+           
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/folder.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_this_week}} File</h2>
+                              
+                             
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_this_week}} File</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                               Cette semaine
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <div class="row d-block d-xl-flex align-items-center">
+                        <div class="col-12 col-xl-5 text-xl-center mb-3 mb-xl-0 d-flex align-items-center justify-content-xl-center">
+                            <div class="icon-shape rounded me-4 me-sm-0">
+                                <img src="{% static 'img/folder.png' %}" >                            
+                            </div>
+                            <div class="d-sm-none">
+                         
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_today}} File</h2>
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 px-xl-0">
+                            <div class="d-none d-sm-block">
+                                <h4 class="text-success"> <b>Traité</b></h4>
+                                <h2 class="fw-extrabold mb-2">{{total_processed_files_today}} File</h2>
+                              
+                            </div>
+                            <small class="text-gray-500">
+                                Aujourd'hui
+                            </small> 
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+<script>
+    window.onload = (event) => {
+        printitems('nav1');
+    };
+</script>
+{% endblock content %}
+

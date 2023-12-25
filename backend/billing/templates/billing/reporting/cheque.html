@@ -1,0 +1,46 @@
+{% load my_filters %}
+{% load static %}
+
+{% load humanize %}
+<html>
+<head>
+<style>
+@page {
+size: 175mm 80mm; landscape;
+
+
+@frame content_frame { /* Content Frame */
+width: 175mm; height: 80mm;left:6mm;
+}
+@frame content_frame { /* Content Frame */
+    width: 175mm; height: 80mm;
+}
+@frame content_frame { /* Content Frame */
+    width: 175mm; height: 80mm;
+}
+.body{
+    font-family: Arial, sans-serif;
+  }
+</style>
+
+</head>
+<body class="body">
+ &nbsp 
+<div style="height: 7mm;width: 42mm; margin-left: 126mm; margin-right: 5mm; margin-top: 0mm;padding: 1mm;font-size: 12pt;">
+    <b>{{ facture.TTC }}</b>
+</div>
+<div>&nbsp </div>
+<div style="height: 5mm;width: 42mm;margin-left: 5mm; margin-right: 5mm; margin-top: 5mm;padding: 1mm;font-style: italic;"> 
+    <b>{{ total_lettre|upper  }}</b>
+</div>
+<div style="width: 42mm;margin-left: 25mm; margin-right: 20mm;padding-bottom: 0px;padding-top: 1mm;"> 
+    <b>RAIL LOGISTIC</b>
+</div>
+<div style="height: 5mm;width: 42mm;margin-left: 114mm; margin-right: 5mm; margin-top: 0mm;padding-top: 1mm;"> 
+    <b>ROUIBA</b>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp   <b>{{ facture.date_creation|date:"d/m/Y" }}</b>
+</div>
+<div> 
+
+</div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Proformas' %}
+{% include 'app/components/messages.html' %}
+
+<div class="row mt-4 mt-lg-0">
+
+    <div class="col-12 col-lg-4 ">
+        {% include 'app/components/search.html' with form=search_form%}
+    </div>
+
+</div>
+
+<div class='card border-0 mt-2 mt-lg-2'>
+    <div class="body p-2 p-lg-3 pb-0">
+
+        {% include 'billing/components/proformas_table.html' %}
+        {% include 'app/components/pagination.html' %}
+
+    </div>
+</div>
+
+
+
+<script>
+    window.onload = (event) => {
+        printitems('nav13');
+    };
+</script>
+{% endblock content %}

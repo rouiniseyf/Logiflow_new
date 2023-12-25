@@ -1,0 +1,107 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+{% include 'app/components/navbar.html' with title='Dashboard' %}
+
+<div class="card  p-0">
+    <div class="card-body">
+        <div class="table-responsive mb-2">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                    <tr class="mb-4">
+                        <th class="rounded-start">Numero</th>
+                        <th >Régime</th>
+                        <th >Accosstage</th>
+                        <th >Navire</th>
+                        <th >Armateur</th>
+                        <th >Consignataire</th>
+                        <th class="rounded-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="gross">
+                    <!-- Item -->
+                {% if data|length > 0 %}
+                {% for item in data %}
+                <tr id="{{ item.id }}">
+                    <td class="rounded-start align-middle">
+                    {% if type == 'facturation' %}
+                        <a class="btn btn-sm btn-gray-100 shadow-none" type="button"  href="{% url 'facturation_gros_details' item.id %}"> 
+                        {{ item.gros }}
+                        </a>              
+                    {% else %}
+                        <a class="btn btn-sm btn-gray-100 shadow-none" type="button"  href="{% url 'gros_details' item.id %}"> 
+                        {{ item.gros }}
+                        </a>
+                    {% endif %}
+
+
+                    </td>
+                    <td class="border-0 align-middle">
+                    {% if item.regime.designation == 'D1' %}
+                        <span class="badge bg-success p-2">{{ item.regime.designation }}</span> 
+                    {% elif item.regime.designation == 'OT'%}
+                        <span class="badge bg-info p-2">{{ item.regime.designation }}</span> 
+                    {% elif item.regime.designation == 'D15'%}
+                        <span class="badge bg-secondary p-2">{{ item.regime.designation }}</span>
+                    {% else %} 
+                        <span class="badge bg-light p-2">{{ item.regime.designation }}</span>
+                    {% endif %} 
+                    </td>
+                    <td class="border-0 align-middle">
+                    {{ item.accostage|date:"l, d-m-Y" }}  
+                    </td>
+                    <td class="border-0 align-middle">
+                    {{ item.navire.nom }}
+                    </td>
+                    <td class="border-0 align-middle">
+                    {{ item.armateur.raison_sociale }}
+                    </td>
+                    <td class="border-0 align-middle">
+                    {{ item.consignataire.raison_sociale }}
+                    </td>
+                    <td class="rounded-end align-middle">
+                  
+                        <a class="text-danger" role="button" onclick="receive('{{ item.id }}')">receive all containers</a>
+                  
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}             
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+   
+<script>
+    window.onload = (event) => {
+        printitems('super_admin');
+    };
+
+    function receive(id){
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'receive' %}",
+            data: {
+                'id': id, 
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) { 
+                success();
+                var row = document.getElementById(id);
+                row.parentNode.removeChild(row);
+            },
+            error: function (response) {
+                console.log(response)
+            }
+        }); 
+    }
+</script>
+{% endblock content %}
+

@@ -1,0 +1,143 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Position' %}
+
+<div class="row">
+    <div class="col col-lg-4 mt-4 mt-lg-0">
+        {% include 'app/components/search.html' with form=form%}
+    </div>
+ </div>
+ 
+<div class="card mt-4 mt-lg-2">
+    <div class="card-body p-2 p-lg-3 pb-0">
+
+        <div class="table-responsive mb-4">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-2 rounded">
+                <thead class="thead-light">
+                    <tr>          
+                        <th class="rounded-start">Conteneur</th>
+                        <th >Régime</th>
+                        <th class="text-center">Type</th>
+
+                        <th >Park</th>
+                        <th >Zone</th>
+                        <th >Ligne</th>
+                        <th >Range</th>
+                        <th class="rounded-end">Gerbege</th> 
+
+      
+                      </tr>
+                </thead>
+                    <tbody>
+                        {% for item in data %}
+                            <tr>
+                                <td class="rounded-start">
+                                    <a class="btn btn-sm btn-gray-100 shadow-none" type="button" style="margin: -8px;" href="{% url 'update_position_details' item.id %}"> 
+                                        <small>{{ item.tc }}</small>
+                                    </a>
+                                </td>
+                                <td> 
+                                    {% if item.article.gros.regime.designation == 'D1' %}
+                                    <span class="badge bg-success p-2">{{ item.article.gros.regime.designation }}</span> 
+                                    {% elif item.article.gros.regime.designation == 'OT'%}
+                                        <span class="badge bg-info p-2">{{ item.article.gros.regime.designation }}</span> 
+                                    {% elif item.article.gros.regime.designation == 'D15'%}
+                                        <span class="badge bg-secondary p-2">{{ item.article.gros.regime.designation }}</span>
+                                    {% else %} 
+                                        <span class="badge bg-light p-2">{{ item.article.gros.regime.designation }}</span>
+                                    {% endif %} 
+                               </td>
+                                <td class="text-center">
+                                    {% if item.type_tc == None %}
+                                        -
+                                    {% else %}
+                                         {{ item.type_tc }}
+                                    {% endif %}                                             
+                                    {% if item.dangereux %}
+                                        <span class="badge bg-danger pt-2"> </span>
+                                    {% endif %} 
+                                    {% if item.frigo %}
+                                        <span class="badge bg-info pt-2"> </span>
+                                    {% endif %}
+                                </td> 
+                                
+                                {% for position in  positions %}
+                                    {% if position.tc.id == item.id %}
+                                        <td> {{ position.zone.parc }}    </td>                      
+                                        <td> {{ position.zone}}  </td>                      
+                                        <td> {{ position.ligne}} </td>                      
+                                        <td> {{ position.range }}  </td>  
+                                        <td class="rounded-end"> {{ position.garbage }}  </td>  
+                                    {% endif %} 
+                                {% endfor %}
+                    
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                    </table>
+                
+    </div>
+</div>
+<script>
+window.onload = (event) => {
+    printitems('nav7');
+};
+</script>
+{% comment %} 
+                <!-- app content -->
+                <div class="row">
+                    <div class="card" >
+                        <div class="card-body p-2 pt-4">
+                            {% include "app/components/search.html" %}
+                        </div>
+                    </div>
+
+                        <div class="card" style="min-height: 80vh;">
+                            <div class="card-body p-2 pt-4">
+                                <table class="table table-hover table-responsive"> 
+                                    <tbody>
+                                    {% for item in data %}
+                                        <tr>
+                                            <td><a href={% url 'update_position_details' item.id %} class="btn btn-outline-primary btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.tc }}</a></td>            
+                                            <td>
+                                            {% if item.type_tc == None %}
+                                                -
+                                            {% else %}
+                                               <span class="badge bg-light text-dark"> {{ item.type_tc }} </span>
+                                            {% endif %}                                             
+                                            {% if item.dangereux %}
+                                                <span class="badge bg-danger">Dangereux</span>
+                                            {% endif %} 
+                                            {% if item.frigo %}
+                                                <span class="badge bg-primary">Frigo</span>
+                                            {% endif %}
+                                            </td>                          
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                </table>
+
+                                {% if data|length <= 0 %}
+                                    {% include 'app/components/no_data.html' %}   
+                                {% endif %}        
+  
+                            </div>
+                        </div>
+
+                </div>
+
+            </div>
+            
+            <div>
+
+              
+            </div>
+           
+        </div>
+    </div>
+   {% endcomment %}
+
+
+{% endblock content %}

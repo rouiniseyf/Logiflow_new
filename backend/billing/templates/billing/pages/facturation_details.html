@@ -1,0 +1,938 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Facturation' %}
+{% include 'app/components/messages.html' %}
+
+<div class="card bg-gray-200 mt-4 mb-3 mx-0 mx-lg-4">
+    <div class="card-body p-3">
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <div class="mb-2">
+                    <b>Gros</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ article.gros }}</span>&nbsp; <span class="badge bg-primary p-2">{{ article.gros.regime }}</span>
+                </div>
+                <div class="mb-2">
+                    <b>Article</b> &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ article.numero }}</span>
+                </div>
+                <div>
+                    <b>Client</b>  &nbsp; &nbsp;  <span>{{ article.client }}</span>
+                </div>
+                
+            </div> 
+
+            <div class="col">
+                <div class="row float-lg-end">
+                    <div class="col-8">
+                        <div class="form-floating mb-2 mt-3 mt-lg-0 border-0" > 
+                            <select class="form-select shadow-none" aria-label="Default select example" id="select-tansitaire" onchange="updateTransitaire()">
+                                {% if article.transitaire == None %}
+                                    <option id="transitaire_none_selected" selected>-------</option>
+                                {% endif %}
+                                {% for transitaire in transitaires %}
+                                    {% if transitaire.id == article.transitaire.id %}
+                                    <option value="{{ article.transitaire.id }}" selected> {{ article.transitaire }} </option>
+                                    {% else %}
+                                    <option value="{{ transitaire.id }}">{{ transitaire }}</option>
+                                    {% endif %}
+                                {% endfor %} 
+                            </select>   
+                            <label for="gros" >Transitaire</label>
+                        </div>
+                    </div>
+                <div class="col-4 mt-3 mt-lg-0 ">
+
+                    <div class="form-floating">
+                      <input type="search" class="form-control" id="transitaires-search-box" autocomplete="off" oninput="searchTransitaire()" data-bs-toggle="tooltip" data-bs-placement="top" title="Vous devez cliquer sur ENTRÉE pour valider la Search">
+                      <label for="floatingInput">Search</label>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+        
+        <div class="card mb-3 mt-0 mt-lg-4 mx-0 mx-lg-4">
+            <div class="card-body p-3">
+                {% include 'app/components/messages.html' %}
+                <span class="badge bg-secondary p-2 mb-3 border-end text-primary" style="margin-left: -25px;">Factures</span>
+
+                {% include 'billing/components/proforma_table.html' with data=factures type="facture" %}
+              
+            </div>
+        </div>
+
+        <div class="card mb-3 mx-0 mx-lg-4">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;">Proformas</span>
+                    </div>
+                    <div class="col-6">
+                        {% if not invoiced %}
+                        <a type="link" class="btn btn-sm btn-primary mb-2 float-end shadow-none" data-bs-toggle="modal" href="#add_proforma_model" >
+                            + Proforma
+                        </a>  
+                        {% endif %}
+                    </div>
+                </div>
+                {% include 'billing/components/proforma_table.html' with data=proformas type="proforma" %}
+            </div>
+        </div>
+
+        <div class="card mb-3 mx-0 mx-lg-4 ">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;">Visites</span>
+                    </div>
+                    <div class="col-6">
+                        {% if not invoiced %}
+                        <a type="link" class="btn btn-sm btn-primary shadow-none float-end " data-bs-toggle="modal" href="#modal-visite">
+                            + Visite
+                        </a>  
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="table-responsive table-hover">
+                    <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                        <thead class="thead-light border-0">
+                            <tr>
+                                    <th class="rounded-start">numéro</th>
+                                    <th>Date de création</th>
+                                    <th>Date de visite</th>
+                                    <th>Type</th>
+                                    <th>Badge</th>
+                                    <th class="rounded-end text-center">Action</th>
+                            </tr>
+                         </thead>
+                    <tbody id="visites_table">
+                    {% if visites|length > 0 %}
+                        {% for item in visites %}   
+                                
+                        <tr>
+                            <td  class="rounded-start">
+                                <a class="btn btn-sm btn-gray-100 shadow-none" type="button" href="{% url 'visite_details' item.id %}"> 
+                                  <small>{{ item.numero }}</small>
+                                </a >
+                              </td>
+                              <td class="align-middle">{{ item.date_creation|date:"l, d-m-Y"  }}</td>
+                              <td class="align-middle">{{ item.date_visite|date:"l, d-m-Y"  }}</td>
+                              <td class="align-middle">{{ item.type_visite }}</td>
+                              <td class="align-middle"> <span class="badge bg-success p-2">{{ item.badge }}</span></td>
+                              <td class="rounded-end text-center">
+                                <a class="btn btn-sm btn-secondary shadow-none" type="button" style="margin: -8px;" target="_blank" href="{% url 'print_visite' item.id %}"> 
+                                  <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                                </a>
+                              </td>
+
+                        <tr>
+                    {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-lg-center p-4 rounded-start rounded-end">
+                            <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+
+        {% comment %} Add visite model {% endcomment %}
+        <div class="modal fade" id="modal-visite" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content ">
+                  <form id="form-visite" name="visiteForm" method="POST">
+                  <div class="modal-body">
+                    <span class="badge bg-gray-100 text-primary p-2 mb-3">+ Visite</span>
+
+                    {% csrf_token %}
+                    {% for field in form_visite %}
+
+                        <div class="form-floating mb-3">
+                            {{field}}             
+                            <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                        </div>
+
+                    {% endfor %}
+            
+                  </div>
+          
+                  <div class="modal-footer">
+                      <a  class="btn btn-light float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+                      <input type="submit" class="btn btn-primary float-right" id="butt" name="SUBMIT" value="Soumettre"></a>
+          
+                  </div>
+          
+                  </form>
+              </div>
+            </div>
+          </div>
+          
+
+        <div class="card mb-3 mx-0 mx-lg-4">
+            <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;">Commandes</span>
+                        </div>
+                        <div class="col-6">
+                            {% if not invoiced %}
+                            <a type="link" class="btn btn-sm btn-primary shadow-none mb-2 float-end" data-bs-toggle="modal" href="#add_commande_model" onclick="getData('commande')">
+                                + Commande
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                <div class="row mx-1" id="commands-notifications" >
+                </div>
+                {% include 'billing/components/commande_table.html' with data=commandes %}
+            </div>
+        </div>
+
+
+
+        <div class="card mb-3 mx-0 mx-lg-4">
+            <div class="card-body p-3" >   
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;"> Préstation occasionnelle </span>
+                    </div>
+                    <div class="col-6">
+                        {% if not invoiced %}
+                        <a type="link" class="btn btn-sm btn-primary shadow-none mb-2 float-end" data-bs-toggle="modal" href="#add_prestation_model" onclick="getData('prestation')">
+                            + Préstation
+                        </a> 
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mx-1" id="prestations-zone-notifications" >
+                </div>
+                {% include 'billing/components/prestation_occasionnelle_table.html' with data=prestations_occasionnelles %}
+            </div>
+        </div>
+
+        <div class="card mb-3 mx-0 mx-lg-4">
+            <div class="card-body p-3">
+                <span class="badge bg-secondary p-2 mb-3  text-primary" style="margin-left: -25px;"> Factures Complementaire </span>  
+
+                {% include 'billing/components/facture_complimetaire_table.html' with data=factures_complementaire %}
+            </div>
+        </div> 
+
+        <div class="card mb-3 mx-0 mx-lg-4">
+            <div class="card-body p-3" >
+                <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;"> Factures Avoire </span>  
+
+                {% include 'billing/components/facture_avoire_table.html' with data=factures_avoire %}
+            </div>
+        </div> 
+
+        <div class="card mb-3 mx-0 mx-lg-4">
+            <div class="card-body p-3" >
+                <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;"> Conteneurs </span> 
+
+                <div class="table-responsive table-hover ">
+                    <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                        <thead class="thead-light border-0">
+                     <tr>
+                       <th class="rounded-start">Tc</th>
+                       <th scope="col">Type</th>
+                       <th scope="col">Date reception</th>
+                       <th scope="col">scelle</th>
+                       <th class="text-center rounded-end">Action</th>
+
+                     </tr>
+                   </thead>
+                   <tbody>
+                        {% if all_tcs|length > 0 %}
+                            {% for item in all_tcs %}           
+                                <tr>
+                                    <td class="align-middle rounded-start">{{ item.tc }}</td>
+                                    <td class="align-middle">
+                                        {% if item.type_tc == None %}
+                                            -
+                                        {% else %}
+                                            {{ item.type_tc }}
+                                        {% endif %}                                             
+                                        {% if item.dangereux %}
+                                            <span class="badge bg-danger pt-2"> </span>
+                                        {% endif %} 
+                                        {% if item.frigo %}
+                                            <span class="badge bg-info pt-2"> </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle"> 
+                                        {% if item.date_entree_port_sec is None %}
+                                            <span class="text-danger">n'a pas encore été reçu</span>
+                                        {% else %}
+                                            {{ item.date_entree_port_sec }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle"><input type="text" class="form-control form-control-sm shadow-none" style="min-width: 150px;"  placeholder="XXXXXX" id="scelle{{ item.id }}"  /></td>
+                                    <td class="text-center rounded-end"> 
+                                        {% if item.date_entree_port_sec is None %}
+                                            <button class="btn btn-primary shadow-none btn-sm" disabled >exécuter</button>
+                                        {% else %}
+                                            <button class="btn btn-primary shadow-none btn-sm" onclick="scelleSupplementaire({{ item.id }})">exécuter</button>
+                                        {% endif %}
+                                    </td>
+
+                                <tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center p-4">
+                                    <h1><i class="bi bi-inboxes mt-4" ></i></h1>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div> 
+    </div>
+
+
+    </div>
+  
+
+    {% include 'app/components/add_without_button.html' with form=form_proforma title="+ Proforma" submit_button="proforma_submit" model_id="add_proforma_model" %}
+
+<!--  + Commandes Model-->
+<div class="modal fade"  id="add_commande_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable" >
+    <div class="modal-content shadow-lg" >
+
+                <div class="modal-body">
+            
+                    <span class="badge bg-gray-100 text-primary p-2 mb-3 ">+ Commande</span>
+               
+                    <div class="row">
+
+                        <div class="col-8">
+                            <div class="form-floating">
+                                <select class="form-select shadow-none" id="type-commande" aria-label="Floating label select example">
+                                    <option value="1" selected>Clarck Intégral</option>
+                                    <option value="2">Clarck Partiel</option>
+                                    <option value="3">Manutentions humaines Intégral</option>
+                                    <option value="4">Manutentions humaines Partiel</option>
+                                </select>
+                                <label for="floatingSelect">Type</label>
+                            </div>  
+                        </div>
+                        <div class="col-4">
+                            <form class="form-floating shadow-none">
+                                <input type="number" min="0" class="form-control shadow-none" id="quantite-commande" value="1">
+                                <label for="floatingInputValue">Quantite</label>
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                            <thead class="thead-light border-0">                 
+                                <tr>
+                                    <th class="rounded-start"><input class="form-check-input shadow-none" type="checkbox" value="" id="th_check" onchange="checkAll('th_check')"></th>
+                                    <th scope="col">Tc</th>
+                                    <th scope="col">Type</th>
+                                    <th class="rounded-end">Observation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="commande_tcs_table" />
+                        </table>
+                    </div>
+
+                </div>
+            <div class="modal-footer">
+                <a  class="btn btn-gray-100 float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+                <button class="btn btn-sm btn-primary float-end shadow-none px-2" onclick="createOrder()">Soumettre</button>
+            </div>
+    </div>
+  </div>
+  </div>
+
+<!-- + prestation Model -->
+<div class="modal fade"  id="add_prestation_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable" >
+    <div class="modal-content shadow-lg" >
+
+        <div class="card">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge bg-gray-100 text-primary p-2 mb-3">+ Préstation</span>
+                    </div>
+                </div>
+                    <div class="mb-2">
+                    <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="form-floating">
+                            <select class="form-select shadow-none" id="rubrique" aria-label="Floating label select example">
+                                {% for rubrique in rubriques %}
+                                    <option >{{ rubrique.designation }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Rubrique</label>
+                        </div>  
+                    </div>
+                    <div class="col-6 col-lg-3 mt-3 mt-lg-0">
+                        <form class="form-floating shadow-none">
+                            <input type="number" step="0.01" min="0" class="form-control shadow-none" id="tarif_prestation" value="1">
+                            <label for="floatingInputValue">Tarif</label>
+                        </form>
+                    </div>
+                    <div class="col-6 col-lg-3 mt-3 mt-lg-0">
+                        <div class="form-floating mb-3">
+                            <input type="date" name="date_proforma" class="form-control shadow-none" id="date_prestation">             
+                            <label for="id_date_proforma">Date</label>
+                        </div>                    
+                    </div>
+                    </div>
+                    </div>
+
+                    <div class="table-responsive table-hover">
+                        <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                            <thead class="thead-light border-0">
+                                <tr>
+                                    <th class="rounded-start"><input class="form-check-input shadow-none" type="checkbox" value="" id="prestation_th_check" onchange="checkAll('prestation_th_check')"></th>
+                                    <th >Tc</th>
+                                    <th >Tar</th>
+                                    <th scope="rounded-end">Type</th>
+                                </tr>
+                        </thead>
+                        <tbody id="prestation_tcs_table" />
+                        </table>
+                     
+                </div>
+            </div>
+    </div>
+    <div class="modal-footer">
+        <a class="btn btn-sm btn-gray-100 float-end mx-2" data-bs-dismiss="modal">Annuler</a>
+        <button class="btn btn-sm btn-primary float-end shadow-none px-3" onclick="addPrestation()">Soumettre</button>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade " id="add-scelle" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h6 class="mt-3">Je suis sûr que je veux attacher une nouvelle scelle supplémentaire au conteneur sélectionné</h6>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light shadow-none" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger shadow-none" id="yes-button-add-scelle" data-bs-dismiss="modal">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+    window.onload = (event) => {
+        printitems('nav11');
+
+        var elms_gros = document.querySelectorAll("[id='id_gros']");
+        var elms_article = document.querySelectorAll("[id='id_article']");
+
+        elms_gros.forEach(item => {
+            item.innerHTML = '<option value="'+{{ article.gros.id }}+'"> {{ article.gros }}</option>';
+        });
+
+        elms_article.forEach(item => {
+            item.innerHTML = '<option value="'+{{ article.id }}+'"> {{ article.numero }} </option>';
+        });
+    };
+
+
+    transitaires_search_box = document.getElementById("transitaires-search-box");
+    transitaire_options = document.getElementById("select-tansitaire");
+
+    function searchTransitaire(){
+        var text = transitaires_search_box.value;
+        searchSelect(transitaire_options,text );  
+    }
+
+    
+    function searchSelect(opetions, text){
+        var options = opetions; //select options
+        for (var i = 0; i < options.length; i++) {
+            var option = options[i]; //current option
+            var optionText = option.text; //option text ("Somalia")
+            var lowerOptionText = optionText.toLowerCase(); //option text lowercased for case insensitive testing
+            var lowerText = text.toLowerCase(); //searchBox value lowercased for case insensitive testing
+            var regex = new RegExp("^" + text, "i"); //regExp, explained in post
+            var match = optionText.match(regex); //test if regExp is true
+            var contains = lowerOptionText.indexOf(lowerText) != -1; //test if searchBox value is contained by the option text
+            if (match || contains) { //if one or the other goes through
+                option.selected = true; //select that option
+                return; //prevent other code inside this event from executing
+            }
+        }
+    }
+
+    transitaires_search_box.addEventListener("keypress", function(event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          updateTransitaire();
+          transitaires_search_box.value ="";
+        }
+    });
+    
+function updateTransitaire(){
+    url = "{% url 'update_transitaire' %}"; 
+    selected_transitaire = document.getElementById("select-tansitaire");
+    selected_option = selected_transitaire.options[selected_transitaire.selectedIndex].value;
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+            "transitaire_id": selected_option,
+            "article_id": "{{ article.id }}",
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      }) 
+}
+
+function scelleSupplementaire(id){
+
+    var message = document.getElementById("add-scelle");
+    var yes_button = document.getElementById("yes-button-add-scelle");
+    url = "{% url 'add_scelle_supplementaire' %}"; 
+    scelle = document.getElementById("scelle"+id);
+
+    errors = false;
+    if(scelle.value == ""){
+        errors = true ;
+    }
+    
+    if(errors){
+        var error_message = document.createElement("div")
+        error_message.innerHTML = '<div class="alert alert-danger  alert-dismissible fade show" style="border-radius: 12px;" role="alert"> Certains <b>champs obligatoires</b> sont vides, veuillez les remplir tous puis réessayer<button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+        var main_card = document.getElementById("main-card");
+        main_card.insertBefore(error_message, main_card.firstChild);
+        setTimeout(function (){
+            error_message.remove();
+        }, 3000);
+    }else{
+            yes_button.onclick = function (){
+                scelle.disabled = true;
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        "scelle": scelle.value,
+                        "tc_id": id,
+                    },
+                    dataType: 'json', 
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (response) { 
+                        if(response.message == "success"){
+                            scelle.disabled = false;
+                            Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+                        }
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                  }) 
+        }
+                    
+        var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+        visits_panel.show();
+    }
+
+}
+
+// all rows check boxes in the add commande model 
+var checks = [];
+
+// all rows check boxes in the add prestation model 
+var prestation_checks = [];
+
+var results = [];
+
+// when the top check box is checks, check all the boxs end if unchecked, uncheck all the boxs 
+function checkAll(id){
+    let check_all = document.getElementById(id);
+    if(id=='th_check'){
+        if(check_all.checked){
+            checks.forEach(item => document.getElementById(item).checked = true );
+        }else{
+            checks.forEach(item => document.getElementById(item).checked = false );
+        }
+    }
+    if(id=='prestation_th_check'){
+        if(check_all.checked){
+            prestation_checks.forEach(item => document.getElementById(item).checked = true );
+        }else{
+            prestation_checks.forEach(item => document.getElementById(item).checked = false );
+        }
+    }
+}
+
+
+// loop true the checks array and check the chekced element then add them to the chekced list 
+function getcheckedBoxs(checks_list){
+    var checked_list = []; 
+    checks_list.forEach(item => {
+            if ( document.getElementById(item).checked){
+                checked_list.push(item);
+            }
+        });
+    return checked_list;
+}
+
+// add a new row to table body 
+function addRow(table, data, type){
+    var row = table.insertRow(0);
+    var checkbox = row.insertCell(0);
+    var tc_cell = row.insertCell(1);
+    var type_cell = row.insertCell(2);
+    if(type=="commande"){
+        var observation_cell = row.insertCell(3);
+        checks.push(data.id);
+    }
+
+    if(type=="prestation"){
+        prestation_checks.push(data.id);   
+    }
+
+    checkbox.innerHTML= ('&nbsp;&nbsp;<input type="checkbox" class="form-check-input shadow-none" id="' + data.id + '"/>');
+    checkbox.classList.add("rounded-start");
+    checkbox.classList.add("align-middle");
+   
+    tc_cell.innerHTML= data.tc;
+    
+    tc_cell.classList.add("align-middle");
+
+    type_cell.innerHTML= data.type_tc__designation ;
+    type_cell.classList.add("align-middle");
+ 
+    if(data.dangereux){
+       type_cell.innerHTML =  type_cell.innerHTML + "  IMO";
+    }
+ 
+    if(data.frigo){
+       type_cell.innerHTML =  type_cell.innerHTML + "  FRIGO";
+    }
+
+
+    if(type=="commande"){
+        observation_cell.innerHTML= '<input type="text" class="form-control shadow-none form-control-sm"  id="observation' + data.id + '" placeholder="-">';
+        observation_cell.classList.add("rounded-end");
+    }
+   
+}
+// get the the selected article's tcs and show them in the shown model's table 
+function getData(type) {
+    // get the table in the add commande model 
+    table = document.getElementById("commande_tcs_table");
+
+    //get the table in add prestation model 
+
+    prestation_table = document.getElementById("prestation_tcs_table");
+
+    //remove all the rows from the tcs table in add commande model 
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+
+    //remove all the rows from the table in add prestation model 
+    while(prestation_table.hasChildNodes()){
+        prestation_table.removeChild(prestation_table.firstChild);
+    }
+
+    //uncheck all the check boxes in both tables (prestation table and commande table)
+    document.getElementById('th_check').checked = false;
+    document.getElementById('prestation_th_check').checked = false ;
+
+    $.ajax({
+        type: 'GET',
+        url: "{% url 'get_tcs_by_article' %}",
+        data: {
+            "selected_article_id": "{{ article.id }}",
+        },
+        success: function (response) { 
+
+        data = response.data;
+        results = data;
+        checks = [];
+        prestation_checks = [];
+
+        if (type=="commande"){
+            for(i=0;i<data.length; i++){
+                addRow(table, data[i],type);     
+            }    
+        }
+
+        if (type=="prestation"){
+            for(i=0;i<data.length; i++){
+                addRow(prestation_table, data[i],type);     
+            }  
+        }
+
+         },
+        error: function (response) {
+          console.log(response);
+        }
+    })
+}
+
+
+// show the newly created commands
+{% comment %} function fillCommands(data){
+
+    table = document.getElementById("commande_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+    for(i=0;i<data.length; i++){
+        var row = table.insertRow(0);
+
+        var numero_cell = row.insertCell(0);
+        var date_creation_cell = row.insertCell(1);
+        var tc_cell = row.insertCell(2);
+        var commande_cell = row.insertCell(3);
+        var quantite_cell = row.insertCell(4);
+        var action_cell = row.insertCell(4);
+
+        link = "{% url 'print_commande' 1 2 %}"
+        link = link.replace('1',data[i].bon_commande);
+
+        numero_cell.innerHTML=  data[i].bon_commande__numero;
+        date_creation_cell.innerHTML= data[i].bon_commande__date_creation;
+        tc_cell.innerHTML= data[i].tc;
+        commande_cell.innerHTML= data[i].type;
+        quantite_cell.innerHTML= data[i].quantite;
+    } 
+
+    $('#add_commande_model').modal('hide');
+    success();
+} {% endcomment %}
+
+// show the newly created prestation
+function fillCommands(data){
+    table = document.getElementById("commande_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+    for(i=0;i<data.length; i++){
+        var row = table.insertRow(0);
+
+        var numero_cell = row.insertCell(0);
+        var date_creation_cell = row.insertCell(1);
+        var tc_cell = row.insertCell(2);
+        var commande_cell = row.insertCell(3);
+        var quantite_cell = row.insertCell(4);
+        var print_cell = row.insertCell(5);
+
+        link = "{% url 'print_commande' 1 2 %}"
+
+        link = link.replace('1',data[i].bon_commande__id);
+        link = link.replace('2',data[i].tc__id);
+
+
+        numero_cell.innerHTML=  data[i].bon_commande__numero;
+        date_creation_cell.innerHTML= data[i].bon_commande__date_creation;
+        tc_cell.innerHTML= data[i].tc;
+        commande_cell.innerHTML= data[i].type;
+        quantite_cell.innerHTML= data[i].quantite;
+        print_cell.innerHTML=  '<a class="btn btn-secondary btn-sm  shadow-none" tabindex="-1" target="_blank" role="button" aria-disabled="true" href="'+link+'">PRINT</a>' ;
+    } 
+
+    $('#add_commande_model').modal('hide');
+    success();
+}
+
+
+// show the newly created prestation
+function fillPrestation(data){
+    table = document.getElementById("prestation_occasionnelle_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+    for(i=0;i<data.length; i++){
+        var row = table.insertRow(0);
+
+        var date_cell = row.insertCell(0);
+        var tc_cell = row.insertCell(1);
+        var type_cell = row.insertCell(2);
+        var rubrique_cell = row.insertCell(3);
+        var tarif_cell = row.insertCell(4);
+
+
+        date_cell.innerHTML= data[i].date;
+        tc_cell.innerHTML= data[i].tc__tc;
+        type_cell.innerHTML= data[i].tc__type_tc;
+        rubrique_cell.innerHTML= data[i].rubrique;
+        tarif_cell.innerHTML= data[i].prix;
+    } 
+
+    success();
+}
+
+
+// Create order : get the list of the selected containers aand the order type alongside with the quantity 
+function createOrder() {
+    table = document.getElementById("commande_tcs_table");
+    let type_commande = document.getElementById("type-commande");
+    let quantite_commande = document.getElementById("quantite-commande");
+
+    selected_rows = [];
+    selected_rows = getcheckedBoxs(checks);
+
+    if (selected_rows.length == 0 || quantite_commande.value == 0){
+        notification("danger","Veuillez entrer une quantité supérieure à 0 et sélectionner des conteneurs.","danger");
+    }else{ 
+        let selected_type = "";
+        if(type_commande.value==1) {
+            selected_type = "Clarck Intégral";
+        }
+        if(type_commande.value==2) {
+            selected_type = "Clarck Partiel";
+        }
+        if(type_commande.value==3) {
+            selected_type = "Manutentions humaines Intégral";
+        }
+        if(type_commande.value==4) {
+            selected_type = "Manutentions humaines Partiel";
+        }
+
+        let selected_rows_observations = [];
+
+        selected_rows.forEach(item => {
+            let observation = document.getElementById("observation"+item).value;
+            if(observation == ""){
+                selected_rows_observations.push("-");
+            }else{
+                selected_rows_observations.push(observation);     
+            }
+        })
+
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'create_command' %}",
+            data: {
+                "ids": selected_rows,
+                "observations": selected_rows_observations,
+                "type_commande": selected_type,
+                "quantite_commande": quantite_commande.value,
+                "article": "{{ article.id }}",
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) { 
+               
+                fillCommands(response.data);
+                
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        }) 
+    }
+
+}
+
+
+// Create order : get the list of the selected containers aand the order type alongside with the quantity 
+function addPrestation() {
+ 
+    let rubrique = document.getElementById("rubrique").value;
+    let tarif = document.getElementById("tarif_prestation").value;
+    let date_prestation = document.getElementById("date_prestation").value;
+
+
+    selected_rows = [];
+    selected_rows = getcheckedBoxs(prestation_checks);
+
+
+    if (date_prestation.value == ""){
+        notification("error","danger","S'il vous plaît assurez-vous de remplir tous les champs avant de soumettre.","dangere");
+    }
+    if (selected_rows.length == 0){
+        notification('error',"Veuillez sélectionner des conteneurs auxquels appliquer la présentation.","danger");
+    }
+
+
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'add_prestation' %}",
+        data: {
+            "ids": selected_rows,
+            "rubrique": rubrique,
+            "date_prestation": date_prestation,
+            "tarif": tarif,
+            "article":  "{{ article.id }}",
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            console.log(response);  
+            $('#add_prestation_model').modal('hide');
+            fillPrestation(response.data);         
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      }) 
+}
+
+let form = document.getElementById('form-visite');
+form.onsubmit = createVsiste;
+
+function createVsiste(event){
+    event.preventDefault();
+    form = $("#form-visite");
+    var serializedData = form.serialize();
+
+    $.ajax({
+            type: 'POST',
+            url: "{% url 'post_visite' %}" ,
+            data: serializedData,
+            success: function (response) { 
+                id = JSON.parse(response.instance)[0].pk;
+                link = "{% url 'visite_details' 5 %}"
+                success();
+                $('#modal-visite').modal('hide');
+                location.reload();
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        }) 
+}
+
+</script>
+
+
+{% endblock content %}
+
+
+
+
+            

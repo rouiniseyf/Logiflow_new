@@ -1,0 +1,709 @@
+{% extends 'app/components/base.html' %}
+{% load humanize %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title=facture.numero %}
+{% include 'app/components/messages.html' %}
+
+<div class="card bg-gray-200 mt-4 mt-lg-0 mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-lg-9">
+                {% if facture.paid %}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-success">
+                        Payée
+                    </span>
+                {% elif not facture.paid and not facture.a_terme%}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-danger">
+                        Non payé
+                    </span>
+                {% elif facture.a_terme %}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-gray-400">
+                        Payé à terme 
+                    </span>
+                {% endif %}
+
+                <div class="mb-2">
+                    Date de Facture &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture.proforma.date_proforma }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Proforma  &nbsp; &nbsp; <a href={% url 'proforma_details' facture.proforma.id %} class="btn btn-secondary btn-sm shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ facture.proforma.numero }} / {{ facture.proforma.date_creation|date:"Y"}} </a>
+                </div>
+
+                <div class="mb-2">
+                    Gros &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture.proforma.gros.gros }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Article&nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture.proforma.article.numero }}</span>
+                </div> 
+
+                <div class="mb-2">
+                    Client &nbsp; &nbsp;<span>{{ facture.proforma.article.client }}</span>
+                </div>
+
+                <div>
+                    Transitaire &nbsp; &nbsp; <span class="badge bg-primary p-2"> {% if facture.proforma.article.transitaire is None %} / {% else %}{{ facture.proforma.article.transitaire }} {% endif %}</span>
+                </div> 
+            </div> 
+            <div class="col-12 col-lg-3">
+                <hr class="d-block d-lg-none">
+                <div class="card bg-gray-200 mt-3">
+                    <div class="card-body p-0">
+
+                        <div class="row">
+                            <div class="col-4 col-lg-4">
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2">  Remise </span>
+                                </div>  
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> HT  </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> TVA </span>
+                                </div>         
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> Timber </span>
+                                </div>    
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2">  TTC </span>
+                                </div>
+                            </div>
+
+                            <div class="col-8 col-lg-8">
+                                <div class="mb-2">
+                                    {% if facture.proforma.remise == True %}
+                                    <span class="badge bg-danger p-2"> 
+                                        {% if facture.proforma.REMISE > 100 %}
+                                            {{ facture.proforma.REMISE }} DA
+                                        {% elif facture.proforma.REMISE < 100 %}
+                                            {{ facture.proforma.REMISE }} %
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                                <span class="badge bg-gray-300 text-primary p-2"> {{ facture.TR| intcomma  }} DA</span>
+                                </div>   
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2"> {{ facture.HT| intcomma  }} DA</span>
+                                </div>
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2"> {{ facture.TVA | intcomma }} DA</span>
+                                </div>         
+      
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-300 text-primary p-2" id="timber"> {{ facture.timber | intcomma }} DA</span>
+                                </div>    
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2" id="TTC"> {{ facture.TTC| intcomma  }} DA</span>
+                                </div>
+                            </div>
+                          
+                       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body p-2 p-lg-3">
+
+        <span class="badge bg-gray-100 text-primary p-2 mb-3"> Paiemenet</span>
+
+
+        {% if not facture.paid %}
+        <div class="row" id="add_paiement_form">
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <input type="date" class="form-control shadow-none form-control-sm" id="date_paiement" name="date"  />
+                <label for="date" >Date</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="mode_select" name="mode" onchange="setMode()">
+                        <option value="Chèque">Chèque</option> 
+                        <option id="Espèce">Espèce</option> 
+                    </select>                     
+                    <label for="mode" >Mode</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="banque_select" name="banque" >
+                    {% for banque in banques %}
+                        <option value="{{ banque.id }}">{{ banque }}</option>                                
+                    {% endfor %}
+
+                    </select>                     
+                    <label for="banque" >Banque</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control shadow-none form-control-sm"  placeholder="XXXXXX-XXX-XX" id="cheque" />    
+                    <label for="cheque" >Chèque</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control shadow-none form-control-sm"  id="montant"  maxlength="15" value="{{ unpaid }}"/>    
+                    <label for="montant" >Montant</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <button class="btn btn-primary shadow-none h-75 w-100 d-none d-lg-block" id="add-paiement" onclick="addPaiement()"> > </button>
+                <button class="btn btn-primary shadow-none  w-100 d-block d-lg-none mb-3" id="add-paiement" onclick="addPaiement()"> > </button>
+            </div>
+
+            {% if paiements|length == 0 %}
+                <div class="col-12 col-lg">
+                    <button class="btn btn-gray-200 shadow-none d-none d-lg-block h-75 w-100 " id="a_terme_btn_lg" onclick="pay()"> A Tèrme </button>
+                    <button class="btn btn-gray-200 shadow-none d-block d-lg-none w-100 mb-3" id="a_terme_btn_sm" onclick="pay()"> A Tèrme </button>
+                </div>
+            {% endif %}
+            
+        </div>   
+    
+    {% endif %}
+    <div class="table-responsive table-hover mb-3">
+        <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+            <thead class="thead-light border-0">
+            <tr>
+                <th class="rounded-start">Date</th>
+                <th scope="col">Mode</th>
+                <th scope="col">Banque</th>
+                <th scope="col">Chèque</th>
+                <th class="rounded-end">Montant</th>  
+            </tr>
+        </thead>
+        <tbody id="paiement_table" >
+            {% if paiements|length > 0 %}
+                {% for item in paiements  %}
+                    <tr>
+                        <td class="rounded-start"> {{ item.date }} </td>
+                        <td> {{ item.mode }} </td>
+                        {% if item.mode == "Espèce" %}
+                            <td> - </td>
+                            <td> - </td>                                  
+                        {% else %}
+                            <td> {{ item.banque }} </td>
+                        <td> {{ item.cheque }} </td>                               
+                        {% endif %}
+
+                        <td class="rounded-end"> {{ item.montant }} </td>
+
+                    </tr>
+                
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="9" class="text-lg-center p-4 rounded-start rounded-end">
+                    <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+  
+    </div>
+</div>
+</div>
+
+<div class="row row-cols-auto">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body p-2">
+                <div class="row">
+                    <div class="col-12">    
+                        <a href={% url 'facturation_detials' facture.proforma.article.id %} class="btn btn-gray-200 shadow-none px-5" tabindex="-1" role="button" aria-disabled="true"> 
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Bold" viewBox="0 0 24 24" width="24" height="24"><path d="M19,10.5H10.207l2.439-2.439a1.5,1.5,0,0,0-2.121-2.122L6.939,9.525a3.505,3.505,0,0,0,0,4.95l3.586,3.586a1.5,1.5,0,0,0,2.121-2.122L10.207,13.5H19a1.5,1.5,0,0,0,0-3Z"/></svg>
+                        </a>  
+                        <a href={% url 'print_facture' facture.id %} target="_blank" class="btn btn-secondary shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                        </a>  
+                        <a href={% url 'print_check' facture.id %} target="_blank" class="btn btn-success shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M6,24H8.13a2.02,2.02,0,0,0,1.941-1.532,2,2,0,0,1,3.858,0A2.02,2.02,0,0,0,15.87,24H18a3,3,0,0,0,3-3V17H17a1,1,0,0,1,0-2h4V5a5.006,5.006,0,0,0-5-5h-.13a2.02,2.02,0,0,0-1.941,1.532,2,2,0,0,1-3.858,0A2.02,2.02,0,0,0,8.13,0H8A5.006,5.006,0,0,0,3,5V15H7a1,1,0,0,1,0,2H3v4A3,3,0,0,0,6,24Zm5-9h2a1,1,0,0,1,0,2H11a1,1,0,0,1,0-2Z"/></svg>
+                        </a>   
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body p-2">
+                <div class="row">
+                    <div class="col-12">
+
+                        <a type="link" class="btn btn-primary shadow-none" data-bs-toggle="modal" href="#add_facture_complementarie_model"  data-bs-toggle="tooltip" data-bs-placement="top" title="Facture complimentaire">
+                            + FC
+                        </a> 
+                        
+                        <a type="link" class="btn btn-primary shadow-none" data-bs-toggle="modal" href="#add_facture_avoire_model" data-bs-toggle="tooltip" data-bs-placement="top" title="Facture d'avoire">
+                            + FA
+                        </a> 
+
+                        {% if bon_sortie %} 
+                            <a href={% url 'print_bon_sortie' bon_sortie.id %} target="_blank" class="btn btn-secondary shadow-none" tabindex="-1" role="button" aria-disabled="true" >
+                                <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                                BON DE LIVRAISON
+                            </a>         
+                        {% else %}
+                            <a type="link" class="btn btn-primary shadow-none" data-bs-toggle="modal" href="#bon_de_sortie_model" data-bs-toggle="tooltip" data-bs-placement="top" title="Bon de livrison">
+                                + BL
+                            </a>                          
+                        {% endif %}
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="card mb-3">
+    <div class="card-body p-2 p-lg-3">
+        <span class="badge bg-gray-100 text-primary p-2 mb-3"> Préstations article </span>
+
+        <div class="table-responsive table-hover mb-3">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                    <tr>
+                        <th class="rounded-start">Rubrique </th>
+                        <th scope="col">Tarif</th>
+                        <th scope="col">HT</th>
+                        <th scope="col">TVA</th>
+                        <th class="rounded-end">TTC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ligne in lignes_prestations_article %}
+
+                            <tr >
+                                <td class="rounded-start"> {{ ligne.rubrique }} </td>
+                                <td> {{ ligne.tarif }} </td>
+                                <td> {{ ligne.HT }} </td>
+                                <td> {{ ligne.TVA }} </td>
+                                <td class="rounded-end"> {{ ligne.TTC }} </td>
+                            </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>  
+        </div>
+    </div>
+</div>
+
+                    
+
+{% for groupe in groups  %}
+    <hr>
+    <div class="card mb-3">
+        <div class="card-body p-2 p-lg-3">
+            <div>
+                <span class="badge bg-gray-100 text-primary p-2 mb-2">
+                    {{ groupe.type }}
+                </span>
+                {% if groupe.dangereux %}
+                <span class="badge bg-danger pt-2"> </span>
+                {% endif %} 
+
+                {% if groupe.frigo %}
+                    <span class="badge bg-info pt-2"> </span>
+                {% endif %}
+            </div>
+
+                {% for ligne in groups_lignes %}
+                    {% if ligne.groupe == groupe %}
+                    <span class="badge bg-gray-100 text-primary p-2 mb-2">
+                            {{ ligne.tc.tc }} 
+                    </span>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+    </div>
+    
+    <div class="card mb-3">
+        <div class="card-body p-2 p-lg-3">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> Prestations sur les conteneur</span>
+            {% include 'billing/components/prestation_table.html' with data=lignes_prestations current_groupe=groupe %}
+
+        </div>
+    </div>
+{% endfor %}
+   
+    {% include 'app/components/add_without_button.html' with form=form_facture_complementaire title="+ Facture Complementaire" submit_button="facture_complementaire_submit" model_id="add_facture_complementarie_model" %}
+    {% include 'app/components/add_without_button.html' with form=form_facture_avoire title="+ Facture Avoire" submit_button="facture_avoire_submit" model_id="add_facture_avoire_model" %}
+    {% include 'app/components/add_without_button.html' with form=form_bon_sortie title="+ Bon de Sortie" submit_button="bon_sortie_submit" model_id="add_bon_sortie_model" %}
+ 
+
+
+<!-- Bon de sortie model-->
+<div class="modal fade"  id="bon_de_sortie_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-xl modal-dialog-centered">
+    <div class="modal-content shadow-lg">
+        <div class="modal-body">
+        <span class="badge bg-gray-100 text-primary p-2 mb-3 ">+ Bon de sortie</span>
+                
+                     
+                    <div class="row ">
+
+                            <div class="col">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control shadow-none form-control-sm"  id="facture"  maxlength="9" value="{{ facture }}" readonly />    
+                                    <label for="facture" >Facture</label>
+                                </div>
+                            </div>
+                     
+                        
+                            <div class="col">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control shadow-none form-control-sm"  id="d10" />    
+                                    <label for="d10" >D10</label>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control shadow-none form-control-sm"  id="badge" />    
+                                    <label for="badge" >Badge</label>
+                                </div>
+                            </div>
+
+                    </div>
+
+                    
+                    <div class="table-responsive table-hover mb-3">
+                        <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                            <thead class="thead-light border-0">
+                            <tr class="bg-light">
+                                <th class="rounded-start">Tc</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">position</th>
+                                <th class="rounded-end">Camion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                   
+                            {% for ligne in groups_lignes %}
+                            
+                                    <tr >
+                                        <td class="align-middle rounded-start"> {{ ligne.tc.tc }} </td>
+                                        <td class="align-middle"> 
+                                            {% if ligne.tc.type_tc == None %}
+                                            -
+                                            {% else %}
+                                                {{ ligne.tc.type_tc }}
+                                            {% endif %}                                             
+                                            {% if ligne.tc.dangereux %}
+                                                <span class="badge bg-danger pt-2"> </span>
+                                            {% endif %} 
+                                            {% if ligne.tc.frigo %}
+                                                <span class="badge bg-info pt-2"> </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="align-middle"> {{ ligne.tc.position }} </td>
+                                        <td class="rounded-end"> <input type="text" class="form-control shadow-none form-control-sm"  placeholder="XXXXXX-XXX-XX" id="tc{{ ligne.tc.id }}" /> </td>
+
+                                    </tr>
+                               
+                      
+                        {% endfor %}
+           
+                        </tbody>
+                    </table>  
+
+                   
+    </div>
+    <div class="modal-footer">   
+        <a  class="btn btn-gray-100 float-end mx-2" data-bs-dismiss="modal">Annule</a>                 
+        <button class="btn btn-primary float-end shadow-none px-5" onclick="createBonSortie()">Creer</button>
+    </div>
+  </div>
+  
+</div>
+</div>
+
+
+
+</section>
+<script>
+
+function lunchModel(){
+    $('#paiement_model').modal('hide');
+    $('#paiements_model').modal('show');
+}
+
+function pay(){
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'payer_a_terme' %}",
+        data: {
+            "facture" : "{{ facture.id }}", 
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+
+            document.getElementById("add_paiement_form").style.display = "none"
+            document.getElementById("status_paid_badge").style.display = "block";
+            document.getElementById("bon_sortie_panel").style.display = "block";
+            document.getElementById("status_unpaid_badge").style.display = "none";
+            Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+
+        },
+        error: function (response) {
+            console.log(response);
+        }
+    });
+}
+
+let billed_tcs = [];
+
+function createBonSortie(){
+
+    "{% for item in  groups_lignes  %}"
+        billed_tcs.push("{{ item.tc.id }}");
+    "{% endfor %}"
+
+        saved_data = [];
+        good_to_go = true;
+        d10 = document.getElementById("d10").value;
+        badge = document.getElementById("badge").value;
+
+        billed_tcs.forEach(row =>{
+
+            matricule = document.getElementById("tc"+row).value;
+   
+            if( matricule == '' || matricule==null || d10 == '' || d10==null || badge == '' || badge==null ) {
+                good_to_go = false;
+            }else{
+                saved_data.push(
+                {
+                "id":row,
+                "matricule": matricule, 
+                });
+            }
+            
+        }); 
+        // If all the observation fields are filled out then you can proced with action else show an error message
+        if(good_to_go){
+         
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'save_bon_sortie' %}",
+                data: {
+                    "saved_data": JSON.stringify(saved_data),
+                    "facture" : "{{ facture.id }}",
+                    "d10" : d10,
+                    "badge" : badge,
+                },
+                dataType: 'json', 
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                success: function (response) { 
+                   $('#bon_de_sortie_model').modal('hide');  
+                     window.location.reload();
+                    Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+          
+
+             
+        }else{
+            Notification('error',"merci de remplir tous les champs puis réessayer","danger");
+        }
+}
+
+
+// get CSRFToken from cookies 
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+}
+
+var to_pay = 0 ; 
+var to_pay_espece = 0; 
+// set the date for date paiement field to today 
+var now = new Date();
+var day = ("0" + now.getDate()).slice(-2);
+var month = ("0" + (now.getMonth() + 1)).slice(-2);
+var today = now.getFullYear()+"-"+(month)+"-"+(day);
+
+window.onload = function(){
+    rest_to_pay = {{ unpaid }}; 
+    rest_to_pay_espece = {{ unpaid_espece }}; 
+}
+
+$('#date_paiement').val(today);
+
+function fillpaiements(data){
+       
+    table = document.getElementById("paiement_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+
+    data.forEach(item => {
+        var row = table.insertRow(0);
+        var date_cell = row.insertCell(0);
+        var mode_cell = row.insertCell(1);
+        var banque_cell = row.insertCell(2);
+        var cheque_cell = row.insertCell(3);
+        var montant_cell = row.insertCell(4);
+
+
+        date_cell.innerHTML= item.date;
+        date_cell.classList.add('rounded-start')
+        mode_cell.innerHTML= item.mode;
+
+        if(item.mode == "Espèce"){
+            cheque_cell.innerHTML= "-";
+            banque_cell.innerHTML= "-";
+
+        }else {
+            cheque_cell.innerHTML= item.cheque;
+            banque_cell.innerHTML= item.banque__raison_sociale;
+        }
+
+        montant_cell.innerHTML= item.montant;
+        montant_cell.classList.add('rounded-end')
+    })
+
+}
+
+// Add paiement function 
+function addPaiement(){
+
+    document.getElementById("add-paiement").disabled = true; 
+    
+    let date = document.getElementById("date_paiement").value;
+
+    let mode_select = document.getElementById("mode_select")
+    let selected_mode = mode_select.options[mode_select.selectedIndex].value;
+
+    let banque_select = document.getElementById("banque_select")
+    let selected_banque = banque_select.options[banque_select.selectedIndex].value;
+
+    let cheque = document.getElementById("cheque").value ;
+
+    let montant = document.getElementById("montant").value ;
+
+    error = false;
+    if(selected_mode == "Chèque"){  
+        if(cheque == "" || cheque == ""){
+            error = true ;
+            Notification("error","Veuillez remplir le numéro de chèque.","danger");
+        }
+    }
+    if(error == false){
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'add_paiement' facture.id %}" ,
+            data: {
+                "date" : date,
+                "mode" : selected_mode,
+                "banque" : selected_banque,
+                "cheque" : cheque,
+                "montant" : montant
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) {  
+                success();
+                fillpaiements(response.data);
+                console.log(response.info);
+                document.getElementById("TTC").innerHTML = response.info.TTC;
+                document.getElementById("timber").innerHTML = response.info.timber;
+                try {
+                    document.getElementById('a_terme_btn_lg').disabled = true;
+                  } catch (error) {
+                  }
+                  try {
+                    document.getElementById('a_terme_btn_sm').disabled = true;
+                } catch (error) {
+                  }
+                  
+                
+                if(response.info.paid){
+                        document.getElementById("add_paiement_form").style.display = "none"
+                        document.getElementById("status_paid_badge").style.display = "block";
+                        document.getElementById("bon_sortie_panel").style.display = "block";
+                        document.getElementById("status_unpaid_badge").style.display = "none";  
+                }else{
+                    document.getElementById("add-paiement").disabled = false;
+                    rest_to_pay = response.info.rest;
+                    rest_to_pay_espece = response.info.rest_espece; 
+                    setMode();
+                    document.getElementById("status_paid_badge").style.display = "none";
+                    document.getElementById("status_unpaid_badge").style.display = "block";
+                }
+                document.getElementById("add-paiement").disabled = false; 
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        }) 
+    }
+
+}
+
+function setMode(){
+
+let mode_select = document.getElementById("mode_select")
+let selected_mode = mode_select.options[mode_select.selectedIndex].value;
+
+let banque_select = document.getElementById("banque_select");
+let cheque = document.getElementById("cheque");
+
+let montant = document.getElementById("montant")
+montant.disabled = false;
+
+if(selected_mode == "Espèce"){
+    banque_select.disabled = true;
+    cheque.disabled = true;
+    montant.value = rest_to_pay_espece;
+    montant.disabled = true;
+}
+if(selected_mode == "Chèque"){
+    banque_select.disabled = false;
+    cheque.disabled = false;   
+    montant.value = rest_to_pay;
+}
+
+}
+
+</script>
+{% endblock content %}
+
+
+
+
+            

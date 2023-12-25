@@ -1,0 +1,599 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title=sous_article.numero %}
+
+<div class="card bg-gray-200 mt-4 mb-3 mx-0 mx-lg-4">
+    <div class="card-body p-3">
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <div class="mb-2">
+                    <b>Gros</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ sous_article.tc.article.gros }}</span>&nbsp; <span class="badge bg-primary p-2">{{ article.gros.regime }}</span>
+                </div>
+                <div class="mb-2">
+                    <b>Article</b> &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ sous_article.tc.article.numero }}</span>
+                </div>
+                <div class="mb-2">
+                    {% if sous_article.dangereux is False %}
+                    Dangereux <input class="form-check-input align-middle" type="checkbox" id="{{ sous_article.id }}" onchange="set_dangereux({{ sous_article.id }})">
+                {% else %}
+                    Dangereux <input class="form-check-input align-middle" type="checkbox" id="{{ sous_article.id }}" onchange="set_dangereux({{ sous_article.id }})" checked>
+                {% endif %}
+                </div>
+                <div class="mb-2">
+                    <b>Volume</b>  &nbsp; &nbsp;  <span class="badge bg-primary p-2"> {{ sous_article.volume }} M&sup3;</span>
+                </div>               
+                
+                  <div>
+
+                      <div class="col-10">
+                          <div class="form-floating w-50 ">
+                              {% if sous_article.volume is None %}
+                              <input type="number" id="volume-input" step=".001" class="form-control shadow-none" />            
+
+                              {% else %}
+                              <input type="number" id="volume-input" step=".001" class="form-control shadow-none" value={{ sous_article.volume|floatformat:"3"  }} />            
+
+                              {% endif %}
+
+                              <label for="volume-input" >Volume</label>
+                          </div>
+                      </div>
+                  
+                  </div>
+                
+            </div> 
+
+            <div class="col">
+                <div>
+                    <b>Groupeur</b>  &nbsp; &nbsp; <br> <small>{{ sous_article.tc.article.client }}</small>
+                </div> <div>
+                    <b>Client</b>  &nbsp; &nbsp; <br> <small>{{ sous_article.client }}</small>
+                </div>
+                <div class=" mt-2">
+                   <b> Parameters </b>
+                    <div class="row mt-2">
+                        <div class="col">
+                            <div class="form-floating mb-2 mt-3 mt-lg-0 border-0">
+                                <select class="form-select shadow-none" aria-label="Default select example" id="select-tansitaire" onchange="updateTransitaire()">
+                                    {% if sous_article.transitaire == None %}
+                                        <option id="transitaire_none_selected" selected>-------</option>
+                                    {% endif %}
+                                    {% for transitaire in transitaires %}
+                                        {% if transitaire.id == sous_article.transitaire.id %}
+                                        <option value="{{ sous_article.transitaire.id }}" selected> {{ sous_article.transitaire }} </option>
+                                        {% else %}
+                                        <option value="{{ transitaire.id }}">{{ transitaire }}</option>
+                                        {% endif %}
+                                    {% endfor %} 
+                                </select>   
+                                <label for="gros" >Transitaire</label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-floating mb-2 mt-3 mt-lg-0 border-0">
+                                <select class="form-select shadow-none" aria-label="Default select example" id="select-bareme" onchange="updateBareme()">
+                                    {% if sous_article.tc.article.client.bareme == None %}
+                                        <option id="bareme_none_selected" selected>-------</option>
+                                    {% endif %}
+                                    {% for bareme in baremes %}
+                                        {% if bareme.id == sous_article.tc.article.client.bareme.id %}
+                                        <option value="{{ sous_article.tc.article.client.bareme.id }}" selected> {{ sous_article.tc.article.client.bareme }} </option>
+                                        {% else %}
+                                        <option value="{{ bareme.id }}">{{ bareme }}</option>
+                                        {% endif %}
+                                    {% endfor %} 
+                                </select>   
+                                <label for="select-bareme" >bareme</label>
+                            </div>
+                        </div>
+                    </div>
+              </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+        
+        <div class="card mb-3 mt-0 mt-lg-4 mx-0 mx-lg-4">
+            {% comment %} <div class="card-header">
+                Factures
+            </div> {% endcomment %}
+            <div class="card-body p-3">
+                {% include 'app/components/messages.html' %}
+                <span class="badge bg-secondary p-2 mb-3 border-end text-primary" style="margin-left: -25px;">Factures</span>
+
+                <div class="table-responsive mb-2">
+                    <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                        <thead class="thead-light border-0">
+                          <tr>
+                            <th class="rounded-start">Numéro</th>
+                            <th>Date de création</th>
+                            <th>Proforma</th>
+                            <th>HT</th>
+                            <th>TVA</th>
+                            <th>TTC</th>
+                            <th class="rounded-end">Action</th>
+                          </tr>
+                        </thead>
+                      <tbody>
+                      {% if factures|length > 0  %}
+                          {% for item in factures %}
+                              
+                              <tr>
+                                <td class="rounded-start">
+                                 
+                                    {% if item.paid %}
+                                          <a href={% url 'facture_groupage_details' item.id %} class="btn btn-success btn-sm text-white shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>           
+                                    {% else %}
+                                          <a href={% url 'facture_groupage_details' item.id %} class="btn btn-danger btn-sm text-white shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>           
+                                    {% endif %}
+                                </td>
+                                  <td class="align-middle">{{ item.date_creation|date:"d-m-Y" }}</td>
+
+                                    <td class="align-middle"> <a href={% url 'proforma_groupage_details' item.proforma.id %} class="btn btn-gray-100 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.proforma.numero }}</a></td>
+                  
+                                    {% if item.proforma.HT == None %}
+                                      <td class="align-middle"> - </td>
+                                    {% else %}
+                                      <td class="align-middle">{{ item.proforma.HT }}</td>
+                                    {% endif %}
+                  
+                                    {% if item.proforma.TVA == None %}
+                                      <td class="align-middle"> - </td>
+                                    {% else %}
+                                      <td class="align-middle">{{ item.proforma.TVA }}</td>
+                                    {% endif %}
+                  
+                                    {% if item.proforma.TTC == None %}
+                                      <td class="align-middle"> - </td>
+                                    {% else %}
+                                      <td class="align-middle">{{ item.proforma.TTC }}</td>
+                                    {% endif %}
+
+                                    <td class="rounded-end">
+                                         <a  href="{% url 'print_facture_groupage' item.id %}" target="_blank" class="btn btn-secondary btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                                          <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                                         </a>
+                                    </td>     
+                              </tr>
+                          {% endfor %}
+                  
+                      {% else %}
+                            <tr>
+                                <td colspan="7" class="text-lg-center p-4 rounded-start rounded-end">
+                                  <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                                </td>
+                            </tr>
+                      {% endif %}
+                      </tbody>
+                    </table>                 
+                  </div>
+              
+            </div>
+        </div>
+
+        <div class="card mb-3 mx-0 mx-lg-4">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;">Proformas</span>
+                    </div>
+                    <div class="col-6">
+                        {% if not invoiced %}
+                        {% if not sous_article.volume == None %}
+                        
+                        <a type="link" class="btn btn-sm btn-primary mb-2 float-end shadow-none" data-bs-toggle="modal" href="#add_proforma_model" >
+                            + Proforma
+                        </a>  
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="table-responsive mb-2">
+                    <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                        <thead class="thead-light border-0">
+                          <tr>
+                            <th class="rounded-start">Numéro</th>
+                            <th>Date de création</th>
+                            <th>Date de proforma</th>
+                            <th>HT</th>
+                            <th>TVA</th>
+                            <th>TTC</th>
+                            <th class="rounded-end">Action</th>
+                          </tr>
+                        </thead>
+                      <tbody>
+                      {% if proformas|length > 0  %}
+                          {% for item in proformas %}
+                              
+                              <tr>
+                                <td class="rounded-start">
+                               
+                                    {% if item.trashed %}
+                                        <a href={% url 'proforma_groupage_details' item.id %} style="text-decoration: line-through;" class="btn btn-gray-100 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>         
+                                    {% else %}
+                                        {% if item.valide %}
+                                            <a href={% url 'proforma_groupage_details' item.id %} class="btn btn-success text-white btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>         
+                                        {% else %}
+                                            <a href={% url 'proforma_groupage_details' item.id %} class="btn btn-gray-100 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>         
+                                        {% endif %}
+                                    {% endif %}
+                                  
+                                </td>
+                                  <td class="align-middle">{{ item.date_creation|date:"d-m-Y" }}</td>
+                                      <td class="align-middle"> {{ item.date_proforma|date:"d-m-Y" }}  </td>
+                                    {% if item.HT == None %}
+                                      <td class="align-middle"> - </td>
+                                    {% else %}
+                                      <td class="align-middle">{{ item.HT }}</td>
+                                    {% endif %}
+                  
+                                    {% if item.TVA == None %}
+                                      <td class="align-middle"> - </td>
+                                    {% else %}
+                                      <td class="align-middle">{{ item.TVA }}</td>
+                                    {% endif %}
+                  
+                                    {% if item.TTC == None %}
+                                      <td class="align-middle"> - </td>
+                                    {% else %}
+                                      <td class="align-middle">{{ item.TTC }}</td>
+                                    {% endif %}
+                                                                           
+                                    <td class="rounded-end">
+                                         <a href="{% url 'print_proforma_groupage' item.id %}" target="_blank" class="btn btn-secondary btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                                        </a>         
+                                    </td>     
+                              </tr>
+                          {% endfor %}
+                  
+                      {% else %}
+                            <tr>
+                                <td colspan="7" class="text-lg-center p-4 rounded-start rounded-end">
+                                  <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                                </td>
+                            </tr>
+                      {% endif %}
+                      </tbody>
+                    </table>                 
+                  </div>
+
+            </div>
+        </div>
+
+
+        <div class="card mb-3 mx-0 mx-lg-4 mb-5">
+          <div class="card-body p-3">
+              <div class="row">
+                  <div class="col-6">
+                      <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;">Visites</span>
+                  </div>
+                
+              </div>
+              <div class="table-responsive table-hover">
+                  <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                      <thead class="thead-light border-0">
+                          <tr>
+                                  <th class="rounded-start">numéro</th>
+                                  <th>Date de création</th>
+                                  <th>Date de visite</th>
+                                  <th>Type</th>
+                                  <th>Badge</th>
+                                  <th class="rounded-end text-center">Action</th>
+                          </tr>
+                       </thead>
+                  <tbody id="visites_table">
+                  {% if visites|length > 0 %}
+                      {% for item in visites %}   
+                              
+                      <tr>
+                          <td  class="rounded-start">
+                              
+                        {{ item.numero }}
+                          
+                            </td>
+                            <td class="align-middle">{{ item.date_creation|date:"l, d-m-Y"  }}</td>
+                            <td class="align-middle">{{ item.date_visite|date:"l, d-m-Y"  }}</td>
+                            <td class="align-middle">{{ item.type_visite }}</td>
+                            <td class="align-middle"> <span class="badge bg-success p-2">{{ item.badge }}</span></td>
+                            <td class="rounded-end text-center">
+                              <a class="btn btn-sm btn-secondary shadow-none" type="button" style="margin: -8px;" target="_blank" href="{% url 'print_visite_groupage' item.id %}"> 
+                                <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                              </a>
+                            </td>
+
+                      <tr>
+                  {% endfor %}
+                  {% else %}
+                      <tr>
+                          <td colspan="9" class="text-lg-center p-4 rounded-start rounded-end">
+                          <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                          </td>
+                      </tr>
+                  {% endif %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      </div>
+
+
+      <div class="card mb-3 mx-0 mx-lg-4">
+        <div class="card-body p-3" >   
+            <div class="row">
+                <div class="col-6">
+                    <span class="badge bg-secondary p-2 mb-3  text-primary"  style="margin-left: -25px;"> Préstation occasionnelle </span>
+                </div>
+                <div class="col-6">
+                    {% if not invoiced %}
+                    <a type="link" class="btn btn-sm btn-primary shadow-none mb-2 float-end" data-bs-toggle="modal" href="#add_prestation_model" onclick="getData('prestation')">
+                        + Préstation
+                    </a> 
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mx-1" id="prestations-zone-notifications" >
+            </div>
+            {% include 'billing/components/prestation_occasionnelle_groupage_table.html' with data=prestations_occasionnelles %}
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="add_proforma_model" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+        <div class="modal-dialog  modal-lg modal-dialog-centered">
+            <div class="modal-content ">
+    
+                <form   method="POST" id="tonerForm">
+                    <div class="modal-body">
+                        <span class="badge bg-gray-100 text-primary p-2 mb-3"> + Proforma</span>
+            
+                        {% csrf_token %}
+                        {% for field in form %}
+                    
+                            {% if  field.id_for_label == "id_tva" or field.id_for_label == "id_remise" or field.id_for_label == "id_debeur"  %}
+                                <div class="form-check form-switch my-4">
+                                    {{field}}
+                                    <label class="form-check-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                                </div>
+                            {% else %}
+                                <div class="form-floating mb-3">
+                                    {{field}}             
+                                    <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                </div>
+            
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <a  class="btn btn-light float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+                        <input type="submit" class="btn btn-primary float-right" id="butt" name="{{ submit_button }}" value="soumettre"></a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- + prestation Model -->
+<div class="modal fade"  id="add_prestation_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable" >
+    <div class="modal-content shadow-lg" >
+
+        <div class="card">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge bg-gray-100 text-primary p-2 mb-3">+ Préstation</span>
+                    </div>
+                </div>
+                    <div class="mb-2">
+                    <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="form-floating">
+                            <select class="form-select shadow-none" id="rubrique" aria-label="Floating label select example">
+                                {% for rubrique in rubriques %}
+                                    <option >{{ rubrique.designation }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Rubrique</label>
+                        </div>  
+                    </div>
+                    <div class="col-6 col-lg-3 mt-3 mt-lg-0">
+                        <form class="form-floating shadow-none">
+                            <input type="number" step="0.01" min="0" class="form-control shadow-none" id="tarif_prestation" value="1">
+                            <label for="floatingInputValue">Tarif</label>
+                        </form>
+                    </div>
+                    
+                    <div class="col-6 col-lg-3 mt-3 mt-lg-0">
+                        <div class="form-floating mb-3">
+                            <input type="date" name="date_proforma" class="form-control shadow-none" id="date_prestation">             
+                            <label for="id_date_proforma">Date</label>
+                        </div>                    
+                    </div>
+                    </div>
+                    </div>
+            </div>
+    </div>
+    <div class="modal-footer">
+        <a class="btn btn-sm btn-gray-100 float-end mx-2" data-bs-dismiss="modal">Annuler</a>
+        <button class="btn btn-sm btn-primary float-end shadow-none px-3" onclick="addPrestation()">Soumettre</button>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+
+<script>
+    window.onload = (event) => {
+        printitems('nav11');
+    };
+
+    function updateVolume(){
+     
+    }
+ 
+  document.getElementById("volume-input").addEventListener("keyup", function(event) {
+ 
+    if (event.keyCode === 13) {
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'update_volume' %}",
+        data: {
+            "id_sous_article" : "{{ sous_article.id }}",
+            "volume" : document.getElementById("volume-input").value,
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            Notification('Succès',"L'opération a été effectuée avec succès.",'success');    
+            location.reload();
+        },
+        error: function (response) {
+            console.log(response);
+        }
+    });
+
+    }
+  });
+
+  
+
+  function updateBareme(){
+    url = "{% url 'update_bareme_client' %}"; 
+    selected_bareme = document.getElementById("select-bareme");
+    selected_option = selected_bareme.options[selected_bareme.selectedIndex].value;
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+            "bareme_id": selected_option,
+            "cleint_id": "{{ sous_article.tc.article.client.id }}",
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      }) 
+}
+
+  function updateTransitaire(){
+    url = "{% url 'update_transitaire_sous_article' %}"; 
+    selected_transitaire = document.getElementById("select-tansitaire");
+    selected_option = selected_transitaire.options[selected_transitaire.selectedIndex].value;
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+            "transitaire_id": selected_option,
+            "sous_article_id": "{{ sous_article.id }}",
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      }) 
+}
+
+function fillPrestation(data){
+    table = document.getElementById("prestation_occasionnelle_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+    for(i=0;i<data.length; i++){
+        var row = table.insertRow(0);
+
+        var date_cell = row.insertCell(0);
+        var rubrique_cell = row.insertCell(1);
+        var tarif_cell = row.insertCell(2);
+
+
+        date_cell.innerHTML= data[i].date;
+        rubrique_cell.innerHTML= data[i].rubrique;
+        tarif_cell.innerHTML= data[i].prix;
+    } 
+
+    success();
+}
+
+function set_dangereux(sous_article_id)
+{
+  if (document.getElementById(sous_article_id).checked == true) 
+  {
+    update_sous_article_type(sous_article_id,true);
+  } 
+  
+  if (document.getElementById(sous_article_id).checked == false) 
+  {
+    update_sous_article_type(sous_article_id,false);   
+  }
+}
+
+function update_sous_article_type(id,dangereux){
+    
+    $.ajax({
+        type: 'POST',
+        url: '{% url 'update_sous_article_type' %} ',
+        data: {
+            "dangereux": dangereux,
+            'sous_article_id': id,
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            success();
+        },
+        error: function (response) {
+            console.log(response["responseJSON"]["error"]);
+        }
+    });
+}
+
+function addPrestation() {
+ 
+ let rubrique = document.getElementById("rubrique").value;
+ let tarif = document.getElementById("tarif_prestation").value;
+ let date_prestation = document.getElementById("date_prestation").value;
+
+
+
+ $.ajax({
+     type: 'POST',
+     url: "{% url 'add_prestation_groupage' %}",
+     data: {
+         "rubrique": rubrique,
+         "date_prestation": date_prestation,
+         "tarif": tarif,
+         "sous_article":  "{{ sous_article.id }}",
+     },
+     dataType: 'json', 
+     headers: { "X-CSRFToken": getCookie("csrftoken") },
+     success: function (response) { 
+         $('#add_prestation_model').modal('hide');
+         fillPrestation(response.data);         
+     },
+     error: function (response) {
+         console.log(response);
+     }
+   }) 
+}
+
+</script>
+
+{% endblock content %}
+
+
+
+
+            

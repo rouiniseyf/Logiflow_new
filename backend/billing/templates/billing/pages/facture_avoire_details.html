@@ -1,0 +1,289 @@
+{% extends 'app/components/base.html' %}
+{% load humanize %}
+{% block content %}
+{% include 'app/components/navbar.html' with title=facture_avoire.facture.numero|add:"/FA"|add:facture_avoire.numero %}
+{% include 'app/components/messages.html' %}
+
+
+<div class="card bg-gray-200 mt-4 mt-lg-0 mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-lg-9">
+
+                <div class="mb-2">
+                    Facture &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture_avoire.facture }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Gros &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture_avoire.facture.proforma.gros.gros }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Article&nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture_avoire.facture.proforma.article.numero }}</span>
+                </div> 
+
+                <div class="mb-2">
+                    Client &nbsp; &nbsp;<span>{{ facture_avoire.facture.proforma.article.client }}</span>
+                </div>
+                <div class="mb-2">
+                    Date &nbsp; &nbsp;<span class="badge bg-primary p-2">{{ facture_avoire.date_creation }}</span>
+                </div>
+            </div> 
+            <div class="col-12 col-lg-3">
+                <hr class="d-block d-lg-none">
+                <div class="card bg-gray-200 mt-3">
+                    <div class="card-body p-0">
+
+                        <div class="row">
+                            <div class="col-4 col-lg-4">
+                            
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> HT  </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> TVA </span>
+                                </div>         
+
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2">  TTC </span>
+                                </div>
+                            </div>
+
+                            <div class="col-8 col-lg-8">
+                              
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2" id="info_ht"> {{ facture_avoire.HT| intcomma  }} DA</span>
+                                </div>
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2 " id="info_tva"> {{ facture_avoire.TVA | intcomma }} DA</span>
+                                </div>         
+
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2" id="info_ttc"> {{ facture_avoire.TTC| intcomma  }} DA</span>
+                                </div>
+                            </div>
+                          
+                       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+
+
+    <div class="row row-cols-auto">
+        <div class="col">
+            <div class="card mb-3">
+                <div class="card-body p-2">
+                    <div class="row">
+                        <div class="col-12">
+    
+                                <a href={% url 'print_facture_avoire' facture_avoire.id%} target="_blank" class="btn btn-secondary shadow-none" tabindex="-1" role="button" aria-disabled="true" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                                </a>     
+                                {% if not facture_complementaire.paid %}
+                                <a type="link" class="btn btn-primary shadow-none" data-bs-toggle="modal" href="#add_prestation_model" data-bs-toggle="tooltip" data-bs-placement="top">
+                                    + Préstation
+                                </a>                          
+                                {% endif %}    
+    
+    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card mb-3">
+        <div class="card-body p-2 p-lg-3">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> Préstations </span>
+    
+            <div class="table-responsive table-hover mb-3">
+                <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                    <thead class="thead-light border-0">
+                        <tr>
+                            <th class="rounded-start">Rubrique </th>
+                            <th scope="col">Tarif</th>
+                            <th scope="col">Quantité</th>
+                            <th scope="col">HT</th>
+                            <th scope="col">TVA</th>
+                            <th class="rounded-end">TTC</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prstation_table">
+                        {% for ligne in lignes %}
+    
+                                <tr >
+                                    <td class="rounded-start"> {{ ligne.rubrique }}  </td>
+                                    <td> {{ ligne.tarif }} </td>
+                                    <td> {{ ligne.quantite }} </td>
+                                    <td> {{ ligne.HT }} </td>
+                                    <td> {{ ligne.TVA }} </td>
+                                    <td class="rounded-end"> {{ ligne.TTC }} </td>
+                                </tr>
+    
+                        {% endfor %}
+    
+                    </tbody>
+                </table>  
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade"  id="add_prestation_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable" >
+          <div class="modal-content shadow-lg" >
+              <div class="modal-body">
+                  <span class="badge bg-gray-100 text-primary p-2 mb-3"> Paiemenet</span>
+               
+                  <div class="row">
+                      <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+                          <div class="form-floating">
+                              <select class="form-select shadow-none" id="rubrique" aria-label="Floating label select example">
+                                  {% for rubrique in rubriques %}
+                                      <option >{{ rubrique.designation }}</option>
+                                  {% endfor %}
+                              </select>
+                              <label for="floatingSelect">Rubrique</label>
+                          </div>  
+                      </div>
+                      <div class="col col-lg-3 mb-3 mb-lg-0">
+                          <form class="form-floating shadow-none">
+                              <input type="number" step="0.01" min="0" class="form-control shadow-none" id="tarif_prestation" value="1">
+                              <label for="floatingInputValue">Tarif</label>
+                          </form>
+                      </div>
+                      <div class="col col-lg-2">
+                          <form class="form-floating shadow-none">
+                              <input type="number"  min="0" class="form-control shadow-none" id="quantite_prestation" value="1">
+                              <label for="floatingInputValue">Quantité</label>
+                          </form>
+                      </div>
+                      <div class="col-12 col-lg-3">
+                          <div class="form-floating mb-3">
+                              <input type="date" name="date_proforma" class="form-control shadow-none" id="date_prestation">             
+                              <label for="id_date_proforma">Date</label>
+                          </div>                    
+                      </div>
+                      
+      
+                  </div>
+               
+          </div>
+          <div class="modal-footer">
+              <div class="float-end">   
+                  <button class="btn btn-primary float-end shadow-none px-3" onclick="addPrestation()">Ajouter préstation</button>
+                  <a class="btn btn-gray-100 float-end mx-2" data-bs-dismiss="modal">Annuler</a>     
+              </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+
+
+<script>
+ 
+// set the date for date paiement field to today 
+var now = new Date();
+var day = ("0" + now.getDate()).slice(-2);
+var month = ("0" + (now.getMonth() + 1)).slice(-2);
+var today = now.getFullYear()+"-"+(month)+"-"+(day);
+
+
+
+$('#date_paiement').val(today); 
+
+// get CSRFToken from cookies 
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+}
+
+
+
+function fillPrestation(data){
+       
+    table = document.getElementById("prstation_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+
+    data.forEach(item => {
+        var row = table.insertRow(0);
+        var rubrique_cell = row.insertCell(0);
+        var tarif_cell = row.insertCell(1);
+        var quantite_cell = row.insertCell(2);
+        var HT_cell = row.insertCell(3);
+        var TVA_cell = row.insertCell(4);
+        var TTC_cell = row.insertCell(5);
+
+        rubrique_cell.innerHTML= item.rubrique;
+        tarif_cell.innerHTML= item.tarif;
+        quantite_cell.innerHTML= item.quantite;
+        HT_cell.innerHTML= item.HT;
+        TVA_cell.innerHTML= item.TVA;
+        TTC_cell.innerHTML= item.TTC;
+
+    })
+
+} 
+
+
+// Add prestation function 
+function addPrestation(){
+    let rubrique = document.getElementById("rubrique").value;
+    let tarif = document.getElementById("tarif_prestation").value;
+    let quantite = document.getElementById("quantite_prestation").value;
+    let date_prestation = document.getElementById("date_prestation").value;
+
+    if (date_prestation == ""){
+        Notification("error","S'il vous plaît assurez-vous de remplir tous les champs avant de soumettre.","danger");
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'add_prestation_facture_avoire'  facture_avoire.id %}",
+        data: {
+            "rubrique": rubrique,
+            "date_prestation": date_prestation,
+            "tarif": tarif,
+            "quantite": quantite,
+            "date": date_prestation
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) {  
+            $('#add_prestation_model').modal('hide'); 
+            fillPrestation(response.data);
+            document.getElementById("info_ht").innerHTML = response.bill_info.HT + " DA";       
+            document.getElementById("info_tva").innerHTML = response.bill_info.TVA + " DA";       
+            document.getElementById("info_ttc").innerHTML = response.bill_info.TTC + " DA";  
+            success();
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      }) 
+
+}
+
+</script>
+{% endblock content %}
+

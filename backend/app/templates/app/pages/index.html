@@ -1,0 +1,84 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+       <!-- <img src="{% static 'images/stock.jpg' %}" class="rounded mx-auto d-block" /> -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+
+    <title>Wepora Snippets</title>
+  </head>           
+<body>
+<!--content start-->
+ <div class="container" id="vue-app">
+    <div class="row align-items-center">   
+      <form method="post" enctype = "multipart/form-data" >
+
+      <div class="row mt-5">
+
+         <div class="col">
+               {% csrf_token %} 
+       
+               <div class="mb-3">
+                   <label for="formFileSm" class="form-label">Fichier CONTA</label>
+                   <input class="form-control shadow-none"  id="formFileSm" type="file" name="conta" >
+                 </div>             
+         </div>
+         <div class="col ">
+            <form method="post" enctype = "multipart/form-data" >
+               {% csrf_token %} 
+       
+               <div class="mb-3">
+                   <label for="formFileSm" class="form-label">Fichier LIGNE</label>
+                   <input class="form-control shadow-none"  id="formFileSm" type="file" name="ligne" >
+                 </div>
+       
+         </div>
+         <div class="col">
+            <label for="formFileSm" class="form-label" style="color: white;">|</label>
+
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
+         </div>
+
+         </div>
+      </form>
+
+       </div>
+       
+       <h1> List des manifets </h1>
+       {% for item in data %}
+
+       <div class="card mb-2" >
+         <div class="card-header">
+           Manifest
+         </div>
+         <ul class="list-group list-group-flush">
+           <li class="list-group-item"><b>Articl</b> : {{ item.Artcile }}</li>
+           <li class="list-group-item"><b>TC</b> : {{ item.TC }}</li>
+           <li class="list-group-item"><b>TAR</b> : {{ item.TAR }}</li>
+           <li class="list-group-item"><b>BL</b> : {{ item.BL }}</li>
+           <li class="list-group-item"><b>Client</b> : {{ item.Client }}</li>
+           <li class="list-group-item"><b>Adress</b> : {{ item.Adress }}</li>
+           <li class="list-group-item"><b>Poids</b> : {{ item.Poids }}</li>
+         </ul>
+       </div>
+
+       {% endfor %}
+
+      
+
+    </div>
+</div> 
+
+
+
+
+<!-- JavaScript -->
+<script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

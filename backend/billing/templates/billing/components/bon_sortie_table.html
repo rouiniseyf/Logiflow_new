@@ -1,0 +1,46 @@
+
+<div class="table-responsive table-hover">
+  <table class="table table-hover table-borderless table-centered table-nowrap rounded">
+      <thead class="thead-light border-0">
+    <tr>
+          <th class="rounded-start">Numero</th>
+          <th>Facture</th>
+          <th>Date Sortie</th>
+          <th>Date Creation</th>
+          <th>D10</th>
+          <th>Badge</th>
+          <th class="rounded-end">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+
+      {% for item in data %}
+      <tr>
+            <td class="align-middle rounded-start">{{ item.numero}}</td>
+            <td class="align-middle">
+              <a type="link" class="btn  btn-gray-200 shadow-none " href="{% url 'facture_details' item.facture.id %}" target="_blank" >{{ item.facture }}</a>
+            </td>
+            <td class="align-middle">{{ item.date_creation|date:"l, d-m-Y"  }}</td>
+            <td class="align-middle">{{ item.date_sortie|date:"l, d-m-Y"  }}</td>
+            <td class="align-middle">{{ item.d10 }}</td>
+            <td class="align-middle">{{ item.badge }}</td>
+
+            <td class="align-middle rounded-end">
+                <a type="link" class="btn  btn-secondary shadow-none arabic" href="{% url 'print_bon_sortie' item.id %}" target="_blank" >
+                  <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+
+                </a>
+            </td>
+
+        <tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if data|length <=  0 %}
+    {% include 'app/components/no_data.html' %}   
+  {% endif %}     
+
+ {% include 'app/components/messages.html' %}                     
+
+</div>

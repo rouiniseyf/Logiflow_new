@@ -1,0 +1,43 @@
+<div class="table-responsive table-hover">
+  <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+      <thead class="thead-light border-0">
+    <tr>
+          <th class="rounded-start">Numéro</th>
+          <th>Date de création</th>
+          <th>Tc</th>
+          <th>Commande</th>
+          <th>Quantité</th>
+          <th class="rounded-end">Action</th>
+    </tr>
+    </thead>
+    <tbody id="commande_table">
+    {% if data|length > 0 %}
+    
+       {% for item in data %}
+            <tr>
+                  <td class="rounded-start">
+                    {{ item.bon_commande.numero }}
+                  </td>
+                  <td>{{ item.bon_commande.date_creation }}</td>
+                  <td>{{ item.tc.tc }}</td>
+                  <td>{{ item.type }}</td>                         
+                  <td>{{ item.quantite }}</td>                         
+                  <td class="rounded-end">
+                    <a class="btn btn-secondary btn-sm  shadow-none" tabindex="-1" target="_blank" role="button" aria-disabled="true" href="{% url 'print_commande' item.bon_commande.id item.tc.id %}">
+                      <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                    </a>
+                  </td>
+            </tr>
+        {% endfor %}
+
+    {% else %}
+            <tr>
+                <td colspan="7" class="text-lg-center p-4">
+                  <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                </td>
+            </tr>
+    {% endif %}
+       
+    </tbody>
+  </table>                 
+</div>

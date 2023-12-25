@@ -1,0 +1,588 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title=visite.visite %}
+
+
+<div class="row mt-4 mt-lg-0 mb-3">
+    
+    <div class="col-lg-12">
+<div class="card bg-gray-200">
+    <div class="card-body ">
+        <div class="mb-2 d-block d-lg-none">
+            <b>visite</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ visite.visite }}</span>
+        </div>
+        <div class="mb-2">
+            <b>Date de visite</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ visite.date_visite|date:"l, d M Y" }}</span>
+        </div>
+        <div class="mb-2">
+            <b>Gros</b> &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ visite.gros }}</span>
+        </div>
+        <div class="mb-2">
+            <b>Article</b> &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ visite.article.numero }}</span>
+        </div> 
+        <div>
+            <b>Transitaire</b> &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ visite.transitaire }}</span>
+        </div> 
+
+    </div> 
+</div>
+
+
+</div> 
+</div>
+
+    <!-- The table column -->
+
+<div class="card mb-4">
+    <div class="card-body p-2 p-lg-3 pb-2">
+
+
+<div class="d-none d-lg-block">
+    <div class="row ">
+        <div class="col-auto mb-3">
+         
+                    <a type="link" class="btn  btn-secondary shadow-none" data-bs-toggle="modal" href="#add_chargement_model" onclick="get_data()">
+                        <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="16" height="16"><path d="M22.95,9.6a1,1,0,0,0-1.414,0L10.644,20.539a5,5,0,1,1-7.072-7.071L14.121,2.876a3,3,0,0,1,4.243,4.242L7.815,17.71a1.022,1.022,0,0,1-1.414,0,1,1,0,0,1,0-1.414l9.392-9.435a1,1,0,0,0-1.414-1.414L4.987,14.882a3,3,0,0,0,0,4.243,3.073,3.073,0,0,0,4.243,0L19.778,8.532a5,5,0,0,0-7.071-7.07L2.158,12.054a7,7,0,0,0,9.9,9.9L22.95,11.018A1,1,0,0,0,22.95,9.6Z"/></svg>
+                    </a>
+                    <a class="btn btn-secondary shadow-none shadow-none" onclick="fillTransitaires()" data-bs-toggle="modal" href="#update_modal" role="button" >
+                        <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M18,19v4.7a4.968,4.968,0,0,0,1.879-1.164l2.656-2.658A4.954,4.954,0,0,0,23.7,18H19A1,1,0,0,0,18,19Z"/><path d="M7.172,13.828A4,4,0,0,0,6,16.657V18H7.343a4,4,0,0,0,2.829-1.172L21.5,5.5a2.121,2.121,0,0,0-3-3Z"/><path d="M24,4.952a4.087,4.087,0,0,1-1.08,1.962L11.586,18.243A5.961,5.961,0,0,1,7.343,20H6a2,2,0,0,1-2-2V16.657a5.957,5.957,0,0,1,1.758-4.242L17.086,1.086A4.078,4.078,0,0,1,19.037,0c-.013,0-.024,0-.037,0H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16V19a3,3,0,0,1,3-3h5V5C24,4.984,24,4.969,24,4.952Z"/></svg>
+                    </a>   
+                    <a type="link" class="btn  btn-secondary shadow-none" href="{% url 'print_visite' visite.id %}" target="_blank" >
+                        <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                    </a>
+                    <button class="btn  btn-primary shadow-none" onclick="enregistrer()">Enregistrer</button>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="row d-block d-lg-none px-3">
+    <a type="link" class="btn  btn-secondary shadow-none mb-2" data-bs-toggle="modal" href="#add_chargement_model" onclick="get_data()">
+        <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="16" height="16"><path d="M22.95,9.6a1,1,0,0,0-1.414,0L10.644,20.539a5,5,0,1,1-7.072-7.071L14.121,2.876a3,3,0,0,1,4.243,4.242L7.815,17.71a1.022,1.022,0,0,1-1.414,0,1,1,0,0,1,0-1.414l9.392-9.435a1,1,0,0,0-1.414-1.414L4.987,14.882a3,3,0,0,0,0,4.243,3.073,3.073,0,0,0,4.243,0L19.778,8.532a5,5,0,0,0-7.071-7.07L2.158,12.054a7,7,0,0,0,9.9,9.9L22.95,11.018A1,1,0,0,0,22.95,9.6Z"/></svg>
+    </a>
+    <a class="btn btn-secondary shadow-none shadow-none mb-2" onclick="fillTransitaires()" data-bs-toggle="modal" href="#update_modal" role="button" >
+        <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M18,19v4.7a4.968,4.968,0,0,0,1.879-1.164l2.656-2.658A4.954,4.954,0,0,0,23.7,18H19A1,1,0,0,0,18,19Z"/><path d="M7.172,13.828A4,4,0,0,0,6,16.657V18H7.343a4,4,0,0,0,2.829-1.172L21.5,5.5a2.121,2.121,0,0,0-3-3Z"/><path d="M24,4.952a4.087,4.087,0,0,1-1.08,1.962L11.586,18.243A5.961,5.961,0,0,1,7.343,20H6a2,2,0,0,1-2-2V16.657a5.957,5.957,0,0,1,1.758-4.242L17.086,1.086A4.078,4.078,0,0,1,19.037,0c-.013,0-.024,0-.037,0H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16V19a3,3,0,0,1,3-3h5V5C24,4.984,24,4.969,24,4.952Z"/></svg>
+    </a>   
+    <a type="link" class="btn  btn-secondary shadow-none mb-2" href="{% url 'print_visite' visite.id %}" target="_blank" >
+        <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+    </a>
+    <button class="btn  btn-primary shadow-none w-100 mb-2" onclick="enregistrer()">Enregistrer</button>
+
+</div>
+
+
+
+        <div class="table-responsive table-hover mb-3">
+            <table class="table table-hover table-borderless table-centered table-nowrap rounded">
+                <thead class="thead-light border-0">
+                    <tr class="my-4">
+                        <th class="rounded-start">Article</th>
+                        <th >Tc</th>
+                        <th >Type</th>
+                        <th >Scelle</th>
+                        <th class="rounded-end">Observation</th>
+                    </tr>
+                </thead>
+                <tbody id="visite_item_table" />
+                        {% for item in visite_items %}                   
+                            <tr>
+                                <td class="rounded-start"> {{item.tc.article.numero}} </td>
+                                <td> {{item.tc.tc}} </td>
+                                <td> {{item.tc.type_tc}}</td>
+                                <td>{{item.scelle}} </td>
+                                <td class="rounded-end"> {{item.observation}} </td>
+                            </tr>
+                        {% endfor %}  
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+    
+
+
+<!-- update visite modal dialog -->
+<div class="modal fade" id="update_modal" aria-hidden="true" aria-labelledby="..." tabindex="-1"  >
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content ">
+        <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Mis à jour</h5>
+        </div>
+        
+        <div class="modal-body">
+            <div class="col">
+                <div class="form-floating mb-3">
+                    <input type="date" class="form-control form-control-sm shadow-none" id="select_date" value="{{ visite.date_visite|date:"Y-m-d" }}"/>                    
+                    <label for="gros" >Date de visite</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select_transitaire">
+                    
+                    </select>                     
+                    <label for="gros" >Transitaire</label>
+                </div>
+
+            </div> 
+                
+        </div>
+
+        <div class="modal-footer">
+            <a  class="btn btn-light float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+            <button type="submit" class="btn btn-primary float-right" onclick="updateVisite()"> mettre à jour</button>
+
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- The popup model the shows us all the containsers of the selected article -->
+<div class="modal fade"  id="add_chargement_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg">
+
+            <div class="modal-body">
+
+                <span class="badge bg-gray-100 text-primary p-2 mb-3"> Conteneurs</span>
+
+                <div class="table-responsive table-hover">
+                    <table class="table table-hover table-borderless table-centered table-nowrap rounded">
+                        <thead class="thead-light border-0">
+                                <tr class="mb-3">
+                                    <th class="rounded-start"><input class="form-check-input shadow-none" type="checkbox" value="" id="th_check" onchange="checkAll('th_check')"></th>
+                                    <th scope="col">Tc</th>
+                                    <th scope="col">Tar</th>
+                                    <th class="rounded-end">Type</th>
+                                </tr>
+                        </thead>
+                        <tbody id="tcs_table" />
+                    </table>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <a  class="btn btn-gray-100 float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+                <button class="btn btn-primary shadow-none" onclick="charger()">Insérer</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+               
+<!-- Delete confirmation Modal -->
+<div class="modal fade " id="delete_bulletins" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+        <div class="modal-body">
+            <h6 class="mt-3">Voulez-vous enregistrer les modifications ?</h6>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light shadow-none" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-danger shadow-none" id="yes-button" data-bs-dismiss="modal">Oui</button>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- end delete confirmation model-->
+
+<script>
+    window.onload = (event) => {
+        printitems('nav9');
+    };
+
+var checks = [];
+var results = [];
+var selected_rows = [];
+var saved_data = [];
+
+
+    //Fill the transitaire setect in Update visite model 
+    function fillTransitaires(){
+          $.ajax({
+            type: 'GET',
+            url: "{% url 'get_transitaires' %}",
+
+            success: function (response) { 
+                select_transitaire.innerHTML = "";
+                console.log(response.data);
+                if(response.data.length > 0 ){
+                    console.log(response.data)
+
+                    response.data.forEach(item => {
+
+                        var option = document.createElement("option");
+                        if(item.id == "#{ visite.transitaire.id }}"){
+                            option.setAttribute('selected','selected');
+                        }
+                        option.text = item.raison_sociale;
+                        option.value = item.id;
+                        select_transitaire.add(option);
+                    }
+                )
+                } 
+              
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        })  
+    } 
+
+    function updateScelle(tc){
+
+        scelle = document.getElementById("scelle"+tc).value;
+
+        $.ajax({
+            type: 'POST',
+            url: {% url 'update_scelle' %},
+            data: {
+              "tc" : tc,
+              "scelle": scelle,
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) {    
+                  Notification('Succès',"L'opération a été effectuée avec succès.",'success');    
+            },
+            error: function (response) {
+                console.log(response);
+            }
+      })
+
+    }
+
+    // Update visite 
+    function updateVisite(){
+        select_transitaire =  document.getElementById("select_transitaire");
+        selected_transitaire = select_transitaire.value;
+        selected_date = document.getElementById("select_date").value;
+        console.log(selected_transitaire);
+        if(selected_date == null || selected_date=="") {
+            console.log("date is null");
+        }
+        $.ajax({
+            type: 'POST',
+            url: {% url 'update_visite' %},
+            data: {
+              "visite" : "{{ visite.id }}",
+              "selected_date": selected_date,
+              "selected_transitaire": selected_transitaire
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) { 
+                    $('#update_modal').modal('hide');
+                    Notification('Succès',"L'opération a été effectuée avec succès.",'success'); 
+
+                    document.getElementById("transitaire").innerHTML = select_transitaire.options[select_transitaire.selectedIndex].text; 
+                    document.getElementById("visite_date").innerHTML = selected_date;     
+
+            },
+            error: function (response) {
+                console.log(response);
+            }
+      })
+    }
+    // check if the string has more then 20 caracters in length, if so slice it to 20 caracters and add 3 dots at the end 
+    function slice(str){
+        if(str.length > 20){
+            return (str.slice(0, 20) + "...");
+        }
+        return str;
+    }
+    
+    //Get the current time 
+    function getDateTimeNow(){
+        now = new Date(Date.now());
+        year = now.getFullYear().toString();
+        month = (now.getMonth()+1).toString();
+        if(month.length==1){
+            month = "0" + month;
+        }
+        day = now.getDate().toString();
+        if(day.length==1){
+            day = "0" + day;
+        }
+        hour = now.getHours().toString();
+        if(hour.length==1){
+            hour = "0" + hour;
+        }
+        minute = now.getMinutes().toString();
+        if(minute.length==1){
+            minute = "0" + minute;
+        }
+        return(year+"-"+month+"-"+day+"T"+hour+":"+minute);
+    }
+
+    // check if a row exists in a table 
+    function rowExist(table, id){
+        exist = false;
+        for (let i in table.rows) {
+            let row = table.rows[i];
+            if (row.id == id){
+                exist = true;
+            }
+        }  
+        return exist;
+    }
+
+    // Global variable checks for all the checked boxs 
+
+    var results = [];
+    var selected_rows = [];
+    var saved_data = [];
+
+    function setValue(value){
+        if (typeof value != 'undefined' && (value!=null)){
+            return (value);
+        }else{
+            return ""
+        }
+    }
+    function setObservationValue(value){
+        if (typeof value != 'undefined' && (value!=null)){
+            return (value);
+        }else{
+            return "R.A.S"
+        }
+    }
+    function setDateSortieValue(value){
+        if ((typeof value != 'undefined') && (value!=null)){
+            return (value.slice(0,-1));
+        }else{   
+            return getDateTimeNow();
+        }
+    }
+
+
+    function addSelectedRow(table, data){
+            var row = table.insertRow(0);
+            var article_cell = row.insertCell(0);
+            var tc_cell = row.insertCell(1);
+            var type_cell = row.insertCell(2);
+            var scelle_cell = row.insertCell(3);
+            var observation_cell = row.insertCell(4);
+
+
+            row.id = data.tc;
+            article_cell.innerHTML= data.article__numero;
+            article_cell.classList.add("rounded-start");
+            tc_cell.innerHTML= data.tc;
+            let type = data.type_tc__designation;
+            if(data.dangereux){
+                type += '&nbsp;<span class="badge bg-danger pt-2"> </span>';
+            }
+            if(data.frigo){
+                type += '&nbsp;<span class="badge bg-info pt-2"> </span>';
+        
+            }
+            type_cell.innerHTML= type;
+            scelle_cell.innerHTML = ('<input type="text" class="form-control form-control-sm shadow-none"   style="margin: -4px; min-width: 150px;" placeholder="XXXXXX" id="scelle' + data.tc +'"  value ="'+setValue(data.matricule_camion)+'"/>');
+            observation_cell.innerHTML = ('<input type="text" class="form-control form-control-sm shadow-none" style="margin: -4px;  min-width: 200px;"  id="observation' + data.tc +'"  value ="R.A.S"/>');
+            observation_cell.classList.add("rounded-end")
+         
+    }
+function enregistrer(){
+    
+    var message = document.getElementById("delete_bulletins");
+    var yes_button = document.getElementById("yes-button");
+
+
+    saved_data = [];
+    error = false;
+    selected_rows.forEach(row =>{
+        let observation =  (document.getElementById("observation"+row[0].tc)).value;
+        let scelle = (document.getElementById("scelle"+row[0].tc)).value; 
+        if (scelle == "" || observation == ""){
+            error = true;
+        } 
+        saved_data.push(
+            {
+            "id": row[0].id,
+            "scelle": scelle, 
+            "observation": observation
+            });
+    }); 
+    if(error){
+        Notification('error',"Certains <b>champs obligatoires</b> sont vides, veuillez les remplir tous puis réessayer","danger");
+    }else{
+        yes_button.onclick = function (){
+                $.ajax({
+                type: 'POST',
+                url: "{% url 'save_visite' %}",
+                data: {
+                    "saved_data": JSON.stringify(saved_data),
+                    "visite" : "{{ visite.id }}"
+                },
+                dataType: 'json', 
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                success: function (response) { 
+                    selected_rows.forEach(row =>{
+                        let tc = row[0].tc;
+                        const scelle_input = document.getElementById('scelle'+tc);
+                        const scelle_text = document.createElement("span");
+                        scelle_text.innerHTML = scelle_input.value;
+                        scelle_input.replaceWith(scelle_text);
+
+                        const observation_input = document.getElementById('observation'+tc);
+                        const observation_text = document.createElement("span");
+                        observation_text.innerHTML = observation_input.value;
+                        observation_input.replaceWith(observation_text);
+                    }); 
+                    if (response.message == 'success'){
+                        success();       
+                    }
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+        } 
+      
+        var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+        visits_panel.show();
+        }  
+    }
+    
+    
+
+
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+}
+
+  
+function addRow(table, data){
+    console.log(data);
+    var row = table.insertRow(0);
+    var checkbox = row.insertCell(0);
+    var tc_cell = row.insertCell(1);
+    var tar_cell = row.insertCell(2);
+    var type_cell = row.insertCell(3);
+
+    checks.push(data.tc);
+    checkbox.innerHTML= ('&nbsp;&nbsp;<input type="checkbox" class="form-check-input shadow-none" id="' + data.tc + '"/>');
+    checkbox.classList.add("rounded-start")
+    tc_cell.innerHTML= data.tc;
+    tar_cell.innerHTML= data.tar;
+
+    
+    let type = data.type_tc__designation;
+    if(data.dangereux){
+        type += '&nbsp;<span class="badge bg-danger pt-2"> </span>';
+    }
+    if(data.frigo){
+        type += '&nbsp;<span class="badge bg-info pt-2"> </span>';
+
+    }
+    type_cell.innerHTML= type;
+    type_cell.classList.add("rounded-end")
+}
+
+//get the selected rows and add them to the other table 
+function charger(){
+    table = document.getElementById("visite_item_table");
+    selected_rows = [];
+    selected_boxes = getcheckedBoxs();
+    selected_boxes.forEach(item => {
+        selected_rows.push(results.filter(row => {
+            return row.tc == item;
+        }))
+    });
+    //loop true the selected rows and add them to then new table 
+    selected_rows.forEach(row => {
+        addSelectedRow(table, row[0]);
+    });
+    //hide the model 
+    $('#add_chargement_model').modal('hide');
+}
+
+
+function get_data(){
+
+    table = document.getElementById("tcs_table");
+
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+      $.ajax({
+          type: 'GET',
+          url: "{% url 'get_not_added_to_visite_tcs' %}",
+          data: {
+              "article": "{{ visite.article.id }}",
+              "visite": "{{ visite.id }}",
+          },
+          success: function (response) { 
+            checks = [];
+            document.getElementById('th_check').checked = false;
+            data = response.data; 
+            results = data;
+            console.log(results);
+            for(i=0;i<data.length; i++){
+                addRow(table, data[i]);     
+            }  
+            
+           },
+          error: function (response) {
+             console.log(response);
+          }
+      })
+}
+// loop true the checks array and check the chekced element then add them to the chekced list 
+    function getcheckedBoxs(){
+        var checked_list = [];
+        checks.forEach(item => {
+                if ( document.getElementById(item).checked){
+                    checked_list.push(item);
+                }
+            });
+        return checked_list;
+    }
+
+// when the top check box is checks, check all the boxs end if unchecked, uncheck all the boxs 
+function checkAll(){
+    let check_all = document.getElementById("th_check");
+    if(check_all.checked){
+        checks.forEach(item => document.getElementById(item).checked = true );
+    }else{
+        checks.forEach(item => document.getElementById(item).checked = false );
+    }     
+}
+
+
+function reset(){
+        checks.forEach(item => document.getElementById(item).checked = false );
+        document.getElementById('th_check').checked = false;
+      }
+
+
+</script>
+{% endblock content %}
+
+

@@ -1,0 +1,52 @@
+<select class="form-select" id="gros_select" onchange="get()">
+    {% for g in drop_gros %}
+        <option selected id="{{ g.id }}">{{ g.numero}}</option>
+    {% endfor %}
+</select>
+
+<select class="form-select" id="article_select">
+</select>
+<script>
+ 
+function get(){
+    var gros = document.getElementById("gros_select"); 
+    selected_id = gros.options[gros.selectedIndex].id;
+    var api = "/articles-by-gros/" + selected_id;
+    var articles_select = document.getElementById("article_select");
+    $.ajax({
+            type: 'GET',
+            url: api,
+            data: {"pk": selected_id},
+            success: function (response) {
+                for(i=article_select.options.length-1;i>=0;i--){
+                    article_select.remove(i);
+                }
+                response.articles.forEach(item => {
+                    var option = document.createElement("option")
+                    option.text = item.numero; 
+                    option.id = item.id;
+                    article_select.add(option);
+                })
+                console.log(response);
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+    });
+
+   
+}
+
+</script>
+
+{% comment %} function myFunction() {
+  var x = document.getElementById("mySelect");
+  var option = document.createElement("option");
+  option.text = "Kiwi";
+  option.id = "oprions_id";
+  x.add(option);
+}
+function get_id(){
+		var id = document.getElementById("mySelect");
+        alert(id[id.selectedIndex].id);
+} {% endcomment %}

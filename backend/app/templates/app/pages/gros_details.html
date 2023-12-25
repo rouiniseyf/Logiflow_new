@@ -1,0 +1,162 @@
+
+
+{% extends 'app/components/base.html' %}
+{% load slice %}
+{% load static %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title=gros.gros  %}
+{% include 'app/components/messages.html' %}
+
+<div class="card bg-gray-200 mb-3 mt-4">
+    <div class="card-body ">
+        <div class="row mt-lg-0">
+            {% comment %} col 1 {% endcomment %}
+
+            <div class="col-lg-4">
+
+                <div class="mb-2 d-block d-lg-none ">
+                    Gros &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ gros.gros }} </span>
+                </div>                                   
+
+                <div class="mb-2">
+                    Accostage &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ gros.accostage|date:"d/m/Y" }}</span>
+                </div>
+
+                <div class="mb-2 mb-lg-0">
+                    Regime doune&nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.regime__designation }}</span>
+                </div> 
+
+            </div> 
+
+            <div class="col">
+
+                <div class="mb-2">
+                    Armateur &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.armateur__raison_sociale }}</span>
+                </div> 
+                <div class="mb-2">
+                    Consigntaire &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.consignataire__raison_sociale }}</span>
+                </div> 
+                <div >
+                    Navire &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ gros.navire__nom }}</span>
+                </div> 
+
+            </div>
+    
+        </div> 
+    </div> 
+</div> 
+
+
+<div class="card mt-2 border-0 mb-4" >
+    <div class="card-body p-2 pb-0 p-lg-3 pb-lg-0">
+        <div class="row mb-3">
+            <div class="col-lg-4">
+                {% include 'app/components/search.html' %}
+            </div> 
+            <div class="col-lg-2 offset-lg-3">
+                <a role="button" class="btn btn-primary shadow-none w-100 mb-2" href="{% url 'manifest' gros.id %}">
+                    Gestion des types
+                </a>
+            </div>
+            <div class="col-lg-1 mb-2 mb-lg-0">
+                <a class="btn btn-secondary shadow-none shadow-none w-100" onclick="fillTransitaires()" data-bs-toggle="modal" href="#update_modal" role="button" >
+                    <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="16" height="16"><path d="M22.95,9.6a1,1,0,0,0-1.414,0L10.644,20.539a5,5,0,1,1-7.072-7.071L14.121,2.876a3,3,0,0,1,4.243,4.242L7.815,17.71a1.022,1.022,0,0,1-1.414,0,1,1,0,0,1,0-1.414l9.392-9.435a1,1,0,0,0-1.414-1.414L4.987,14.882a3,3,0,0,0,0,4.243,3.073,3.073,0,0,0,4.243,0L19.778,8.532a5,5,0,0,0-7.071-7.07L2.158,12.054a7,7,0,0,0,9.9,9.9L22.95,11.018A1,1,0,0,0,22.95,9.6Z"/></svg>
+                </a>     
+            </div>
+            <div class="col-lg-2 ">
+
+                <a type="link" class="btn btn btn-secondary shadow-none float-end w-100" data-bs-toggle="modal" href="#modal">
+                    + Article
+                </a>            
+            </div> 
+        </div>
+
+        <div class="table-responsive mb-4">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                <tr>
+                    <th class="rounded-start">Article</th>
+                    <th>Bl</th>
+                    <th>Client</th>
+                    <th class="rounded-end">Désignation</th>
+                </tr>
+            </thead>
+            <tbody>       
+                {% for item in articles %} 
+                    {% if item.groupage %}
+                        <tr class="text-danger">
+                            <td class="text-danger rounded-start">
+                                <a class="btn btn-sm btn-secondary shadow-none" type="button"  href="{% url 'article_details' item.id %}"> 
+                                    {{ item.numero }}
+                                </a> 
+                            </td>
+                            <td class="align-middle">{{ item.bl }}</td>
+                            <td class="align-middle">{{ item.client__raison_sociale }}</td>
+                            <td class="align-middle rounded-end">{{ item.designation|sliceText }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="rounded-start align-middle">
+                                <a class="btn btn-sm btn-gray-100 shadow-none" type="button"  href="{% url 'article_details' item.id %}"> 
+                                    {{ item.numero }}
+                                </a> 
+                            </td>                            
+                            <td class="align-middle">{{ item.bl }}</td>
+                            <td class="align-middle">{{ item.client__raison_sociale }}</td>
+                            <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ item.designation}}" class="rounded-end align-middle">{{ item.designation|sliceText }}</td>
+                        </tr>
+                    {% endif %}                  
+                {% endfor %}   
+            </tbody>
+        </table> 
+    </div>
+    {% include "app/components/pagination.html" with data=articles %}
+</div>
+</div>
+
+<div class="modal fade" id="update_modal" aria-hidden="true" aria-labelledby="..." tabindex="-1"  >
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content bg-gray-200">
+        
+          <div class="modal-body">
+            <span class="badge bg-white text-primary p-2 mb-3">EDI</span>
+
+            <form method="post" action="{% url 'chargement_gros' gros.id %}"  enctype="multipart/form-data" >
+                {% csrf_token %} 
+                <div class='row mb-3'>
+                    <div class="col-12 col-lg-6">
+                        <label for="formFileSm" class="form-label">Le fichier conta.txt</label>
+                        <input class="form-control border-0 shadow-none"  id="formFileSm" type="file" name="conta" >
+                    </div>
+
+                    <div class="col-12 col-lg-6 mt-4 mt-lg-0">
+                        <label for="formFileSm" class="form-label">Le fichier lignes.txt</label>
+                        <input class="form-control border-0 shadow-none"  id="formFileSm" type="file" name="ligne" >
+                    </div>
+                </div>
+                
+            <div class="mt-2 float-end"> 
+                <a  class="btn btn-white  mr-2" data-bs-dismiss="modal">Annuler</a>
+                <button type="submit" class="btn btn-primary">Sumettre</button>
+            </div>
+
+  
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+{% include 'app/components/add_without_button.html' with form=form_article title="+ Article" %}
+
+
+<script>
+    window.onload = (event) => {
+        printitems('nav2');
+    };
+</script>
+{% endblock content %}
+
+

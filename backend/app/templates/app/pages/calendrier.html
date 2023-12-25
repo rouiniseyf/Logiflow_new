@@ -1,0 +1,472 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Historique' %}
+{% include 'app/components/messages.html' %}
+
+
+<div class="row">
+    <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+         <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-8 col-lg-10">
+                        <h6 class="text-dark mt-2"> LES VISITES DU JOUR  </h6>
+                    </div > 
+                    <div class="col-4 col-lg-2">
+                        <a type="link" class="btn btn-sm btn-secondary shadow-none w-100" href="{% url 'print_todays_visites'  %}" target="_blank" > 
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body bg-gray-200 p-2">
+                {% for item in todays_visits %}
+                   <div class="card shadow-sm mb-3">
+                        <div class="card-body bg-light">
+                            <b>{{ item.visite }}</b><br>
+                            {{ item.article.client }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+    <div class="col-8 d-none d-lg-block">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-secondary shadow-none" id="previous" onclick="previous()">Précédent </button>
+                        <button class="btn btn-primary shadow-none" id="next" onclick="next()"> Suivent </button>
+                    </div>
+                    <div class="col d-flex justify-content-end">
+                        <div>
+                            <form class="row g-3">
+                                <div class="col-auto">
+                                    <select class="form-control shadow-none" name="month" id="month" onchange="jump()">
+                                        <option value=0>Janvier</option>
+                                        <option value=1>Février</option>
+                                        <option value=2>Mars</option>
+                                        <option value=3>Avril</option>
+                                        <option value=4>Mai</option>
+                                        <option value=5>Juin</option>
+                                        <option value=6>juillet</option>
+                                        <option value=7>Aout</option>
+                                        <option value=8>Septembre</option>
+                                        <option value=9>Octobre</option>
+                                        <option value=10>Novembre</option>
+                                        <option value=11>Décembre</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <select class="form-control shadow-none" name="year" id="year" onchange="jump()">
+                                        <option value=2021>2021</option>
+                                        <option value=2022>2022</option>
+                                        <option value=2023>2023</option>
+                                        <option value=2024>2024</option>
+                                        <option value=2025>2025</option>
+                                        <option value=2026>2026</option>
+                                        <option value=2027>2027</option>
+                                        <option value=2028>2028</option>
+                                        <option value=2029>2029</option>
+                                        <option value=2030>2030</option>
+                                        <option value=2031>2031</option>
+                                        <option value=2032>2032</option>
+                                        <option value=2033>2033</option>
+                                        <option value=2034>2034</option>
+                                        <option value=2035>2035</option>
+                                        <option value=2036>2036</option>
+                                        <option value=2037>2037</option>
+                                        <option value=2038>2038</option>
+                                        <option value=2039>2039</option>
+                                        <option value=2040>2040</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>        
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                <h4 id="monthAndYear"> </h4>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table  table-borderless table-responsive-sm" id="calendar">
+                    <thead>
+                        <tr>
+                            <th><span class="badge bg-primary px-4 py-2 rounded-pill" id="dim" >Dimanche</span></th>
+                            <th><span class="badge bg-primary px-4 py-2 rounded-pill" id="lun">&nbsp;&nbsp;Lundi&nbsp;&nbsp;</span></th>
+                            <th><span class="badge bg-primary px-4 py-2 rounded-pill" id="mar" >Mardi</span></th>
+                            <th><span class="badge bg-primary px-4 py-2 rounded-pill" id="mer">Mercredi</span></th>
+                            <th><span class="badge bg-primary px-4 py-2 rounded-pill" id="jeu">Jeudi</span></th>
+                            <th><span class="badge bg-secondary px-4 py-2 rounded-pill" id="ven">Vendredi</span></th>
+                            <th><span class="badge bg-secondary px-4 py-2 rounded-pill" id="sam">Samedi</span></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="calendar-body">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="visits-panel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="badge bg-primary px-4 py-2 " id="visit-card-title"> </span>
+        <span class="badge bg-light px-4 py-2  rounded-pill " id="visit-card-title-date"> </span>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body ">
+       <div id="visits-container">
+
+       </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    window.onload = function() {
+        printitems('nav10')
+    };
+    today = new Date();
+    var theday;
+    switch(today.getDay()){
+        case(0):
+            theday = document.getElementById("dim");
+            break;
+        case(1):
+            theday = document.getElementById("lun");
+            break;
+        case(2):
+            theday = document.getElementById("mar");
+            break;
+        case(3):
+            theday = document.getElementById("mer");
+            break;
+        case(4):
+            theday = document.getElementById("jeu");
+            break;
+        case(5):
+            theday = document.getElementById("ven");
+            break;
+        case(6):
+            theday = document.getElementById("sam");
+    }
+    theday.classList.add('bg-success');
+    currentMonth = today.getMonth();
+    currentYear = today.getFullYear();
+    selectYear = document.getElementById("year");
+    selectMonth = document.getElementById("month");
+
+    months = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLE", "Aout", "SEPTEMBRE", "OCTOBRE", "NOVOMBRE", "DECEMBRE"];
+
+    monthAndYear = document.getElementById("monthAndYear");
+    showCalendar(currentMonth, currentYear);
+
+    function next() {
+        currentYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
+        currentMonth = (currentMonth + 1) % 12;
+        showCalendar(currentMonth, currentYear);
+    }
+
+    function previous() {
+        currentYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+        currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
+        showCalendar(currentMonth, currentYear);
+    }
+
+    function jump() {
+        currentYear = parseInt(selectYear.value);
+        currentMonth = parseInt(selectMonth.value);
+        showCalendar(currentMonth, currentYear);
+    }
+
+
+    function hasVisits(groups, day){
+        exists = false ;
+        groups.forEach(item => {
+            if ((new Date(item.group_date)).getDate() == day){
+                exists = true;
+            }
+        });
+        return exists;
+    }
+
+    function getVisits(groups,day){
+        results = []
+        groups.forEach(item => {
+            if ((new Date(item.group_date)).getDate() == day){
+                results =  item.visits ;
+            }
+        });
+        return results;
+    }
+    var globalg ;
+    function buildCalendar(groups,month,year) {
+         globalg = groups;
+        let firstDay = (new Date(year, month)).getDay();
+        tbl = document.getElementById("calendar-body"); // body of the calendar
+
+        // clearing all previous cells
+        tbl.innerHTML = "";
+
+        // filing data about month and in the page via DOM.
+        monthAndYear.innerHTML = months[month] + " " + year;
+        selectYear.value = year;
+        selectMonth.value = month;
+
+        // creating all cells
+        let date = 1;
+        for (let i = 0; i < 6; i++) {
+            // creates a table row
+            let row = document.createElement("tr");
+            var info = [];
+            //creating individual cells, filing them up with data.
+            for (let j = 0; j < 7; j++) {
+                // cracting empty cells before the first day of the month 
+                if (i === 0 && j < firstDay) {
+                    cell = document.createElement("td");
+                    cellText = document.createTextNode("");
+                    cell.appendChild(cellText);
+                    row.appendChild(cell);
+                }
+                // when we get to the last day of the month, we beark 
+                else if (date > daysInMonth(month, year)) {
+                    break;
+                }
+                // creating the rest days of the week 
+                else {
+                    cell = document.createElement("td");
+                    cellText = document.createTextNode(date);
+                    var my_cell = row.insertCell(j);
+                    info.push({
+                        "day": date , 
+                        "month" : month + 1 , 
+                        "year" : year, 
+                        "groups": groups
+                    });
+    
+                    if(hasVisits(groups, date)){ // if the day has visits - if today sucess else pramiry both with the number of visits  
+                        if (date === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
+                            my_cell.innerHTML = ('<span class="badge bg-success px-4 py-2 my-2 text-light rounded-pill" >'+ date +' </span> <br> <a class="btn btn-sm btn-tertiary rounded-pill shadow-none" onclick="showSelectedDayVisites('+date+','+(month + 1)+','+year+')">&nbsp;&nbsp;'+getVisits(groups,date).length+'&nbsp;&nbsp;</a> ');   
+                        }else{
+                            my_cell.innerHTML = ('<span class="badge bg-primary px-4 py-2 my-2 text-light rounded-pill" >'+ date+' </span><br><button class="btn btn-sm btn-tertiary rounded-pill shadow-none" onclick="showSelectedDayVisites('+date+','+(month + 1)+','+year+')">&nbsp;&nbsp;'+getVisits(groups,date).length+'&nbsp;&nbsp;</button>');
+                        } 
+                    }else{ // if the day has no visits, if today success else priamry witout the number off visits button 
+
+                        if (date === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
+                            my_cell.innerHTML = ('<span class="badge bg-success px-4 py-2 my-2 text-light rounded-pill" >'+ date +' </span>');   
+                        }else{
+                            my_cell.innerHTML = ('<span class="badge bg-primary px-4 py-2 my-2" style="border-radius: 30px;">'+ date +'</span>');
+                        } 
+
+                    }
+                    // color today's date
+                   
+
+                    date++;
+                }
+ 
+            }
+
+            tbl.appendChild(row); // appending each row into calendar body.
+        }
+
+    }
+
+
+    // check how many days in a month code from https://dzone.com/articles/determining-number-days-month
+    function daysInMonth(iMonth, iYear) {
+        return 32 - new Date(iYear, iMonth, 32).getDate();
+    }
+
+    
+
+    function getCookie(c_name)
+    {
+        if (document.cookie.length > 0)
+        {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1)
+            {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+    function showCalendar(month,year){
+        
+        $.ajax({
+        type: 'GET',
+        url: "{% url 'get_visits_by_month' %}",
+        data: {
+            "selected_month": month +1 ,
+            "selected_year" : year
+        },
+        success: function (response) { 
+            var groups = [];
+            response.data.forEach(item => {
+                //alert((new Date(item.date_visite)).getDate());
+                exists = false;
+                groups.forEach(group =>{
+                    if (group.group_date == item.date_visite){
+                        exists = true ;
+                    }  
+                });
+                if(exists){
+                    groups.forEach(group =>{
+                    if (group.group_date == item.date_visite){
+                        group.visits.push(item);
+                    }  
+                    });
+                    }
+                else {
+                    groups.push(
+                        {group_date : item.date_visite, 
+                        visits : [item]}
+                    );
+                }
+            });
+            buildCalendar(groups, month , year);
+
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      });
+
+
+    }
+
+ 
+function createTable(container, data,visite){
+    var collapse_div = document.createElement("div");
+    collapse_div.setAttribute("class","collapse");
+    collapse_div.setAttribute("id","visite_details_"+ visite.toString());
+    var table = document.createElement("table"); 
+    table.setAttribute("class","table table-borderless table-centered table-nowrap mb-0 rounded mt-4");
+    var thead = document.createElement("thead");
+    thead.setAttribute("class","bg-white");
+    var tr = document.createElement("tr"); 
+    tr.setAttribute("class","bg-light")
+    // tc column
+    var th_tc = document.createElement("th");
+    th_tc.appendChild(document.createTextNode("TC"))
+    th_tc.classList.add("rounded-start")
+    tr.appendChild(th_tc)
+    // article colummn
+    var th_article = document.createElement("th");
+    th_article.appendChild(document.createTextNode("Type"))
+    tr.appendChild(th_article)
+    thead.appendChild(tr)       
+        // tc column
+    var th_type = document.createElement("th");
+    th_type.appendChild(document.createTextNode("Article"))
+    th_type.classList.add("rounded-end")
+    tr.appendChild(th_type)
+    //tbody 
+    var tbody = document.createElement("tbody");
+
+    data.forEach(item => {
+        var row = tbody.insertRow(0);
+        var tc_cell = row.insertCell(0);
+        var type_cell = row.insertCell(1);
+        var article_cell = row.insertCell(2);
+       
+        
+        tc_cell.innerHTML= item.tc__tc;
+        if(item.tc__type_tc__designation == "" || item.tc__type_tc__designation == null){
+            type_cell.innerHTML= "-";
+        }else {
+            type_cell.innerHTML= item.tc__type_tc__designation;
+        }
+        article_cell.innerHTML= item.tc__article__numero;
+    })  
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    collapse_div.appendChild(table);
+    container.appendChild(collapse_div);
+
+}
+
+
+
+function visite_card(visit){
+    
+    var card = document.createElement("div");
+    card.setAttribute("class","card shadow mb-3 bg-gray-100");
+    var card_body = document.createElement("div");
+    card_body.setAttribute("class","card-body");
+    var card_title = document.createElement("div"); 
+    print_link = "<a type='link' class='btn btn-sm btn-secondary shadow-none mb-1' href='{% url 'print_visite' 99 %}' target='_blank' > <svg xmlns='http://www.w3.org/2000/svg' id='Filled' viewBox='0 0 24 24' width='16' height='16'><path d='M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z'/><rect x='5' y='15' width='14' height='9' rx='3'/><path d='M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z'/></svg></a>".replace("99",visit.id.toString());
+    card_title.innerHTML = "<h1 class='display-6' style='font-size: 20pt;'>V"+visit.visite+" <a class='btn btn-sm btn-primary shadow-none mx-4 mb-1' data-bs-toggle='collapse' href='#visite_details_"+ visit.id.toString()+"' role='button' aria-expanded='false' aria-controls='visite_details_"+ visit.id.toString()+"'>Details  </a> "+print_link+" </h1>Client <figcaption class='blockquote-foote mt-2r text-dark'> "+ visit.article__client__raison_sociale +"</figcaption>Designation<figcaption class='blockquote-foote mt-2r text-dark'> "+ visit.article__designation +"</figcaption> </figure>";
+    card_body.appendChild(card_title);
+    card.appendChild(card_body);
+ 
+         $.ajax({
+        type: 'GET',
+        url: "{% url 'get_contaienrs_by_visite' %}",
+        data: {
+            "selected_visit": visit.id,
+        },
+        success: function (response) { 
+            createTable(card_body,response.data,visit.id)
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      });
+    return card;
+}
+
+function removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+}
+
+function showSelectedDayVisites(day, month, year){
+    var today;
+    todays_visits = []
+     globalg.forEach(item => {
+        if(item.group_date == (year+"-"+('0' + month).slice(-2)+"-"+('0' + day).slice(-2))){
+            today = item.group_date;
+            todays_visits = item.visits;
+        }
+    });
+    var panel = document.getElementById('visits-panel');
+    var visits_container = document.getElementById('visits-container');
+    removeAllChildNodes(visits_container);
+    
+    todays_visits.forEach(item =>{
+        visits_container.appendChild(visite_card(item));
+    });
+    document.getElementById("visit-card-title").innerHTML = todays_visits.length+" VISITS ";
+    document.getElementById("visit-card-title-date").innerHTML = today;
+    let link = '<a href={% url "print_selected_day_visites" 58 %} class="btn btn-secondary btn-sm shadow-none" tabindex="-1" role="button" aria-disabled="true"> <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg></a>'
+    document.getElementById("visit-card-title-date").innerHTML =  link.replace('58',today);;
+    var visits_panel = new bootstrap.Modal(panel, { keyboard: false});
+    visits_panel.show();
+}
+</script>
+{% endblock content %}

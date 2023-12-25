@@ -1,0 +1,42 @@
+
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+<section class="row">
+    <div class="col-12">
+<div class="card">
+    <div class="card-body px-3 py-3">
+
+
+    {% include 'app/components/messages.html' %}
+    {% include 'app/components/add.html' %}
+    {% comment %} {% include 'TonersManagement/components/toners_table.html' %}
+    {% include 'TonersManagement/components/toners_mobile_view.html' %} {% endcomment %}
+
+    </div>
+    </div>
+    </div>
+</section>
+
+
+{% block javascript %}
+    <script>
+        async function loadDoc() {
+           
+            const response = await fetch("{% url 'get_agents' %}"); 
+            let data = await response.json();
+            
+            var cards = ""
+            data.forEach(item => {
+                cards = cards + "<div class='card'> <div class='card-body'> "+ item.nom +" "+item.prenom +" </div> </div>";
+            })
+
+            document.getElementById("table").innerHTML = cards;
+
+         
+        }         
+    </script>
+    {% endblock javascript %}
+</div>
+
+{% endblock content %}

@@ -1,0 +1,107 @@
+{% load static %}
+
+<div class="table-responsive mb-4">
+  <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+      <thead class="thead-light border-0">
+          <tr>
+              <th class="rounded-start mb-4">Numéro Bulletins</th>
+              <th >Gros</th>
+              <th >Date</th>
+              <th >Chargé Transfert</th>
+              <th class="rounded-end">Action</th>
+          </tr>
+      </thead>
+        
+      <tbody id="chargement_table" >
+          <!-- Item -->
+        {% for item in data %}
+        <tr id="{{ item.id }}" >
+
+            {% if chargement %}
+              
+            <td class="border-0 rounded-start">
+              {% if item.loaded %}
+              <a class="btn btn-success btn-sm  text-white shadow-none" type="button" style="margin: -4px;" href="{% url 'bulletins_details' item.id %}"> 
+                <small>{{ item.bulletins }}</small>
+              </a>
+              {% else %}
+              <a class="btn btn-sm btn-danger text-white shadow-none" type="button" style="margin: -4px;" href="{% url 'bulletins_details' item.id %}"> 
+                <small>{{ item.bulletins }}</small>
+              </a>
+              {% endif %}
+
+            </td>
+            
+            {% else %}
+              <td><a href={% url 'reception_details' item.id %} class="btn btn-outline-primary btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.bulletins }}</a></td>
+            {% endif %}
+
+            <td class="align-middle">{{ item.gros }}</td>
+            <td class="align-middle">{{ item.date_creation|date:"l, d-m-Y" }}</td>
+            <td class="align-middle">{{ item.charge_chargement }}</td>
+            {% if chargement %}
+              {% if not item.loaded %}
+                <td class="rounded-end">
+                  <a href="#" class="text-danger" role="button" data-bs-toggle="modal" data-bs-target="#delete_bulletins" onclick="select('{{ item.id }}')">SUPPRIMER</a>
+                </td>             
+              {% else %}
+                <td>
+                  -                
+                </td>  
+              {% endif %}
+            {% endif %}
+
+        </tr>
+      {% endfor %}  
+
+      </tbody>
+  </table>
+</div>
+
+{% include 'app/components/pagination.html' %}
+<script>
+var selected_id = 0 ;
+function select(id){
+  selected_id = id;
+}
+function deleteSelected(){
+  let row = document.getElementById(selected_id.toString());
+   $.ajax({
+        type: 'POST',
+        url: "{% url 'delete_bulletins' %}",
+        data: {
+            "bulletins_id" : selected_id
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            if (response.message == 'success'){
+                document.getElementById("chargement_table").deleteRow(row.rowIndex-1);
+                Notification('Succès','Bulletins supprimés avec succès.','success');                    
+            }
+         },
+        error: function (response) {
+           console.log(response);
+        }
+      })
+
+}
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+ }
+
+ 
+
+</script>

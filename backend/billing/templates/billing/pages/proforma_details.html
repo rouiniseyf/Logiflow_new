@@ -1,0 +1,398 @@
+{% extends 'app/components/base.html' %}
+{% load humanize %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title=proforma.numero %}
+{% include 'app/components/messages.html' %}
+
+<div class="card bg-gray-200 mt-4 mt-lg-0 mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-lg-9">
+                {% if proforma.trashed %}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-danger">
+                        Annulé
+                    </span>
+                {% elif proforma.valide %}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-success">
+                        Validé                    
+                    </span>
+                {% endif %}
+
+                <div class="mb-2">
+                    Date de Proforma &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ proforma.date_proforma  }}</span>
+                </div>
+
+
+                <div class="mb-2">
+                    Gros &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ proforma.gros.gros }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Article&nbsp; &nbsp; <span class="badge bg-primary p-2">{{ proforma.article.numero }}</span>
+                </div> 
+
+                <div class="mb-2">
+                    Client &nbsp; &nbsp;<span>{{ proforma.article.client }}</span>
+                </div>
+
+                <div>
+                    Transitaire &nbsp; &nbsp; <span class="badge bg-primary p-2"> {% if proforma.article.transitaire is None %} / {% else %}{{ proforma.article.transitaire }} {% endif %}</span>
+                </div> 
+            </div> 
+            <div class="col-12 col-lg-3">
+                <hr class="d-block d-lg-none">
+                <div class="card bg-gray-200 mt-3">
+                    <div class="card-body p-0">
+
+                        <div class="row">
+                            <div class="col-4 col-lg-4">
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2">  Remise </span>
+                                </div>  
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> HT  </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> TVA </span>
+                                </div>         
+   
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2">  TTC </span>
+                                </div>
+                            </div>
+
+                            <div class="col-8 col-lg-8">
+                                <div class="mb-2">
+                                    {% if proforma.remise == True %}
+                                    <span class="badge bg-danger p-2"> 
+                                        {% if proforma.REMISE > 100 %}
+                                            {{ proforma.REMISE }} DA
+                                        {% elif proforma.REMISE < 100 %}
+                                            {{ proforma.REMISE }} %
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                                <span class="badge bg-gray-300 text-primary p-2"> {{ proforma.TR| intcomma  }} DA</span>
+                                </div>   
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2"> {{ proforma.HT| intcomma  }} DA</span>
+                                </div>
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2"> {{ proforma.TVA | intcomma }} DA</span>
+                                </div>         
+
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2" id="TTC"> {{ proforma.TTC| intcomma  }} DA</span>
+                                </div>
+                            </div>
+                          
+                       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+<div class="row row-cols-auto">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body p-2">
+                <div class="row">
+                    <div class="col-12">    
+                        <a href={% url 'facturation_detials' proforma.article.id %} class="btn btn-gray-200 shadow-none px-5" tabindex="-1" role="button" aria-disabled="true"> 
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Bold" viewBox="0 0 24 24" width="24" height="24"><path d="M19,10.5H10.207l2.439-2.439a1.5,1.5,0,0,0-2.121-2.122L6.939,9.525a3.505,3.505,0,0,0,0,4.95l3.586,3.586a1.5,1.5,0,0,0,2.121-2.122L10.207,13.5H19a1.5,1.5,0,0,0,0-3Z"/></svg>
+                        </a>  
+                        <a href={% url 'print_proforma' proforma.id %} target="_blank" class="btn btn-secondary shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                        </a>  
+                        {% if not proforma.valide and not proforma.trashed %}
+                            {% if groups|length == 0 %}
+                                <a type="link" class="btn btn-secondary shadow-none" data-bs-toggle="modal" href="#select_proforma_containers_model" onclick="get_data()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Outline" viewBox="0 0 24 24" width="16" height="16"><path d="M22.95,9.6a1,1,0,0,0-1.414,0L10.644,20.539a5,5,0,1,1-7.072-7.071L14.121,2.876a3,3,0,0,1,4.243,4.242L7.815,17.71a1.022,1.022,0,0,1-1.414,0,1,1,0,0,1,0-1.414l9.392-9.435a1,1,0,0,0-1.414-1.414L4.987,14.882a3,3,0,0,0,0,4.243,3.073,3.073,0,0,0,4.243,0L19.778,8.532a5,5,0,0,0-7.071-7.07L2.158,12.054a7,7,0,0,0,9.9,9.9L22.95,11.018A1,1,0,0,0,22.95,9.6Z"/></svg>
+                                </a>
+                            {% endif %}
+                         {% endif %}
+
+                        {% if lignes_prestations|length > 0 %} 
+                        <a  class="btn btn-primary shadow-none"  data-bs-toggle="modal" href="#add_facture_model">
+                            + facture
+                        </a>  
+                        {% endif %}
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body p-2 p-lg-3">
+        <span class="badge bg-gray-100 text-primary p-2 mb-3"> Préstations article </span>
+
+        <div class="table-responsive table-hover mb-3">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                    <tr>
+                        <th class="rounded-start">Rubrique </th>
+                        <th scope="col">Tarif</th>
+                        <th scope="col">HT</th>
+                        <th scope="col">TVA</th>
+                        <th class="rounded-end">TTC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ligne in lignes_prestations_article %}
+
+                            <tr >
+                                <td class="rounded-start"> {{ ligne.rubrique }} </td>
+                                <td> {{ ligne.tarif }} </td>
+                                <td> {{ ligne.HT }} </td>
+                                <td> {{ ligne.TVA }} </td>
+                                <td class="rounded-end"> {{ ligne.TTC }} </td>
+                            </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>  
+        </div>
+    </div>
+</div>
+
+
+{% for groupe in groups  %}
+    <hr>
+    <div class="card mb-3">
+        <div class="card-body p-2 p-lg-3">
+            <div>
+                <span class="badge bg-gray-100 text-primary p-2 mb-2">
+                    {{ groupe.type }}
+                </span>
+                {% if groupe.dangereux %}
+                <span class="badge bg-danger pt-2"> </span>
+                {% endif %} 
+
+                {% if groupe.frigo %}
+                    <span class="badge bg-info pt-2"> </span>
+                {% endif %}
+            </div>
+
+                {% for ligne in groups_lignes %}
+                    {% if ligne.groupe == groupe %}
+                    <span class="badge bg-gray-100 text-primary p-2 mb-2">
+                            {{ ligne.tc.tc }} 
+                    </span>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+    </div>
+    
+    <div class="card mb-3">
+        <div class="card-body p-2 p-lg-3">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> Prestations sur les conteneur</span>
+            {% include 'billing/components/prestation_table.html' with data=lignes_prestations current_groupe=groupe %}
+
+        </div>
+    </div>
+{% endfor %}
+
+
+
+    {% include 'app/components/add_without_button.html' with form=form_facture title="+ Facture" submit_button="facture_submit" model_id="add_facture_model" %}
+
+<!-- The popup model the shows us all the containsers of the selected article -->
+<div class="modal fade"  id="select_proforma_containers_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-xl modal-dialog-scrollable" style="overflow: auto;">
+    <div class="modal-content shadow-lg">
+       <div class="model-body p-2 p-lg-3">
+        <span class="badge bg-gray-100 text-primary p-2 mb-3"> Sélectionner les conteneurs à facturer</span>
+
+        <div class="table-responsive table-hover" style='max-height:600px;' >
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded"   >
+                <thead class="thead-light border-0">
+                            <tr>
+                                <th class="rounded-start"><input class="form-check-input shadow-none" type="checkbox" value="" id="th_check" onchange="checkAll('th_check')"></th>
+                                <th scope="col">Tc</th>
+                                <th scope="col">Tar</th>
+                                <th scope="col">Type</th>
+                                <th class="rounded-end">Poids</th>  
+                            </tr>
+                        </thead>
+                        <tbody id="tcs_table" />
+                    </table>
+             
+        </div>
+     
+    </div>
+    <div class="modal-footer">
+        <div class="float-end">                    
+            <button class="btn btn-primary float-end shadow-none" onclick="charger()">Charger</button>
+            <a  class="btn btn-gray-100 float-end mx-2" data-bs-dismiss="modal">Annule</a>
+        </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<script>
+
+    window.onload = (event) => {
+        printitems('nav11');
+    };
+
+    
+// all rows check boxs 
+var checks = [];
+var results ;
+
+// check if the string has more then 20 caracters in length, if so slice it to 20 caracters and add 3 dots at the end 
+function slice(str){
+    if(str.length > 20){
+        return (str.slice(0, 20) + "...");
+    }
+    return str;
+}
+
+// when the top check box is checks, check all the boxs end if unchecked, uncheck all the boxs 
+function checkAll(){
+    let check_all = document.getElementById("th_check");
+    if(check_all.checked){
+        checks.forEach(item => document.getElementById(item).checked = true );
+    }else{
+        checks.forEach(item => document.getElementById(item).checked = false );
+    }     
+}
+
+// add a new row to table body 
+function addRow(table, data){
+    var row = table.insertRow(0);
+    var checkbox = row.insertCell(0);
+    var tc_cell = row.insertCell(1);
+    var tar_cell = row.insertCell(2);
+    var type_cell = row.insertCell(3);
+    var poids_cell = row.insertCell(4);
+
+    checks.push(data.tc);
+    checkbox.innerHTML= ('&nbsp; &nbsp;<input type="checkbox" class="form-check-input shadow-none" id="' + data.tc + '"/>');
+    tc_cell.innerHTML= data.tc;
+    tar_cell.innerHTML= data.tar;
+    type_cell.innerHTML= data.type_tc__designation;
+    poids_cell.innerHTML= data.poids;
+
+   
+}
+
+function get_data(){
+    
+    table = document.getElementById("tcs_table");
+
+
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+      $.ajax({
+          type: 'GET',
+          url: "{% url 'get_not_loaded_tcs_by_proforma' %}",
+          data: {
+              "proforma_id": "{{ proforma.id }}",
+          },
+          success: function (response) { 
+            
+            console.log(response);
+            data = response.data;
+            results = data;
+            checks = [];
+            for(i=0;i<data.length; i++){
+                addRow(table, data[i]);     
+            }  
+            console.log(checks);
+           },
+          error: function (response) {
+            console.log(response);
+          }
+      })
+}
+// loop true the checks array and check the chekced element then add them to the chekced list 
+function getcheckedBoxs(){
+    var checked_list = [];
+    checks.forEach(item => {
+            if ( document.getElementById(item).checked){
+                checked_list.push(item);
+            }
+        });
+
+    return checked_list;
+}
+
+function charger(){
+    table = document.getElementById("chargement_table");
+    selected_rows = [];
+    selected_boxes = getcheckedBoxs();
+    console.log(selected_boxes);
+    selected_boxes.forEach(item => {
+        results.forEach(row => {
+            if(row.tc==item){
+                selected_rows.push(row.id);
+            }
+        })
+    });
+    save(selected_rows);
+    //loop through the selected rows and add them to then new table 
+    //selected_rows.forEach(row => {
+        //addSelectedRow(table, row);
+    //});
+    //hide the model 
+    $('#select_proforma_containers_model').modal('hide');
+    reset();
+}
+
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+ }
+ 
+function save(ids){
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'proforma_groups' %}",
+        data: {
+            "ids" : ids, 
+            "proforma_id" : {{ proforma.id }}
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) {   
+            location.reload();
+        },
+        error: function (response) {
+        console.log(response);
+        }
+    })
+}
+function reset(){
+        checks.forEach(item => document.getElementById(item).checked = false );
+        document.getElementById('th_check').checked = false;
+      }
+</script>
+{% endblock content %}
+
+
+
+
+            

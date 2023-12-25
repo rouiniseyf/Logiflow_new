@@ -1,0 +1,525 @@
+{% extends 'app/components/base.html' %}
+{% load humanize %}
+{% block content %}
+{% load text_to_decimal %}
+{% include 'app/components/navbar.html' with title=facture_complementaire.facture.numero|add:"/FC"|add:facture_complementaire.numero %}
+{% include 'app/components/messages.html' %}
+
+<div class="card bg-gray-200 mt-4 mt-lg-0 mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-lg-9">
+                {% if facture_complementaire.paid %}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-success">
+                        Payée
+                    </span>
+                {% elif not facture_complementaire.paid%}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-danger">
+                        Non payé
+                    </span>
+                
+                {% endif %}
+
+                <div class="mb-2">
+                    Date de Facture &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture_complementaire.date_creation }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Gros &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture_complementaire.facture.proforma.gros.gros }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Article&nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture_complementaire.facture.proforma.article.numero }}</span>
+                </div> 
+
+                <div class="mb-2">
+                    Client &nbsp; &nbsp;<span>{{ facture_complementaire.facture.proforma.article.client }}</span>
+                </div>
+
+            </div> 
+            <div class="col-12 col-lg-3">
+                <hr class="d-block d-lg-none">
+                <div class="card bg-gray-200 mt-3">
+                    <div class="card-body p-0">
+
+                        <div class="row">
+                            <div class="col-4 col-lg-4">
+                            
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> HT  </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> TVA </span>
+                                </div>         
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> Timber </span>
+                                </div>    
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2">  TTC </span>
+                                </div>
+                            </div>
+
+                            <div class="col-8 col-lg-8">
+                              
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2" id="info_ht"> {{ facture_complementaire.HT| intcomma  }} DA</span>
+                                </div>
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2 " id="info_tva"> {{ facture_complementaire.TVA | intcomma }} DA</span>
+                                </div>         
+      
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-300 text-primary p-2" id="info_timber"> {{ facture_complementaire.timber | intcomma }} DA</span>
+                                </div>    
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2" id="info_ttc"> {{ facture_complementaire.TTC| intcomma  }} DA</span>
+                                </div>
+                            </div>
+                          
+                       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+
+<div class="card mb-4">
+    <div class="card-body p-2 p-lg-3">
+
+        <span class="badge bg-gray-100 text-primary p-2 mb-3"> Paiemenet</span>
+
+
+        {% if not facture_complementaire.paid %}
+        <div class="row" id="add_paiement_form">
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <input type="date" class="form-control shadow-none form-control-sm" id="date_paiement" name="date"  />
+                <label for="date" >Date</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="mode_select" name="mode" onchange="setMode()">
+                        <option value="Chèque">Chèque</option> 
+                        <option id="Espèce">Espèce</option> 
+                    </select>                     
+                    <label for="mode" >Mode</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="banque_select" name="banque" >
+                    {% for banque in banques %}
+                        <option value="{{ banque.id }}">{{ banque }}</option>                                
+                    {% endfor %}
+
+                    </select>                     
+                    <label for="banque" >Banque</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control shadow-none form-control-sm"  placeholder="XXXXXX-XXX-XX" id="cheque" />    
+                    <label for="cheque" >Chèque</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <div class="form-floating mb-3">
+                    <input class="form-control shadow-none form-control-sm"  id="montant" type="number" step="0.01" min="0"  value="{{ unpaid|TextToDecimal }}"/>    
+                    <label for="montant" >Montant</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg">
+                <button class="btn btn-primary shadow-none h-75 w-100 d-none d-lg-block" id="add-paiement" onclick="addPaiement()"> > </button>
+                <button class="btn btn-primary shadow-none  w-100 d-block d-lg-none mb-3" id="add-paiement" onclick="addPaiement()"> > </button>
+            </div>
+
+
+            
+        </div>   
+    
+    {% endif %}
+    <div class="table-responsive table-hover mb-3">
+        <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+            <thead class="thead-light border-0">
+            <tr>
+                <th class="rounded-start">Date</th>
+                <th scope="col">Mode</th>
+                <th scope="col">Banque</th>
+                <th scope="col">Chèque</th>
+                <th class="rounded-end">Montant</th>  
+            </tr>
+        </thead>
+        <tbody id="paiement_table" >
+            {% if paiements|length > 0 %}
+                {% for item in paiements  %}
+                    <tr>
+                        <td class="rounded-start"> {{ item.date }} </td>
+                        <td> {{ item.mode }} </td>
+                        {% if item.mode == "Espèce" %}
+                            <td> - </td>
+                            <td> - </td>                                  
+                        {% else %}
+                            <td> {{ item.banque }} </td>
+                        <td> {{ item.cheque }} </td>                               
+                        {% endif %}
+
+                        <td class="rounded-end"> {{ item.montant }} </td>
+
+                    </tr>
+                
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="9" class="text-lg-center p-4 rounded-start rounded-end">
+                    <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+  
+    </div>
+</div>
+</div>
+
+<div class="row row-cols-auto">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body p-2">
+                <div class="row">
+                    <div class="col-12">
+
+                            <a href={% url 'print_facture_complementaire' facture_complementaire.id %} target="_blank" class="btn btn-secondary shadow-none" tabindex="-1" role="button" aria-disabled="true" >
+                                <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                            </a>     
+                            {% if not facture_complementaire.paid %}
+                            <a type="link" class="btn btn-primary shadow-none" data-bs-toggle="modal" href="#add_prestation_model" data-bs-toggle="tooltip" data-bs-placement="top">
+                                + Préstation
+                            </a>                          
+                            {% endif %}    
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body p-2 p-lg-3">
+        <span class="badge bg-gray-100 text-primary p-2 mb-3"> Préstations </span>
+
+        <div class="table-responsive table-hover mb-3">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                    <tr>
+                        <th class="rounded-start">Rubrique </th>
+                        <th scope="col">Tarif</th>
+                        <th scope="col">Quantité</th>
+                        <th scope="col">HT</th>
+                        <th scope="col">TVA</th>
+                        <th class="rounded-end">TTC</th>
+                    </tr>
+                </thead>
+                <tbody id="prstation_table">
+                    {% for ligne in lignes %}
+
+                            <tr >
+                                <td class="rounded-start"> {{ ligne.rubrique }}  </td>
+                                <td> {{ ligne.tarif }} </td>
+                                <td> {{ ligne.quantite }} </td>
+                                <td> {{ ligne.HT }} </td>
+                                <td> {{ ligne.TVA }} </td>
+                                <td class="rounded-end"> {{ ligne.TTC }} </td>
+                            </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>  
+        </div>
+    </div>
+</div>
+
+<div class="modal fade"  id="add_prestation_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered  modal-xl modal-dialog-scrollable" >
+    <div class="modal-content shadow-lg" >
+        <div class="modal-body">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> Paiemenet</span>
+         
+            <div class="row">
+                <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+                    <div class="form-floating">
+                        <select class="form-select shadow-none" id="rubrique" aria-label="Floating label select example">
+                            {% for rubrique in rubriques %}
+                                <option >{{ rubrique.designation }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingSelect">Rubrique</label>
+                    </div>  
+                </div>
+                <div class="col col-lg-3 mb-3 mb-lg-0">
+                    <form class="form-floating shadow-none">
+                        <input type="number" step="0.01" min="0" class="form-control shadow-none" id="tarif_prestation" value="1">
+                        <label for="floatingInputValue">Tarif</label>
+                    </form>
+                </div>
+                <div class="col col-lg-2">
+                    <form class="form-floating shadow-none">
+                        <input type="number"  min="0" class="form-control shadow-none" id="quantite_prestation" value="1">
+                        <label for="floatingInputValue">Quantité</label>
+                    </form>
+                </div>
+                <div class="col-12 col-lg-3">
+                    <div class="form-floating mb-3">
+                        <input type="date" name="date_proforma" class="form-control shadow-none" id="date_prestation">             
+                        <label for="id_date_proforma">Date</label>
+                    </div>                    
+                </div>
+                
+
+            </div>
+         
+    </div>
+    <div class="modal-footer">
+        <div class="float-end">   
+            <button class="btn btn-primary float-end shadow-none px-3" onclick="addPrestation()">Ajouter préstation</button>
+            <a class="btn btn-gray-100 float-end mx-2" data-bs-dismiss="modal">Annuler</a>     
+        </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+</section>
+<script>
+var to_pay = 0 ; 
+var to_pay_espece = 0; 
+// set the date for date paiement field to today 
+var now = new Date();
+var day = ("0" + now.getDate()).slice(-2);
+var month = ("0" + (now.getMonth() + 1)).slice(-2);
+var today = now.getFullYear()+"-"+(month)+"-"+(day);
+
+window.onload = function(){
+    rest_to_pay = {{ unpaid|stringformat:".2f" }}; 
+    rest_to_pay_espece = {{ unpaid_espece|stringformat:".2f" }}; 
+}
+
+$('#date_paiement').val(today); 
+
+function fillpaiements(data){
+       
+    table = document.getElementById("paiement_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+
+    data.forEach(item => {
+         var row = table.insertRow(0);
+        var date_cell = row.insertCell(0);
+        var mode_cell = row.insertCell(1);
+        var banque_cell = row.insertCell(2);
+        var cheque_cell = row.insertCell(3);
+        var montant_cell = row.insertCell(4);
+
+
+        date_cell.innerHTML= item.date;
+        mode_cell.innerHTML= item.mode;
+
+        if(item.mode == "Espèce"){
+            cheque_cell.innerHTML= "-";
+            banque_cell.innerHTML= "-";
+
+        }else {
+            cheque_cell.innerHTML= item.cheque;
+            banque_cell.innerHTML= item.banque__raison_sociale;
+        }
+
+        montant_cell.innerHTML= item.montant;
+
+    })
+
+} 
+
+function fillPrestation(data){
+       
+    table = document.getElementById("prstation_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+
+    data.forEach(item => {
+        var row = table.insertRow(0);
+        var rubrique_cell = row.insertCell(0);
+        var tarif_cell = row.insertCell(1);
+        var quantite_cell = row.insertCell(2);
+        var HT_cell = row.insertCell(3);
+        var TVA_cell = row.insertCell(4);
+        var TTC_cell = row.insertCell(5);
+
+        rubrique_cell.innerHTML= item.rubrique;
+        tarif_cell.innerHTML= item.tarif;
+        quantite_cell.innerHTML= item.quantite;
+        HT_cell.innerHTML= item.HT;
+        TVA_cell.innerHTML= item.TVA;
+        TTC_cell.innerHTML= item.TTC;
+
+    })
+
+} 
+
+// Add paiement function 
+function addPaiement(){
+    let date = document.getElementById("date_paiement").value;
+
+    let mode_select = document.getElementById("mode_select")
+    let selected_mode = mode_select.options[mode_select.selectedIndex].value;
+
+    let banque_select = document.getElementById("banque_select")
+    let selected_banque = banque_select.options[banque_select.selectedIndex].value;
+
+    let cheque = document.getElementById("cheque").value ;
+
+    let montant = document.getElementById("montant").value ;
+
+
+
+    error = false;
+    if(selected_mode == "Chèque"){  
+        if(cheque == "" || cheque == ""){
+            error = true ;
+            Notification("error","Veuillez remplir le numéro de chèque.",'danger');
+        }
+    }
+    if(error == false){
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'add_paiement_facture_complementaire' facture_complementaire.id %}" ,
+            data: {
+                "date" : date,
+                "mode" : selected_mode,
+                "banque" : selected_banque,
+                "cheque" : cheque,
+                "montant" : montant
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) {  
+                fillpaiements(response.data);
+                console.log(response.info);
+                document.getElementById("info_timber").innerHTML = response.info.timber;
+                document.getElementById("info_ttc").innerHTML = response.info.TTC;
+                
+                if(response.info.paid){
+                        document.getElementById("add_paiement_form").style.display = "none"
+                        document.getElementById("status_paid_badge").style.display = "block";
+                        document.getElementById("status_unpaid_badge").style.display = "none";
+                    
+                }else{
+                    rest_to_pay = response.info.rest;
+                    rest_to_pay_espece = response.info.rest_espece; 
+                    setMode();
+                    document.getElementById("status_paid_badge").style.display = "none";
+                    document.getElementById("status_unpaid_badge").style.display = "block";
+                    success();
+                }
+
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        }) 
+    }
+
+}
+
+function setMode(){
+
+    let mode_select = document.getElementById("mode_select")
+    let selected_mode = mode_select.options[mode_select.selectedIndex].value;
+    
+    let banque_select = document.getElementById("banque_select");
+    let cheque = document.getElementById("cheque");
+
+    let montant = document.getElementById("montant")
+
+    if(selected_mode == "Espèce"){
+        banque_select.disabled = true;
+        cheque.disabled = true;
+        montant.value = rest_to_pay_espece;
+        montant.disabled = true;
+    }else{
+        banque_select.disabled = false;
+        cheque.disabled = false;   
+        montant.value = rest_to_pay;
+        montant.disabled = false;
+
+    }
+
+}
+
+// Add prestation function 
+function addPrestation(){
+    let rubrique = document.getElementById("rubrique").value;
+    let tarif = document.getElementById("tarif_prestation").value;
+    let quantite = document.getElementById("quantite_prestation").value;
+    let date_prestation = document.getElementById("date_prestation").value;
+
+
+
+
+    if (date_prestation.value == ""){
+        Notification('error',"il vous plaît assurez-vous de remplir tous les champs avant de soumettre.","danger");
+    }
+
+
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'add_prestation_facture_complementaire'  facture_complementaire.id %}",
+        data: {
+            "rubrique": rubrique,
+            "date_prestation": date_prestation,
+            "tarif": tarif,
+            "quantite": quantite,
+            "date": date_prestation
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            console.log(response);  
+            $('#add_prestation_model').modal('hide'); 
+            fillPrestation(response.data);
+            document.getElementById("info_ht").innerHTML = response.bill_info.HT + " DA";       
+            document.getElementById("info_tva").innerHTML = response.bill_info.TVA + " DA";       
+            document.getElementById("info_ttc").innerHTML = response.bill_info.TTC + " DA";  
+
+            rest_to_pay = response.bill_info.rest_cheque; 
+            rest_to_pay_espece = response.bill_info.rest_espece;  
+            setMode();    
+            document.getElementById("montant").innerHTML = response.bill_info.rest_cheque; 
+            success();
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      }) 
+
+}
+
+</script>
+{% endblock content %}
+

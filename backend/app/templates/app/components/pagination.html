@@ -1,0 +1,153 @@
+{% if data.paginator.num_pages > 1 %}
+<div class="row d-none d-lg-block">
+<nav aria-label="Pagenavigation">
+  <ul class="pagination d-flex justify-content-end bg-gray-100  rounded py-2 ">
+      {% if data.has_previous %}
+        <li class="page-item mx-2">
+            <a class="page-link shadow-none border-0 rounded" tabindex="-1" href="?page={{data.previous_page_number}}"><small>Précédente</small></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled mx-2">
+          <a class="page-link shadow-none border-0 rounded" tabindex="-1" href=""><small>Précédente</small></a>
+        </li>
+      {% endif %}
+      {% for i in data.paginator.page_range %}
+
+        {% if data.number == i %}
+          {% if i < 6  %}
+            <li class="page-item active d-none d-md-block mx-1">
+                <a class="page-link shadow-none border-0 rounded" href="?page={{i}}">{{i}}</a>
+            </li>
+          {% endif %}
+        {% else %}
+          {% if i < 6  %}
+            <li class="page-item d-none d-md-block mx-1">
+              <a class="page-link shadow-none border-0 rounded" href="?page={{i}}">{{i}}</a>
+            </li>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+     
+      {% if data.paginator.num_pages > 5 %}
+
+        {% if data.number == 1 %}
+          <li class="page-item active d-md-none d-sm-block mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.number }}">{{data.number }}</a>
+          </li>
+        {% else %}
+          <li class="page-item d-md-none d-sm-block mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page=1">1</a>
+          </li>
+          <li class="page-item active d-md-none d-sm-block mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.number }}">{{ data.number }}</a>
+          </li>
+        {% endif %}
+ 
+        {% if data.number < data.paginator.num_pages and data.number > 5 %}
+          <li class="page-item active mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{data.number }}">{{ data.number }}</a>
+          </li>
+        {% endif %}
+        {% if data.number == data.paginator.num_pages %}
+          <li class="page-item active mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.paginator.num_pages }}"> {{ data.paginator.num_pages }}</a>
+          </li>        
+        {% else %}
+          <li class="page-item mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.paginator.num_pages }}"> {{ data.paginator.num_pages }}</a>
+          </li>
+        {% endif %}
+
+      {% endif %} 
+
+
+
+      {% if data.has_next %}
+        <li class="page-item mx-2">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{data.next_page_number}}"><small>Suivante</small></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled mx-2">
+          <a class="page-link shadow-none border-0 rounded " href=""><small>Suivante</small></a>
+        </li>
+      {% endif %}
+  </ul>
+</nav>
+</div>
+<div class="row d-block d-lg-none">
+<nav aria-label="Page navigation ">
+  <ul class="pagination d-flex justify-content-center bg-gray-100 rounded py-2 ">
+      {% if data.has_previous %}
+        <li class="page-item mx-2">
+            <a class="page-link shadow-none border-0 rounded" tabindex="-1" href="?page={{data.previous_page_number}}"><small>Précédente</small></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled mx-2">
+          <a class="page-link shadow-none border-0 rounded" tabindex="-1" href=""><small>Précédente</small></a>
+        </li>
+      {% endif %}
+      {% for i in data.paginator.page_range %}
+
+        {% if data.number == i %}
+          {% if i < 6  %}
+            <li class="page-item active d-none d-md-block mx-1">
+                <a class="page-link shadow-none border-0 rounded" href="?page={{i}}">{{i}}</a>
+            </li>
+          {% endif %}
+        {% else %}
+          {% if i < 6  %}
+            <li class="page-item d-none d-md-block mx-1">
+              <a class="page-link shadow-none border-0 rounded" href="?page={{i}}">{{i}}</a>
+            </li>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+     
+      {% if data.paginator.num_pages > 5 %}
+
+        {% if data.number == 1 %}
+          <li class="page-item active d-md-none d-sm-block mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.number }}">{{data.number }}</a>
+          </li>
+        {% else %}
+          <li class="page-item d-md-none d-sm-block mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page=1">1</a>
+          </li>
+          <li class="page-item active d-md-none d-sm-block mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.number }}">{{data.number }}</a>
+          </li>
+        {% endif %}
+ 
+        {% if data.number < data.paginator.num_pages and data.number > 5 %}
+          <li class="page-item active mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{data.number }}">{{data.number }}</a>
+          </li>
+        {% endif %}
+        {% if data.number == data.paginator.num_pages %}
+          <li class="page-item active mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.paginator.num_pages }}"> {{ data.paginator.num_pages }}</a>
+          </li>        
+        {% else %}
+          <li class="page-item mx-1">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{ data.paginator.num_pages }}"> {{ data.paginator.num_pages }}</a>
+          </li>
+        {% endif %}
+
+      {% endif %} 
+
+
+
+      {% if data.has_next %}
+        <li class="page-item mx-2">
+            <a class="page-link shadow-none border-0 rounded" href="?page={{data.next_page_number}}"><small>Suivante</small></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled mx-2">
+          <a class="page-link shadow-none border-0 rounded " href=""><small>Suivante</small></a>
+        </li>
+      {% endif %}
+  </ul>
+</nav>
+<div>
+
+{% endif %}

@@ -1,0 +1,83 @@
+
+
+<div>
+
+  <table class="table table-hover mt-2" >
+    <thead class="bg-light">
+    <tr>
+          <th>Gros</th>
+          <th>Bareme</th>
+          <th>Date de début</th>
+          <th>Date de fin</th>
+          <th>Action</th>
+    </tr>
+    </thead>
+    <tbody id="{{ table_id }}">
+   
+      {% for item in data %}
+        <tr id="{{ item.id }}">
+            <td>{{ item.gros }}</td>
+            <td>{{ item.bareme }}</td>
+            <td>{{ item.bareme.starting_date }}</td>
+            <td>{{ item.bareme.ending_date }}</td>
+            <td><a role="/button" class="btn btn-outline-danger btn-sm shadow-none" href="{% url 'unaffictation_bareme' item.id %}" > unaffecter</button></td>
+        </tr>
+      {% endfor %}   
+
+    </tbody>
+  </table>
+
+  {% if data|length <=   0  %}
+    {% include 'app/components/no_data.html' %}   
+  {% endif %}         
+
+ {% include 'app/components/messages.html' %}                     
+
+</div>
+
+<script>
+var selected_id = 0 ;
+function select(id){
+  selected_id = id;
+}
+function deleteSelected(){
+  let row = document.getElementById(selected_id.toString());
+   $.ajax({
+        type: 'POST',
+        url: "{% url 'delete_bulletins' %}",
+        data: {
+            "bulletins_id" : selected_id
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            if (response.message == 'success'){
+                document.getElementById("not_loaded_table").deleteRow(row.rowIndex-1);
+                Notification('Succès','Bulletins supprimés avec succès.','success');                    
+            }
+         },
+        error: function (response) {
+            alert(response["responseJSON"]["error"]);
+        }
+      })
+
+}
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+ }
+
+ 
+
+</script>

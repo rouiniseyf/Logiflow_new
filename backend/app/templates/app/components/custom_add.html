@@ -1,0 +1,53 @@
+{% load static %}
+{{ form.media }}  
+{% load bootstrap5 %}  
+
+
+
+<!-- First modal dialog --> 
+<div class="modal fade " id="{{ model_id }}" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+  <div class="modal-dialog  modal-dialog-centered" id="shit">
+    <div class="modal-content shadow-mg bg-light">
+        <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">{{ form_title }}</h5>
+        </div>
+        <form  method="POST" id="{{ form_id }}">
+        
+        <div class="modal-body">
+            
+                    {% csrf_token %}
+                    {% for field in form %}
+                      {% if field.id_for_label == "id_soumis_tva" %}
+                              <div class="form-check form-switch my-4">
+                                  {{field}}
+                                  <label class="form-check-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                              </div>  
+                      {% else %}
+                          <div class="form-floating mb-3">
+                              {{field}}
+                              <label for="{{field.id_for_label}}">{{field.label}}</label>
+
+                          </div>
+                      {% endif %}
+                    {% endfor %}
+
+        </div>
+        <div class="modal-footer">
+            <a  class="btn btn-light float-right mr-2"  id="close_custom_model" onclick="close_model({{ model_id }})">Annuler</a>
+            <input type="submit" class="btn btn-primary float-right" id="submit_button" name="SUBMIT" onclick="close_model({{ model_id }})" value="Soumettre"></a>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+
+<script>
+
+function close_model(model_id) {
+  var myModalEl = model_id
+  var modal = bootstrap.Modal.getInstance(myModalEl)
+  modal.hide();
+}
+
+</script>

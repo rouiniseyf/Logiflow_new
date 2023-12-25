@@ -1,0 +1,227 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Position' %}
+{% include 'app/components/messages.html' %}
+
+
+    <div class="row mt-4 mt-lg-0 p-2 px-lg-4">
+        <div class="col-lg-10">
+            <div class="mb-4">
+                <b>Conteneur</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ selected_tc.tc }}</span>
+                &nbsp; &nbsp;{{ selected_tc.type_tc }}
+                {% if selected_tc.dangereux %}<span class="badge bg-danger ">&nbsp;</span>{% endif %}
+                {% if selected_tc.frigo %}<span class="badge bg-info">&nbsp;</span>{% endif %}
+            </div>
+        </div> 
+        
+        <div class="col-12 col-lg-2 mb-4 mb-lg-0">
+            <a type="link" class="btn btn  btn-secondary shadow-none float-end w-100 py-2" data-bs-toggle="modal" href="#modal" >
+                <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M18,19v4.7a4.968,4.968,0,0,0,1.879-1.164l2.656-2.658A4.954,4.954,0,0,0,23.7,18H19A1,1,0,0,0,18,19Z"/><path d="M7.172,13.828A4,4,0,0,0,6,16.657V18H7.343a4,4,0,0,0,2.829-1.172L21.5,5.5a2.121,2.121,0,0,0-3-3Z"/><path d="M24,4.952a4.087,4.087,0,0,1-1.08,1.962L11.586,18.243A5.961,5.961,0,0,1,7.343,20H6a2,2,0,0,1-2-2V16.657a5.957,5.957,0,0,1,1.758-4.242L17.086,1.086A4.078,4.078,0,0,1,19.037,0c-.013,0-.024,0-.037,0H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16V19a3,3,0,0,1,3-3h5V5C24,4.984,24,4.969,24,4.952Z"/></svg>
+            </a>
+        </div>
+    </div>
+
+    {% if positions|length > 0 %}
+    <div class="card mb-4">
+        <div class="card-body">   
+             POSITION ACTUELLE &nbsp;&nbsp;<span class="badge bg-gray-400 p-2"> {{ current_position.zone.parc }} </span>
+
+            <div class="row mb-2 mt-4">
+                <div class="col-lg-6">
+                    <div class="row">
+                        <div class="col ">
+                            <div class="badge w-100 text-light py-2" style="background-color: #F76E11;">
+                                Zone {{ current_position.zone }}
+                            </div>
+                        </div>
+
+                        <div class="col ">
+                            <div class="badge red w-100 text-light py-2" style="background-color: #F76E11;">
+                                Ligne {{ current_position.ligne }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-2 mt-lg-0">
+                    <div class="row">
+                        <div class="col ">
+                            <div class="badge red w-100 text-light py-2  " style="background-color: #F76E11;">
+                                Range {{ current_position.range }}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="badge red w-100 text-light py-2  " style="background-color: #F76E11;">
+                                Gerbage {{ current_position.garbage }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+    </div>
+</div>
+
+    <div class="mb-4 mx-4">
+        <b>Historiques</b>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            {% for item in positions %}
+                {% if  item == current_position %}
+                    {{ item.date_position }}  ( {{ item.zone.parc }} )
+
+
+                    <div class="row mb-2 mt-4">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col ">
+                                    <div class="badge w-100 text-light py-2" style="background-color: #F76E11;">
+                                        Zone {{ current_position.zone }}
+                                    </div>
+                                </div>
+        
+                                <div class="col ">
+                                    <div class="badge red w-100 text-light py-2" style="background-color: #F76E11;">
+                                        Ligne {{ current_position.ligne }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mt-2 mt-lg-0">
+                            <div class="row">
+                                <div class="col ">
+                                    <div class="badge red w-100 text-light py-2  " style="background-color: #F76E11;">
+                                        Range {{ current_position.range }}
+                                    </div>
+                                </div>
+        
+                                <div class="col">
+                                    <div class="badge red w-100 text-light py-2  " style="background-color: #F76E11;">
+                                        Gerbage {{ current_position.garbage }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <hr>
+                {% else %}
+
+                    {{ item.date_position }}  ( {{ item.zone.parc }} )
+
+
+                    <div class="row mb-2 mt-4">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col ">
+                                    <div class="badge w-100 text-light py-2" style="background-color: #1C658C;">
+                                        Zone {{ item.zone }}
+                                    </div>
+                                </div>
+        
+                                <div class="col ">
+                                    <div class="badge red w-100 text-light py-2" style="background-color: #1C658C;">
+                                        Ligne {{ item.ligne }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mt-2 mt-lg-0">
+                            <div class="row">
+                                <div class="col ">
+                                    <div class="badge red w-100 text-light py-2  " style="background-color: #1C658C;">
+                                        Range {{ item.range }}
+                                    </div>
+                                </div>
+        
+                                <div class="col">
+                                    <div class="badge red w-100 text-light py-2  " style="background-color: #1C658C;">
+                                        Gerbage {{ item.garbage }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                {% endif %}
+           
+          
+
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+ 
+    <div class="modal fade" id="modal" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content ">
+              <form   method="POST" >
+                <div class="modal-body">
+                    <div class="my-2" />
+                        {% csrf_token %}
+                        {% for field in form %}  
+    
+                                <div class="form-floating mb-3">
+                                    {{field}}
+                                    <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                </div>
+                    
+                        
+                        {% endfor %}
+                    </div>
+                <div class="my-4 float-end" >
+                    <a class="btn btn-gray-100 float-right mr-2" data-bs-dismiss="modal">Annule</a>
+                    <input type="submit" class="btn btn-primary float-right" id="butt" name="SUBMIT" value="METTRE A JOUR"></a>
+                </div>
+              </form>
+          </div>
+        </div>
+      </div>
+
+              
+
+    </div>
+<script>
+
+document.getElementById("id_parc").onchange = function() {
+    selected_park = document.getElementById('id_parc').value;
+    get_zones(selected_park);
+};
+
+window.onload = function(){
+    printitems('nav7');
+    selected_park = document.getElementById('id_parc');
+    get_zones(selected_park.value);
+}
+
+function get_zones(id){
+    select_zone = document.getElementById('id_zone');
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'get_zones' %}",
+            data: {
+                "selected_park": id,
+            },
+            success: function (response) { 
+                select_zone.innerHTML = "";
+                response.data.forEach(item => {
+                    var option = document.createElement("option");
+                    option.text = item.zone;
+                    option.value = item.id;
+                    select_zone.add(option);
+                    }
+                )
+            },
+            error: function (response) {
+               console.log(response);
+            }
+        })  
+}
+</script>
+{% endblock content %}
+
+

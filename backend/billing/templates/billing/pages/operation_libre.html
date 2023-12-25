@@ -1,0 +1,148 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Facturation libre' %}
+{% include 'app/components/messages.html' %}
+
+<div class="row mt-4 mt-lg-0">
+
+    <div class="col-12 col-lg-4 ">
+        {% include 'app/components/search.html' with form=form%}
+    </div>
+
+    <div class="col-12 col-lg-2 offset-lg-6">
+        <a type="link" class="btn btn btn-secondary shadow-none float-end w-100" data-bs-toggle="modal" href="#modal">
+            + Facture
+        </a>   
+    </div>
+
+</div>
+
+<div class='card border-0 mt-4 mt-lg-2'>
+    <div class="body p-2 p-lg-3 pb-0">
+
+        {% include 'billing/components/facture_libre_table.html'  %}
+
+    </div>
+</div>
+
+
+
+<!-- Add gros model -->
+<div class="modal fade" id="modal" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+  <div class="modal-dialog  modal-lg modal-dialog-centered">
+    <div class="modal-content ">
+
+        <form   method="POST" id="grosForm">
+        <div class="modal-body">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> + Facture</span>
+
+                    {% csrf_token %}
+                    {% for field in form_facture_libre %}
+                    
+                        {% if  field.id_for_label == "id_client" %}
+
+                            <div class="row mb-3">
+                                <div class="col-10">
+                                    <div class="form-floating ">
+                                        {{field}}             
+                                        <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                        <a class="btn btn-outline-primary shadow-none h-100 w-100" data-bs-toggle="modal" href="#client_model_id" role="button" >
+                                            <div class="container-fluid d-flex align-items-center justify-content-center h-100">
+                                                <div class="text-center">
+                                                   + 
+                                                </div>
+                                            </div>
+                                        </a>
+                                </div>
+                            </div>
+
+                        {% elif field.id_for_label == "id_tva"  or field.id_for_label == "id_remise" %}
+                            <div class="form-check form-switch my-4">
+                                {{field}}
+                                <label class="form-check-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                            </div>                                  
+                        {% else %}
+
+                                <div class="form-floating mb-3">
+                                    {{field}}             
+                                    <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                                </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+        </div>
+        <div class="modal-footer">
+            <a  class="btn btn-gray-100 float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+            <input type="submit" class="btn btn-primary float-right" id="butt" name="SUBMIT" value="Soumettre"></a>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+
+{% include 'app/components/custom_add.html' with form=client_form form_id='client_form_id' model_id='client_model_id' form_title='+ Client'  %}
+
+
+<script>
+
+    window.onload = (event) => {
+        printitems('nav12');
+    };
+
+    document.getElementById("client_form_id").onsubmit = function(e) {  
+        e.preventDefault();  
+   
+        var select_field = $('#id_client');
+
+        form = $("#client_form_id");
+        let serializedData = form.serialize();
+        
+
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'post_client' %}",
+            data: serializedData,
+            success: function (response) {
+                data = JSON.parse(response.instance)[0].fields;
+                id = JSON.parse(response.instance)[0].pk;
+
+                select_field.append(`<option value="`+ id +`"> `+ data.raison_sociale +` </option>`)
+
+                select_field.val(id);
+        
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                let json = JSON.parse(response.responseText);
+                for(var key in json) {
+                    for (var key1 in json[key]) {
+                       $.toast({text : json[key][key1], heading: "Error", position: 'top-right', bgColor: '#DD4A48', textColor: '#fff',})  ;
+                        console.log(json[key][key1])
+                    }
+                 }
+            }
+        });
+
+    }
+
+ 
+
+function close_model(model_id) {
+  var myModalEl = model_id
+  var modal = bootstrap.Modal.getInstance(myModalEl)
+  modal.hide();
+}
+    
+</script>
+
+{% endblock content %}
+
+

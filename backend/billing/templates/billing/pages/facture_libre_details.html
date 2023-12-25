@@ -1,0 +1,662 @@
+{% extends 'app/components/base.html' %}
+{% load humanize %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title=facture.numero %}
+{% include 'app/components/messages.html' %}
+
+
+
+
+
+<div class="card bg-gray-200 mt-4 mt-lg-0 mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-lg-9 mt-3">
+
+                <div class="mb-2 mt-3 b-block d-lg-none">
+                    Facture &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture.numero }} / {{ facture.date_facture|date:"Y" }}</span>
+                </div>
+
+                {% if facture.paid %}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-success">
+                        Payée
+                    </span>
+                {% elif not facture.paid and not facture.a_terme%}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-danger">
+                        Non payé
+                    </span>
+                {% elif facture.a_terme %}
+                    <span class="position-absolute top-0 start-50 py-2 px-4 translate-middle badge rounded-pill bg-gray-400">
+                        Payé à terme 
+                    </span>
+                {% endif %}
+
+                <div class="mb-2">
+                    Date de Facture &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture.date_facture|date:"l, d F Y"}}</span>
+                </div>
+
+                <div class="mb-2">
+                    Date de creation &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ facture.date_creation|date:"l, d F Y" }}</span>
+                </div>
+
+                <div class="mb-2">
+                    Client &nbsp; &nbsp; <p>{{ facture.client }}</p>
+                </div>
+
+                <div class="mb-2">
+                    Désignation &nbsp; &nbsp; <p >{{ facture.designation }}</p>
+                </div>
+  
+
+            </div> 
+            <div class="col-12 col-lg-3">
+                <hr class="d-block d-lg-none">
+                <div class="card bg-gray-200 mt-3">
+                    <div class="card-body p-0">
+
+                        <div class="row">
+                            <div class="col-4 col-lg-4">
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2">  Remise </span>
+                                </div>  
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> HT  </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> TVA </span>
+                                </div>         
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-100 text-primary p-2"> Timber </span>
+                                </div>    
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2">  TTC </span>
+                                </div>
+                            </div>
+
+                            <div class="col-8 col-lg-8">
+                                <div class="mb-2">
+                                    {% if facture.remise == True %}
+                                    <span class="badge bg-danger p-2"> 
+                                        {% if facture.REMISE > 100 %}
+                                            {{ facture.REMISE }} DA
+                                        {% elif facture.REMISE < 100 %}
+                                            {{ facture.REMISE }} %
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                                <span class="badge bg-gray-300 text-primary p-2" id="remise"> {{ facture.TR| intcomma  }} DA</span>
+                                </div>   
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2" id="ht"> {{ facture.HT| intcomma  }} DA</span>
+                                </div>
+                                <div class="mb-2">
+                                   <span class="badge bg-gray-300 text-primary p-2" id="tva"> {{ facture.TVA | intcomma }} DA</span>
+                                </div>         
+      
+                                <div class="mb-2">
+                                    <span class="badge bg-gray-300 text-primary p-2" id="timber"> {{ facture.timber | intcomma }} DA</span>
+                                </div>    
+                                <div class="mb-2">
+                                    <span class="badge bg-primary p-2" id="ttc"> {{ facture.TTC| intcomma  }} DA</span>
+                                </div>
+                            </div>
+                          
+                       
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+
+<div class="row row-cols-auto">
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body p-2">
+                <div class="row">
+                    <div class="col-12">    
+
+                        <a href={% url 'print_facture_libre' facture.id %} target="_blank" class="btn btn-secondary shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                        </a>   
+                        <a type="link" class="btn   btn-success shadow-none float-end mx-2" data-bs-toggle="modal" href="#paiements_model" >
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M6,24H8.13a2.02,2.02,0,0,0,1.941-1.532,2,2,0,0,1,3.858,0A2.02,2.02,0,0,0,15.87,24H18a3,3,0,0,0,3-3V17H17a1,1,0,0,1,0-2h4V5a5.006,5.006,0,0,0-5-5h-.13a2.02,2.02,0,0,0-1.941,1.532,2,2,0,0,1-3.858,0A2.02,2.02,0,0,0,8.13,0H8A5.006,5.006,0,0,0,3,5V15H7a1,1,0,0,1,0,2H3v4A3,3,0,0,0,6,24Zm5-9h2a1,1,0,0,1,0,2H11a1,1,0,0,1,0-2Z"/></svg>
+
+                        </a>  
+         
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+</div>
+
+    {% if not facture.paid %}
+        <div class="card mb-3">
+     
+            <div class="card-body p-2 p-lg-3">
+
+
+
+                <div class="row mb-2">
+                    <div class="col-6 col-lg-4 mt-lg-0">
+                        <span class="badge bg-gray-100 text-primary p-2"> + Préstation</span>
+                    </div> 
+                    <div class="col-6 col-lg-2 offset-lg-6">
+                        <button class="btn btn-primary float-end shadow-none px-3" onclick="addPrestation()" name="shutdown">Ajouter préstation</button>     
+                    </div> 
+                </div>
+
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="form-floating">
+                            <select class="form-select shadow-none" id="rubrique" aria-label="Floating label select example">
+                                {% for rubrique in rubriques %}
+                                    <option id="{{ rubrique.id }}">{{ rubrique.designation }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Rubrique</label>
+                        </div>  
+                    </div>
+                    <div class="col-6 col-lg-3 mt-3 mt-lg-0">
+                        <form class="form-floating shadow-none">
+                            <input type="number" step="1" min="0" class="form-control shadow-none" id="quantite_prestation" value="1">
+                            <label for="floatingInputValue">Quantité</label>
+                        </form>
+                    </div>
+                    <div class="col-6 col-lg-3 mt-3 mt-lg-0">
+                        <form class="form-floating shadow-none">
+                            <input type="number" step="0.01" min="0" class="form-control shadow-none" id="tarif_prestation" value="1">
+                            <label for="floatingInputValue">Tarif</label>
+                        </form>
+                    </div>
+
+                    </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+
+<div class="card mb-3">
+    <div class="card-body p-2 p-lg-3">
+
+
+
+        <span class="badge bg-gray-100 text-primary p-2 mb-3"> Préstations </span>
+
+        <div class="table-responsive table-hover mb-3">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                    <tr>
+                        <th class="rounded-start">Rubrique</th>
+                        <th>Quantité</th>
+                        <th>Tarif</th>
+                        <th>HT</th>
+                        <th>Tva</th>
+                        <th class="rounded-end">TTC</th>
+                        {% if not facture.paid %}
+                            <th id="Action">Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody id ="prestation_table">
+                    {% if prestations|length > 0 %}
+                    {% for item in prestations %}           
+                        <tr id="{{ item.id }}">
+                            
+                            <td class="rounded-start">{{ item.rubrique }}</td>
+                            <td>{{ item.quantite }}</td>
+                            <td>{{ item.tarif }}</td>
+                            <td>{{ item.HT }}</td>
+                            <td>{{ item.TVA }}</td>
+                            <td>{{ item.TTC }}</td>
+                            
+                            {% if not facture.paid %}
+                                <td class="rounded-end"><button type="button" class="btn btn-sm btn-danger shadow-none" onclick="delete_prestation('{{ item.id }}')" name="shutdown">Supp</button></td>
+                            {% endif %}
+    
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center p-4">
+                            <h1><i class="bi bi-inboxes mt-4" ></i></h1>
+                        </td>
+                    </tr>
+                {% endif %}
+
+                </tbody>
+            </table>  
+        </div>
+    </div>
+</div>
+
+                   
+
+
+
+    <div class="modal fade"  id="paiements_model" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-xl modal-dialog-centered">
+          <div class="modal-content shadow-lg">
+    
+              <div class="model-body p-2 p-lg-3">
+                <div class="row mb-2">
+                    <div class="col-6 col-lg-4 mt-lg-0">
+                        <span class="badge bg-gray-100 text-primary p-2"> + Paiemenet</span>
+                    </div> 
+                    <div class="col-6 col-lg-2 offset-lg-6">
+                        <button type="button" class="btn-close float-end  shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div> 
+                </div>
+                          {% if not facture.paid %}
+                              <div class="row mb-2 mt-4" id="add_paiement_form">
+                                  <div class="col-12 col-lg">
+                                      <div class="form-floating mb-3">
+                                          <input type="date" class="form-control shadow-none form-control-sm" id="date_paiement" name="date"  />
+                                      <label for="date" >Datae</label>
+                                      </div>
+                                  </div>
+      
+                                  <div class="col-12 col-lg">
+                                      <div class="form-floating mb-3">
+                                          <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="mode_select" name="mode" onchange="setMode()">
+                                              <option value="Chèque">Chèque</option> 
+                                              <option id="Espèce">Espèce</option> 
+                                          </select>                     
+                                          <label for="mode" >Mode</label>
+                                      </div>
+                                  </div>
+      
+                                  <div class="col-12 col-lg">
+                                      <div class="form-floating mb-3">
+                                          <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="banque_select" name="banque" >
+                                          {% for banque in banques %}
+                                              <option value="{{ banque.id }}">{{ banque }}</option>                                
+                                          {% endfor %}
+      
+                                          </select>                     
+                                          <label for="banque" >Banque</label>
+                                      </div>
+                                  </div>
+      
+                                  <div class="col-12 col-lg">
+                                      <div class="form-floating mb-3">
+                                          <input type="text" class="form-control shadow-none form-control-sm"  placeholder="XXXXXX-XXX-XX" id="cheque" />    
+                                          <label for="cheque" >Chèque</label>
+                                      </div>
+                                  </div>
+      
+                                  <div class="col-12 col-lg">
+                                      <div class="form-floating mb-3">
+                                          <input type="text" class="form-control shadow-none form-control-sm"  id="montant"  maxlength="15" value="{{ facture.unpaid }}"/>    
+                                          <label for="montant" >Montant</label>
+                                      </div>
+                                  </div>
+      
+                                  <div class="col-12 col-lg">
+                                      <button class="btn btn-primary shadow-none h-75 w-100 d-none d-lg-block" id="add-paiement" onclick="addPaiement()"> > </button>
+                                      <button class="btn btn-primary shadow-none h-100 d-block d-lg-none  w-100" id="add-paiement" onclick="addPaiement()"> > </button>
+                                  </div>
+                                  
+                              </div>   
+                          
+                          {% endif %}
+                          <div class="table-responsive table-hover mb-4">
+                            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                                <thead class="thead-light border-0">
+                                  <tr>
+                                      <th class="rounded-start">Date</th>
+                                      <th scope="col">Mode</th>
+                                      <th scope="col">Banque</th>
+                                      <th scope="col">Chèque</th>
+                                      <th class="rounded-end">Montant</th>  
+                                  </tr>
+                              </thead>
+                              <tbody id="paiement_table" >
+                                  {% for item in paiements  %}
+                                      <tr>
+                                          <td class="rounded-start"> {{ item.date }} </td>
+                                          <td> {{ item.mode }} </td>
+                                          {% if item.mode == "Espèce" %}
+                                              <td> - </td>
+                                              <td> - </td>                                  
+                                          {% else %}
+                                               <td> {{ item.banque }} </td>
+                                           <td> {{ item.cheque }} </td>                               
+                                          {% endif %}
+      
+                                          <td class="rounded-end"> {{ item.montant }} </td>
+      
+                                      </tr>
+                                  
+                                  {% endfor %}
+      
+                              </tbody>
+                          </table>
+                      </div>
+
+
+
+                 </div>
+                
+          </div>
+        </div>
+      </div>
+
+      
+<!-- delete confirmation Modal -->
+<div class="modal fade " id="delete_bulletins" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+      <div class="modal-content">
+          <div class="modal-body">
+              <h6 class="mt-3">Voulez-vous continuer la suppression ?</h6>
+          </div>
+          
+          <div class="modal-footer">
+              <button type="button" class="btn btn-light shadow-none" data-bs-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-danger shadow-none" id="yes-button" data-bs-dismiss="modal">Supprimer la prestation</button>
+          </div>
+      </div>
+    </div>
+</div>
+  
+ 
+
+
+
+
+    {% include 'app/components/add_without_button.html' with form=form_proforma title="+ Proforma" submit_button="proforma_submit" model_id="add_proforma_model" %}
+
+
+
+<script>
+
+
+function shutdown(){
+    shutdownItems = document.getElementsByName("shutdown");
+    shutdownItems.forEach(item =>  {
+        item.disabled = true;
+    }); 
+}
+var to_pay = 0 ; 
+var to_pay_espece = 0; 
+// set the date for date paiement field to today 
+var now = new Date();
+var day = ("0" + now.getDate()).slice(-2);
+var month = ("0" + (now.getMonth() + 1)).slice(-2);
+var today = now.getFullYear()+"-"+(month)+"-"+(day);
+
+function set_paiamant_status(unpaid,unpaid_espece){
+    rest_to_pay = unpaid; 
+    rest_to_pay_espece = unpaid_espece; 
+    setMode();
+}
+window.onload = function(){
+    printitems('nav12');
+    set_paiamant_status("{{ facture.unpaid }}" , "{{ facture.unpaid_espece }}")
+}
+
+$('#date_paiement').val(today);
+
+function fillpaiements(data){
+       
+    table = document.getElementById("paiement_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+
+    data.forEach(item => {
+        var row = table.insertRow(0);
+        var date_cell = row.insertCell(0);
+        var mode_cell = row.insertCell(1);
+        var banque_cell = row.insertCell(2);
+        var cheque_cell = row.insertCell(3);
+        var montant_cell = row.insertCell(4);
+
+
+        date_cell.innerHTML= item.date;
+        mode_cell.innerHTML= item.mode;
+
+        if(item.mode == "Espèce"){
+            cheque_cell.innerHTML= "-";
+            banque_cell.innerHTML= "-";
+
+        }else {
+            cheque_cell.innerHTML= item.cheque;
+            banque_cell.innerHTML= item.banque__raison_sociale;
+        }
+
+        montant_cell.innerHTML= item.montant;
+    })
+
+}
+// Add paiement function 
+function addPaiement(){
+    let date = document.getElementById("date_paiement").value;
+
+    let mode_select = document.getElementById("mode_select")
+    let selected_mode = mode_select.options[mode_select.selectedIndex].value;
+
+    let banque_select = document.getElementById("banque_select")
+    let selected_banque = banque_select.options[banque_select.selectedIndex].value;
+
+    let cheque = document.getElementById("cheque").value ;
+
+    let montant = document.getElementById("montant").value ;
+
+    document.getElementById("add-paiement").disabled = true;
+    error = false;
+    if(selected_mode == "Chèque"){  
+        if(cheque == "" || cheque == ""){
+            error = true ;
+            Notification("error","Veuillez remplir le numéro de chèque.","danger")  ;
+        }
+    }
+    if(error == false){
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'add_paiement_facture_libre' facture.id %}" ,
+            data: {
+                "date" : date,
+                "mode" : selected_mode,
+                "banque" : selected_banque,
+                "cheque" : cheque,
+                "montant" : montant
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) {  
+            
+                fillpaiements(response.data);
+                document.getElementById("TTC").innerHTML = response.info.TTC;
+                document.getElementById("timber").innerHTML = response.info.timber;
+
+
+                if(response.info.paid){
+                        shutdown();
+                }else{
+                    document.getElementById("add-paiement").disabled = false;
+                    rest_to_pay = response.info.rest;
+                    rest_to_pay_espece = response.info.rest_espece; 
+                    setMode();
+                    document.getElementById("status_paid_badge").style.display = "none";
+                    document.getElementById("status_unpaid_badge").style.display = "block";
+                }
+                success();
+
+            },
+            error: function (response) {
+                document.getElementById("add-paiement").disabled = false;
+                console.log(response);
+            }
+        }) 
+    }
+
+}
+
+function setMode(){
+
+let mode_select = document.getElementById("mode_select")
+let selected_mode = mode_select.options[mode_select.selectedIndex].value;
+
+let banque_select = document.getElementById("banque_select");
+let cheque = document.getElementById("cheque");
+
+let montant = document.getElementById("montant")
+
+if(selected_mode == "Espèce"){
+    banque_select.disabled = true;
+    cheque.disabled = true;
+    montant.value = rest_to_pay_espece;
+    montant.disabled = true;
+}
+if(selected_mode == "Chèque"){
+    banque_select.disabled = false;
+    cheque.disabled = false;   
+    montant.value = rest_to_pay;
+    montant.disabled = false;
+}
+
+}
+
+
+function update_bill_info(info){
+    document.getElementById("ht").innerHTML = info.HT +' DA' 
+    "{% if facture.remise %}"
+        document.getElementById("remise").innerHTML = info.REMISE +' DA'                              
+    "{% endif %}"
+    document.getElementById("tva").innerHTML = info.TVA +' DA' 
+    document.getElementById("ttc").innerHTML = '<b class="text-light" id="TTC">'+ info.TTC +' DA </b> </td>' 
+}
+
+// Create order : get the list of the selected containers aand the order type alongside with the quantity 
+function addPrestation() {
+ 
+    let rubrique = document.getElementById("rubrique");
+    let seelcted_rubrique = rubrique.options[rubrique.selectedIndex].id;
+    let tarif = document.getElementById("tarif_prestation").value;
+    let quantite = document.getElementById("quantite_prestation").value;
+    let prestation_notifications = document.getElementById("prestation_notifications");
+    console.log(rubrique);
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'add_prestation_libre' %}",
+        data: {
+            "rubrique": seelcted_rubrique,
+            "quantite": quantite,
+            "tarif": tarif,
+            "facture":  "{{ facture.id }}",
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            table = document.getElementById("prestation_table"); 
+            while(table.hasChildNodes()){
+                table.removeChild(table.firstChild);
+            }
+            update_bill_info(response.facture);
+            set_paiamant_status(response.unpaid,response.unpaid_espece);
+            response.data.forEach(item => {
+                let row = table.insertRow(0);
+                let rubrique_cell = row.insertCell(0);
+                let quantite_cell = row.insertCell(1);
+                let tarif_cell = row.insertCell(2);
+                let HT_cell = row.insertCell(3);
+                let TVA_cell = row.insertCell(4);
+                let TTC_cell = row.insertCell(5);
+                let action_cell = row.insertCell(6);
+
+                row.id = item.id;
+                rubrique_cell.innerHTML= item.rubrique__designation;
+                quantite_cell.innerHTML= item.quantite;
+                tarif_cell.innerHTML= item.tarif;
+                HT_cell.innerHTML= item.HT;
+                TVA_cell.innerHTML= item.TVA;
+                TTC_cell.innerHTML= item.TTC;
+                action_cell.innerHTML= '<button type="button" class="btn btn-sm btn-danger shadow-none" onclick="delete_prestation('+item.id+')" name="shutdown">Supp</button>';
+
+            });
+        success();
+        },
+        error: function (response) {
+            console.log(response);
+        }
+      }) 
+}
+
+
+function delete_prestation(id){
+    var message = document.getElementById("delete_bulletins");
+    var yes_button = document.getElementById("yes-button");
+    var confirmation_panel = new bootstrap.Modal(message, { keyboard: false});
+    confirmation_panel.show();
+    
+    // If all the observation fields are filled out then you can proced with action else show an error message
+    console.log("response.data");
+    yes_button.onclick = function (){
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'delete_prestation_libre' %}",
+        data: {
+            "prestation_id" : id,
+            "facture_id":  "{{ facture.id }}",
+
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            update_bill_info(response.facture);
+            set_paiamant_status(response.unpaid,response.unpaid_espece);
+                table = document.getElementById("prestation_table"); 
+                while(table.hasChildNodes()){
+                    table.removeChild(table.firstChild);
+                }
+
+                response.data.forEach(item => {
+                   let row = table.insertRow(0);
+                    let rubrique_cell = row.insertCell(0);
+                    let quantite_cell = row.insertCell(1);
+                    let tarif_cell = row.insertCell(2);
+                    let HT_cell = row.insertCell(3);
+                    let TVA_cell = row.insertCell(4);
+                    let TTC_cell = row.insertCell(5);
+                    let action_cell = row.insertCell(6);
+                  
+                    row.id = item.id;
+                    rubrique_cell.innerHTML= item.rubrique__designation;
+                    quantite_cell.innerHTML= item.quantite;
+                    tarif_cell.innerHTML= item.tarif;
+                    HT_cell.innerHTML= item.HT;
+                    TVA_cell.innerHTML= item.TVA;
+                    TTC_cell.innerHTML= item.TTC;
+                    action_cell.innerHTML= '<button type="button" class="btn btn-sm btn-danger shadow-none" onclick="delete_prestation('+item.id+')">Supp</button>';
+                    
+                }); 
+        success();
+            
+          
+        },
+        error: function (response) {
+            console.log(response);
+        }
+    });
+    } 
+}    
+
+
+
+</script>
+
+</section>
+
+{% endblock content %}
+
+
+
+
+            

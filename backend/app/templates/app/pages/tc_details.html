@@ -1,0 +1,76 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+<section class="row">
+    <!-- The table column -->
+    <div class="col-12 col-lg-9">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Résultats</h4>
+            </div>
+             <div class="card-body">
+             
+            {% include 'app/components/add_without_button.html' with form=form_sous_article title="+ Sous Article" model_id="sous_articles_model_id" submit_button="sous_article_submit" %}
+         {% include 'app/components/sousArticles_table.html' with data=sous_articles  %}            
+           
+            
+        
+            </div>
+        </div>
+    </div>
+
+
+     <!-- The article details and actions - Add container and the search functionality -->
+    <div class="col-12 col-lg-3">
+        <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">TC  {{ selected_tc.tc }}</h4>
+                
+            </div>
+            <div class="card-body">
+                <div>
+                    <a type="link" class="btn btn-outline-primary shadow-none mb-3" href="{% url 'article_details' selected_tc.article.id %}">retourner à l'article</a>
+                </div>
+                <div>
+                    <p>TAR <br><b>{{ selected_tc.tar }}</b>
+                </div>
+                <div>
+                    <p>Client <br><b >{{ selected_tc.article.client }}</b>
+                </div>
+   
+                    <p>Désignation <br><b>{{ selected_tc.article.designation }}</b>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Actions</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                <form method="GET">
+                    <div class="row"> 
+                        {% csrf_token %}   
+                        <input type="text" class="form-control shadow-none w-100 mb-2" placeholder="Tapez quelque chose à Searchr..." name="search" value="{{ request.GET.search }}" />
+                        <button type="submit" class="btn btn-outline-primary w-100 mb-4">Searchr</button>
+                    </div>
+                </form>
+                <hr>
+
+                    <a type="link" class="btn btn -sm btn-primary shadow-none float-end" data-bs-toggle="modal" href="#sous_articles_model_id">
+                        + Sous Article
+                    </a>                               
+                       
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</section>
+{% endblock content %}
+
+

@@ -1,0 +1,295 @@
+{% load side_menu %}
+{% load static %}
+
+
+ <nav class="navbar navbar-dark navbar-theme-primary px-4 col-12 d-lg-none">
+      <a class="navbar-brand me-lg-5" href="{% url 'dashboard' %}" style="letter-spacing: 3px;">
+          LOGIXPERT
+      </a>
+      <div class="d-flex align-items-center">
+          <button class="navbar-toggler d-lg-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+      </div>
+  </nav>
+
+<nav id="sidebarMenu" class="sidebar d-lg-block bg-gray-800 text-white collapse" data-simplebar style="overflow: auto;">
+  <div class="sidebar-inner px-4 pt-3">
+    <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
+      <div class="d-flex align-items-center">
+        <div class="avatar-lg me-4">
+          <img src="{% static 'img/user.png'  %}" class="card-img-top rounded-circle border-white"
+            alt="Bonnie Green">
+        </div>
+        <div class="d-block">
+          <h2 class="h5 mb-3">{{ request.user.last_name }} {{ request.user.first_name }}</h2>
+          <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm d-inline-flex align-items-center">
+            <svg class="icon icon-xxs me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>            
+            Sign Out
+          </a>
+        </div>
+      </div>
+
+      <div class="collapse-close d-md-none">
+        <a href="#sidebarMenu" data-bs-toggle="collapse"
+            data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="true"
+            aria-label="Toggle navigation">
+            <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+          </a>
+      </div>
+    </div>
+    <ul class="nav flex-column pt-3 pt-md-0" style="margin-bottom: 100px;">
+      <li class="nav-item d-none d-lg-block text-center pt-4">
+        <a class="navbar-brand me-lg-5" href="{% url 'dashboard' %}" >
+          <p style="font-size: 16pt;letter-spacing: 5px;">LOGIXPERT</p>
+      </a>
+      </li>
+
+      {% if request.user|has_group:"ADMIN" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav1">
+        <a href="{% url 'dashboard' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path></svg>
+          </span> 
+          <span class="sidebar-text">Dashboard</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if request.user|has_group:"SUPER" %} 
+
+      <li class="nav-item sidebarnavitem" id="super_admin">
+        <a href="{% url 'super_admin' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path></svg>
+          </span> 
+          <span class="sidebar-text">Receive in Bulk</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if request.user|has_group:"TRANSIT" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav2">
+        <a href="{% url 'gros_view' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Layer_1" data-name="Layer 1"  width="16" height="16"><path d="M12,7.838,4,10.505V8A3,3,0,0,1,7,5H17a3,3,0,0,1,3,3v2.505ZM22,21c0,.344-.682,1-1.75,1a2.044,2.044,0,0,1-1.619-.7A11.131,11.131,0,0,0,22,13.333v-.054l-9-3V21H11V10.28l-9,3v.054A11.131,11.131,0,0,0,5.375,21.3,2.046,2.046,0,0,1,3.75,22C2.661,22,2,21.306,2,21H0c0,1.626,1.718,3,3.75,3A4.194,4.194,0,0,0,6.5,23a4.313,4.313,0,0,0,5.5.014A4.313,4.313,0,0,0,17.5,23a4.194,4.194,0,0,0,2.749,1C22.282,24,24,22.626,24,21ZM16,2a2,2,0,0,0-2-2H10A2,2,0,0,0,8,2V3h8Z"/></svg>
+          </span>
+          <span class="sidebar-text">Rotation</span>
+        </a>
+      </li>
+
+      
+      <li class="nav-item sidebarnavitem" id="nav30">
+        <a href="{% url 'frais' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M8,0A5.006,5.006,0,0,0,3,5V23a1,1,0,0,0,1.564.825L6.67,22.386l2.106,1.439a1,1,0,0,0,1.13,0l2.1-1.439,2.1,1.439a1,1,0,0,0,1.131,0l2.1-1.438,2.1,1.437A1,1,0,0,0,21,23V5a5.006,5.006,0,0,0-5-5Zm6,14H8a1,1,0,0,1,0-2h6a1,1,0,0,1,0,2Zm3-5a1,1,0,0,1-1,1H8A1,1,0,0,1,8,8h8A1,1,0,0,1,17,9Z"/></svg>
+          </span>
+          <span class="sidebar-text">Frais</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav3">
+        <a href="{% url 'chargement' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="16" height="16"><g id="_22_layers" data-name="22 layers"><path d="M23.944,7.662,12,.5.056,7.662,12,14.828Z"/><polygon points="24 13.965 12 21.165 0 13.965 0 16.298 12 23.497 24 16.298 24 13.965"/><polygon points="24 9.634 21.485 11.143 21.485 11.143 12 16.834 2.515 11.143 2.515 11.143 0 9.634 0 11.966 12 19.166 24 11.966 24 9.634"/></g></svg>
+          </span>
+          <span class="sidebar-text">Charagement</span>
+        </a>
+      </li>
+
+      {% endif %}
+
+      
+      {% if request.user|has_group:"SECURITE" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav4">
+        <a href="{% url 'entree' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="arrow-circle-down" viewBox="0 0 24 24" width="16" height="16"><path d="M5,24H19a5.006,5.006,0,0,0,5-5V5a5.006,5.006,0,0,0-5-5H5A5.006,5.006,0,0,0,0,5V19A5.006,5.006,0,0,0,5,24ZM12,8a2.993,2.993,0,0,1,1.987.752c.327.291.637.574.84.777L17.7,12.353a1,1,0,1,1-1.4,1.426L13.42,10.95c-.188-.187-.468-.441-.759-.7a1,1,0,0,0-1.323,0c-.29.258-.57.512-.752.693L7.7,13.779a1,1,0,0,1-1.4-1.426L9.178,9.524c.2-.2.507-.48.833-.769A2.99,2.99,0,0,1,12,8Z"/></svg>
+          </span>
+          <span class="sidebar-text">Get in</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav5">
+        <a href="{% url 'sortie' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="arrow-circle-down" viewBox="0 0 24 24" width="16" height="16"><path d="M19,0H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H19a5.006,5.006,0,0,0,5-5V5A5.006,5.006,0,0,0,19,0ZM12,16a2.993,2.993,0,0,1-1.987-.752c-.327-.291-.637-.574-.84-.777L6.3,11.647a1,1,0,0,1,1.4-1.426L10.58,13.05c.188.187.468.441.759.7a1,1,0,0,0,1.323,0c.29-.258.57-.512.752-.693L16.3,10.221a1,1,0,1,1,1.4,1.426l-2.879,2.829c-.2.2-.507.48-.833.769A2.99,2.99,0,0,1,12,16Z"/></svg>
+          </span>
+          <span class="sidebar-text">Get out</span>
+        </a>
+      </li>
+
+      {% endif %}
+
+      {% if request.user|has_group:"BACKOFFICE" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav6">
+        <a href="{% url 'reception' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="16" height="16"><g id="_22_layers" data-name="22 layers"><path d="M23.944,7.662,12,.5.056,7.662,12,14.828Z"/><polygon points="24 13.965 12 21.165 0 13.965 0 16.298 12 23.497 24 16.298 24 13.965"/><polygon points="24 9.634 21.485 11.143 21.485 11.143 12 16.834 2.515 11.143 2.515 11.143 0 9.634 0 11.966 12 19.166 24 11.966 24 9.634"/></g></svg>
+          </span>
+          <span class="sidebar-text">Réception</span>
+        </a>
+      </li>
+      {% endif %}
+      {% if request.user|has_group:"POINTEUR" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav7">
+        <a href="{% url 'update_position' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="16" height="16"><path d="M14,7a2,2,0,1,1-2-2A2,2,0,0,1,14,7Zm2.958,5.184L13.9,15.215a2.669,2.669,0,0,1-3.79,0L7.054,12.2A7.262,7.262,0,0,1,7.042,2.1a6.9,6.9,0,0,1,9.916,0A7.257,7.257,0,0,1,16.958,12.184ZM16,7a4,4,0,1,0-4,4A4,4,0,0,0,16,7Zm4.753,2.2a9.1,9.1,0,0,1-2.364,4.384l-3.078,3.053a4.667,4.667,0,0,1-3.3,1.371h0a4.665,4.665,0,0,1-3.3-1.366L5.648,13.619A9.2,9.2,0,0,1,3.283,9.308a5.066,5.066,0,0,0-1.745,1.083A4.946,4.946,0,0,0,0,14v4.075a5.013,5.013,0,0,0,3.6,4.8l2.87.9A4.981,4.981,0,0,0,7.959,24a5.076,5.076,0,0,0,1.355-.186l5.78-1.71a2.976,2.976,0,0,1,1.573,0l2.387.8A4,4,0,0,0,24,19.021V13.872A5.009,5.009,0,0,0,20.753,9.2Z"/></svg>
+          </span>
+          <span class="sidebar-text">Positions</span>
+        </a>
+      </li>
+   
+      {% endif %}
+
+      {% if request.user|has_group:"FRANTOFFICE" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav8">
+        <a href="{% url 'historique' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg id="Layer_1" class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1"><path d="m4 7.938v-4.765c0-1.2.634-3.167 3.673-3.167a8.613 8.613 0 0 1 1.183.094 2.975 2.975 0 0 1 2.144 2.848v7.925a4 4 0 0 0 2 0v-7.925a2.975 2.975 0 0 1 2.144-2.848 8.613 8.613 0 0 1 1.183-.09c3.039-.004 3.673 1.963 3.673 3.163v4.765a4.014 4.014 0 0 1 -2.9 3.845l-3.451.987a6.019 6.019 0 0 1 -3.3 0l-3.449-.987a4.014 4.014 0 0 1 -2.9-3.845zm18-3.912v3.912a6.022 6.022 0 0 1 -4.353 5.768l-3.449.986a8 8 0 0 1 -4.394 0l-3.452-.987a6.023 6.023 0 0 1 -4.352-5.767v-3.912a4.977 4.977 0 0 0 -2 3.974v7a5.006 5.006 0 0 0 5 5h6v2h-3a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-2h6a5.006 5.006 0 0 0 5-5v-7a4.977 4.977 0 0 0 -2-3.974z"/></svg>          </span>
+          <span class="sidebar-text">Historique</span>
+        </a>
+      </li>
+
+
+      <li class="nav-item sidebarnavitem" id="nav9">
+        <a href="{% url 'visite' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M18.581,2.14,12.316.051a1,1,0,0,0-.632,0L5.419,2.14A4.993,4.993,0,0,0,2,6.883V12c0,7.563,9.2,11.74,9.594,11.914a1,1,0,0,0,.812,0C12.8,23.74,22,19.563,22,12V6.883A4.993,4.993,0,0,0,18.581,2.14ZM16.718,9.717l-4.272,4.272a1.873,1.873,0,0,1-1.335.553h-.033a1.872,1.872,0,0,1-1.345-.6l-2.306-2.4A1,1,0,1,1,8.868,10.16L11.112,12.5,15.3,8.3a1,1,0,0,1,1.414,1.414Z"/></svg>
+          </span>
+          <span class="sidebar-text">Visite</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav10">
+        <a href="{% url 'calendrier' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M0,19a5.006,5.006,0,0,0,5,5H19a5.006,5.006,0,0,0,5-5V10H0Zm17-4.5A1.5,1.5,0,1,1,15.5,16,1.5,1.5,0,0,1,17,14.5Zm-5,0A1.5,1.5,0,1,1,10.5,16,1.5,1.5,0,0,1,12,14.5Zm-5,0A1.5,1.5,0,1,1,5.5,16,1.5,1.5,0,0,1,7,14.5Z"/><path d="M19,2H18V1a1,1,0,0,0-2,0V2H8V1A1,1,0,0,0,6,1V2H5A5.006,5.006,0,0,0,0,7V8H24V7A5.006,5.006,0,0,0,19,2Z"/></svg>
+          </span>
+          <span class="sidebar-text">Calendrier</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav11">
+        <a href="{% url 'facturation' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M8,0A5.006,5.006,0,0,0,3,5V23a1,1,0,0,0,1.564.825L6.67,22.386l2.106,1.439a1,1,0,0,0,1.13,0l2.1-1.439,2.1,1.439a1,1,0,0,0,1.131,0l2.1-1.438,2.1,1.437A1,1,0,0,0,21,23V5a5.006,5.006,0,0,0-5-5Zm6,14H8a1,1,0,0,1,0-2h6a1,1,0,0,1,0,2Zm3-5a1,1,0,0,1-1,1H8A1,1,0,0,1,8,8h8A1,1,0,0,1,17,9Z"/></svg>
+          </span>
+          <span class="sidebar-text">Facturation</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav12">
+        <a href="{% url 'operation_libre' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M8,0A5.006,5.006,0,0,0,3,5V23a1,1,0,0,0,1.564.825L6.67,22.386l2.106,1.439a1,1,0,0,0,1.13,0l2.1-1.439,2.1,1.439a1,1,0,0,0,1.131,0l2.1-1.438,2.1,1.437A1,1,0,0,0,21,23V5a5.006,5.006,0,0,0-5-5Zm6,14H8a1,1,0,0,1,0-2h6a1,1,0,0,1,0,2Zm3-5a1,1,0,0,1-1,1H8A1,1,0,0,1,8,8h8A1,1,0,0,1,17,9Z"/></svg>
+          </span>
+          <span class="sidebar-text">Operation Libre</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav13">
+        <a href="{% url 'proformas' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M8,0A5.006,5.006,0,0,0,3,5V23a1,1,0,0,0,1.564.825L6.67,22.386l2.106,1.439a1,1,0,0,0,1.13,0l2.1-1.439,2.1,1.439a1,1,0,0,0,1.131,0l2.1-1.438,2.1,1.437A1,1,0,0,0,21,23V5a5.006,5.006,0,0,0-5-5Zm6,14H8a1,1,0,0,1,0-2h6a1,1,0,0,1,0,2Zm3-5a1,1,0,0,1-1,1H8A1,1,0,0,1,8,8h8A1,1,0,0,1,17,9Z"/></svg>
+          </span>
+          <span class="sidebar-text">Proformas</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav14">
+        <a href="{% url 'factures' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M8,0A5.006,5.006,0,0,0,3,5V23a1,1,0,0,0,1.564.825L6.67,22.386l2.106,1.439a1,1,0,0,0,1.13,0l2.1-1.439,2.1,1.439a1,1,0,0,0,1.131,0l2.1-1.438,2.1,1.437A1,1,0,0,0,21,23V5a5.006,5.006,0,0,0-5-5Zm6,14H8a1,1,0,0,1,0-2h6a1,1,0,0,1,0,2Zm3-5a1,1,0,0,1-1,1H8A1,1,0,0,1,8,8h8A1,1,0,0,1,17,9Z"/></svg>
+          </span>
+          <span class="sidebar-text">Factures</span>
+        </a>
+      </li>
+
+      <li class="nav-item sidebarnavitem" id="nav15">
+        <a href="{% url 'bonsorties' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M8,0A5.006,5.006,0,0,0,3,5V23a1,1,0,0,0,1.564.825L6.67,22.386l2.106,1.439a1,1,0,0,0,1.13,0l2.1-1.439,2.1,1.439a1,1,0,0,0,1.131,0l2.1-1.438,2.1,1.437A1,1,0,0,0,21,23V5a5.006,5.006,0,0,0-5-5Zm6,14H8a1,1,0,0,1,0-2h6a1,1,0,0,1,0,2Zm3-5a1,1,0,0,1-1,1H8A1,1,0,0,1,8,8h8A1,1,0,0,1,17,9Z"/></svg>
+          </span>
+          <span class="sidebar-text">Bons de sorties</span>
+        </a>
+      </li>
+
+      {% endif %}
+
+      {% if request.user|has_group:"FRANTOFFICE" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav18">
+        <a href="{% url 'factures_groupage' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M18.581,2.14,12.316.051a1,1,0,0,0-.632,0L5.419,2.14A4.993,4.993,0,0,0,2,6.883V12c0,7.563,9.2,11.74,9.594,11.914a1,1,0,0,0,.812,0C12.8,23.74,22,19.563,22,12V6.883A4.993,4.993,0,0,0,18.581,2.14ZM16.718,9.717l-4.272,4.272a1.873,1.873,0,0,1-1.335.553h-.033a1.872,1.872,0,0,1-1.345-.6l-2.306-2.4A1,1,0,1,1,8.868,10.16L11.112,12.5,15.3,8.3a1,1,0,0,1,1.414,1.414Z"/></svg>
+          </span>
+          <span class="sidebar-text">Factures Groupage</span>
+        </a>
+      </li>
+   
+      {% endif %}
+      {% if request.user|has_group:"GROUPAGE" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav16">
+        <a href="{% url 'groupage' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="16" height="16"><path d="M14,7a2,2,0,1,1-2-2A2,2,0,0,1,14,7Zm2.958,5.184L13.9,15.215a2.669,2.669,0,0,1-3.79,0L7.054,12.2A7.262,7.262,0,0,1,7.042,2.1a6.9,6.9,0,0,1,9.916,0A7.257,7.257,0,0,1,16.958,12.184ZM16,7a4,4,0,1,0-4,4A4,4,0,0,0,16,7Zm4.753,2.2a9.1,9.1,0,0,1-2.364,4.384l-3.078,3.053a4.667,4.667,0,0,1-3.3,1.371h0a4.665,4.665,0,0,1-3.3-1.366L5.648,13.619A9.2,9.2,0,0,1,3.283,9.308a5.066,5.066,0,0,0-1.745,1.083A4.946,4.946,0,0,0,0,14v4.075a5.013,5.013,0,0,0,3.6,4.8l2.87.9A4.981,4.981,0,0,0,7.959,24a5.076,5.076,0,0,0,1.355-.186l5.78-1.71a2.976,2.976,0,0,1,1.573,0l2.387.8A4,4,0,0,0,24,19.021V13.872A5.009,5.009,0,0,0,20.753,9.2Z"/></svg>
+          </span>
+          <span class="sidebar-text">Groupage</span>
+        </a>
+      </li>
+   
+      {% if request.user|has_group:"FRANTOFFICE" %} 
+
+      <li class="nav-item sidebarnavitem" id="nav17">
+        <a href="{% url 'visite_groupage' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M18.581,2.14,12.316.051a1,1,0,0,0-.632,0L5.419,2.14A4.993,4.993,0,0,0,2,6.883V12c0,7.563,9.2,11.74,9.594,11.914a1,1,0,0,0,.812,0C12.8,23.74,22,19.563,22,12V6.883A4.993,4.993,0,0,0,18.581,2.14ZM16.718,9.717l-4.272,4.272a1.873,1.873,0,0,1-1.335.553h-.033a1.872,1.872,0,0,1-1.345-.6l-2.306-2.4A1,1,0,1,1,8.868,10.16L11.112,12.5,15.3,8.3a1,1,0,0,1,1.414,1.414Z"/></svg>
+          </span>
+          <span class="sidebar-text">Visite Groupage</span>
+        </a>
+      </li>
+   
+      <li class="nav-item sidebarnavitem" id="nav20">
+        <a href="{% url 'calendrier_groupage' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M0,19a5.006,5.006,0,0,0,5,5H19a5.006,5.006,0,0,0,5-5V10H0Zm17-4.5A1.5,1.5,0,1,1,15.5,16,1.5,1.5,0,0,1,17,14.5Zm-5,0A1.5,1.5,0,1,1,10.5,16,1.5,1.5,0,0,1,12,14.5Zm-5,0A1.5,1.5,0,1,1,5.5,16,1.5,1.5,0,0,1,7,14.5Z"/><path d="M19,2H18V1a1,1,0,0,0-2,0V2H8V1A1,1,0,0,0,6,1V2H5A5.006,5.006,0,0,0,0,7V8H24V7A5.006,5.006,0,0,0,19,2Z"/></svg>
+          </span>
+          <span class="sidebar-text">Calendrier</span>
+        </a>
+      </li>
+
+         
+      <li class="nav-item sidebarnavitem" id="nav21">
+        <a href="{% url 'etats' %}" class="nav-link">
+          <span class="sidebar-icon">
+            <svg class="icon icon-xs me-2" fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M8,0A5.006,5.006,0,0,0,3,5V23a1,1,0,0,0,1.564.825L6.67,22.386l2.106,1.439a1,1,0,0,0,1.13,0l2.1-1.439,2.1,1.439a1,1,0,0,0,1.131,0l2.1-1.438,2.1,1.437A1,1,0,0,0,21,23V5a5.006,5.006,0,0,0-5-5Zm6,14H8a1,1,0,0,1,0-2h6a1,1,0,0,1,0,2Zm3-5a1,1,0,0,1-1,1H8A1,1,0,0,1,8,8h8A1,1,0,0,1,17,9Z"/></svg>
+          </span>
+          <span class="sidebar-text">Etats</span>
+        </a>
+      </li>
+
+      {% endif %}
+
+      
+
+
+      {% endif %}
+
+      <li class="nav-item d-none d-lg-block">
+        <a href="{% url 'logout' %}" class="btn btn-secondary d-flex align-items-center justify-content-center btn-upgrade-pro">
+          <span class="sidebar-icon d-inline-flex align-items-center justify-content-center">
+            <svg class="icon icon-xxs me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>            
+          </span> 
+          <span>Sign Out</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

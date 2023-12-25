@@ -1,0 +1,31 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+    {% include 'app/components/navbar.html' with title='Réception' %}
+
+
+    <div class="row">
+        <div class="col col-lg-4 mb-0 mb-lg-2 mt-4 mt-lg-0">
+            {% include 'app/components/search.html' with form=form%}
+        </div>
+    </div>
+
+
+    <div class='card border-0 mt-2 mb-4 mt-lg-0'>
+        <div class="card-body p-2 pb-0 p-lg-4 ">
+            {% include 'app/components/reception_table.html' with data=records empty=False%}
+        </div>
+    </div>
+
+
+
+    <script>
+        window.onload = (event) => {
+            printitems('nav6');
+        };
+    </script>
+
+{% endblock content %}
+
+

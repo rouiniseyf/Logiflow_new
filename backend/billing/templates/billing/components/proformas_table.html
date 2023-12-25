@@ -1,0 +1,71 @@
+
+<div class="table-responsive table-hover">
+  <table class="table table-hover table-borderless table-centered table-nowrap rounded">
+      <thead class="thead-light border-0">
+    <tr>
+          <th class="rounded-start">Numéro</th>
+          <th>Gros</th>
+          <th>Article</th>
+          <th>Date de création</th>
+          <th>HT</th>
+          <th>TVA</th>
+          <th>TTC</th>
+          <th class="rounded-end">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if data|length > 0  %}
+        {% for item in data %}
+            <tr>
+              <td class="rounded-start align-middle">
+
+                {% if item.trashed %}
+                    <a href={% url 'proforma_details' item.id %} style="text-decoration: line-through;" class="btn btn-gray-100 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>         
+                {% elif item.valide %}
+                    <a href={% url 'proforma_details' item.id %} class="btn btn-success text-white btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>         
+                {% else %}
+                    <a href={% url 'proforma_details' item.id %} class="btn btn-gray-100 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>         
+                {% endif %}
+
+              </td>
+                <td class="align-middle">{{ item.gros }}</td>
+                <td class="align-middle">{{ item.article.numero}}</td>
+                <td class="align-middle">{{ item.date_creation|date:"d-m-Y" }}</td>
+
+                  {% if item.HT == None %}
+                    <td class="align-middle"> - </td>
+                  {% else %}
+                    <td  class="align-middle">{{ item.HT }}</td>
+                  {% endif %}
+
+                  {% if item.TVA == None %}
+                    <td class="align-middle"> - </td>
+                  {% else %}
+                    <td class="align-middle">{{ item.TVA }}</td>
+                  {% endif %}
+
+                  {% if item.TTC == None %}
+                    <td class="align-middle"> - </td>
+                  {% else %}
+                    <td class="align-middle">{{ item.TTC }}</td>
+                  {% endif %}
+                       
+                <td class="rounded-end align-middle"> 
+                  <a  href="{% url 'print_proforma' item.id %}" target="_blank" class="btn btn-secondary btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+
+                  </a>
+                  </td>     
+            </tr>
+        {% endfor %}
+
+    {% else %}
+          <tr>
+              <td colspan="7" class="text-center p-4">
+                  <h1><i class="bi bi-inboxes mt-4" ></i></h1>
+              </td>
+          </tr>
+    {% endif %}
+    </tbody>
+  </table>                 
+</div>

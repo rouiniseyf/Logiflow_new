@@ -1,0 +1,203 @@
+{% extends 'app/components/base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+<section class="row">
+<div class="card">
+    <div class="card-body">
+        <div class="row gx-5">
+        <div class="col col-8">
+            <div class="row">
+            
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <input type="date" id="start-date-input" class="form-control form-control-sm shadow-none" />                    
+                            <label for="gros" >De</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="date" id="end-date-input" class="form-control form-control-sm shadow-none" /> 
+                            <label for="article" >A</label>
+                        </div>
+
+                    </div> 
+                
+                    <div class="col">
+                        <div class="form-floating mb-3">
+                            <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-type" name="gros">
+                                <option id="0">Tout</option> 
+                               
+                                {% for item in types %}
+                                     <option id="{{ item.id }}">{{ item.designation }}</option> 
+                                {% endfor %}
+                            </select>                     
+                            <label for="gros" >Type</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-class" name="gros" >
+                                <option id="0">Tout</option> 
+                                <option id="1">Dangereux</option> 
+                                <option id="2">Non Dangereux</option> 
+                  
+                            </select>     
+                            <label for="article" >Class</label>
+                        </div>
+                    </div>
+            </div> 
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-outline-primary w-100 shadow-none" onclick="get_tcs()"> Sumettre </button>
+                </div>
+            </div> 
+        </div>
+        <div class="col col-4">
+           <div class="row h-100">
+                <div class="col">
+                    <button class="btn btn-outline-primary h-100 w-100 shadow-none"><img src="{% static 'images/csv.png' %}" alt="My image"> </button> 
+                </div>
+                <div class="col">
+                    <button class="btn btn-outline-primary h-100 w-100 shadow-none"> <img src="{% static 'images/xls.png' %}" alt="My image"> </button> 
+                </div>
+           </div>
+        </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>
+<section class="row">
+    <!-- The table column -->
+        <div class="card" style="min-height: 64vh;">
+             <div class="card-body">
+              <table class="table table-hover table-responsive">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Tc</th>
+                            <th scope="col">Article</th>
+                            <th scope="col">Gros</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Dangereux</th>
+                            <th scope="col">Frigo</th>
+                            <th scope="col">Client</th>
+                            <th scope="col">Transite</th>
+                            <th scope="col">Date de sortie</th>
+                            <th scope="col">Date d'entree</th>
+                            <th scope="col">Date de livraison</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data_table">
+                        
+                    </tbody>
+                </table>
+                
+                <div class="container-fluid d-flex align-items-center justify-content-center" style="margin-top: 150px;" id="no_data">
+                    <div class="text-center mb-4">
+                        <h1 class="display-1 mb-4"><i class="bi bi-inboxes mt-4" ></i></h1>
+                        <h6 class="display-6"> NO DATA TO DISPLAY</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% include 'app/components/update_bulletins.html'  %}
+    </div>
+
+</section>
+
+
+
+<script> 
+
+function get_articles(){
+    let gros = document.getElementById('select-gros');
+    let selected_gros_id = gros.options[gros.selectedIndex].id;
+    let select_article = document.getElementById('select-article');
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'articles_by_gros' %}",
+            data: {
+                "gros_id": selected_gros_id,
+            },
+            success: function (response) { 
+                select_article.innerHTML = "";
+                response.data.forEach(item => {
+                    var option = document.createElement("option");
+                    option.text = item.numero;
+                    option.id = item.id;
+                    select_article.add(option);
+                    }
+                )
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        })  
+}
+
+  function addSelectedRow(table, data){
+            var row = table.insertRow(0);
+            var tc_cell = row.insertCell(0);
+            var type_cell = row.insertCell(1);
+            var a_quai_cell = row.insertCell(2);
+            var camion_cell = row.insertCell(3);
+            var entree_port_sec_cell = row.insertCell(4);
+
+            row.id = data.tc;
+            tc_cell.innerHTML= data.tc;
+            type_cell.innerHTML= data.type_tc__designation+" "+data.class_tc__designation;
+
+            a_quai_cell.innerHTML= data.article__gros__accostage; 
+            camion_cell.innerHTML = data.date_sortie_port;
+            entree_port_sec_cell.innerHTML = data.date_entree_port_sec;
+    }
+
+
+function get_tcs(){
+    table = document.getElementById("data_table");
+    let select_type = document.getElementById('select-type');
+    let select_class = document.getElementById('select-class');
+    let selected_type = select_type.options[select_type.selectedIndex].id;
+    let selected_class = select_class.options[select_class.selectedIndex].id;
+
+    let starting_date = document.getElementById('start-date-input').value;
+    let ending_date = document.getElementById('end-date-input').value;
+
+    
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    } 
+
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'get_tcs' %}",
+            data: {
+                "selected_type": selected_type,
+                "selected_class": selected_class,
+                "starting_date": starting_date,
+                "ending_date": ending_date,
+            },
+            success: function (response) { 
+                /*if (response.info.vuaquai) {
+                    document.getElementById("badge-vuaquai").innerHTML = "vu à quai";
+                }
+                setInfo(response.info);
+
+                document.getElementById("no_data").innerHTML = "";
+                response.data.forEach(item => {
+                    addSelectedRow(table, item);         
+                })  */           
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        })  
+}
+
+
+</script>
+
+{% endblock content %}
+

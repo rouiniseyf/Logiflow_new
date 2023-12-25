@@ -1,0 +1,33 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Facturation' %}
+{% include 'app/components/messages.html' %}
+
+<div class="row mb-2">
+    <div class="col-md-4 mt-4 mt-lg-0">
+        {% include 'app/components/search.html' with form=search_form%}
+    </div> 
+ 
+</div>
+
+
+<div class="card">
+    <div class="card-body p-2 p-lg-3 pb-0">
+ 
+        <!-- Add gros modal trigger -->
+
+        {% include 'app/components/messages.html' %}
+        {% include 'app/components/gros_table.html' with type="facturation" %}
+
+    </div>
+</div>
+
+
+<script>
+    window.onload = (event) => {
+        printitems('nav11');
+    };
+</script>
+{% endblock content %}

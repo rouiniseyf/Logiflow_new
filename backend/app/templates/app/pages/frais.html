@@ -1,0 +1,400 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Frais' %}
+{% include 'app/components/messages.html' %}
+
+
+
+
+    <div class="row mb-4 align-items-center">
+        
+        <div class="col-12 col-lg-3 my-4 my-lg-0">
+            <div class="card border-0 shadow">
+                <div class="card-body shadow-md p-2 border-0">
+                    <div class="row">
+                        <div class="col-7">
+                            <div class="form-floating">
+                                <select class="form-select mb-2 shadow-none" aria-label="Default select example" id="select-gros" name="gros" onchange="get_articles()">
+                                    {% for item in gros %}
+                                        <option id="{{ item.id }}">{{ item.gros }} {{ item.regime__designation }}</option> 
+                                    {% endfor %}
+                                </select>                     
+                                <label for="gros" >Gros</label>
+                            </div>
+                        </div>
+                        <div class="col-5">
+
+                            <div class="form-floating">
+                              <input type="search" class="form-control" id="gros-search-box"  oninput="searchGros()" autocomplete="off"  data-bs-toggle="tooltip" data-bs-placement="top" title="Vous devez cliquer sur ENTRÉE pour valider la Search">
+                              <label for="floatingInput">Search</label>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-7">
+                            <div class="form-floating">
+                                <select class="form-select mb-2 shadow-none" aria-label="Default select example" id="select-article" name="article" onchange="get_tcs()" >  </select>
+                                <label for="article" >Article</label>
+                            </div>
+                        </div>
+                        <div class="col-5">
+
+                                <div class="form-floating">
+                                  <input type="search" class="form-control" id="articles-search-box"  oninput="searchArticle()" autocomplete="off">
+                                  <label for="floatingInput">Search</label>
+                                </div>
+    
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-secondary w-100 shadow-none" onclick="get_tcs()">Searchr</button>
+                    </div>  
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col align-self-middle d-flex align-items-stretch  bg-gray-200 p-2 mx-2  mx-lg-3 rounded">
+            <div class="card">
+                <div class="card bg-gray-200 p-3">
+                    <div class="mb-2">
+                        <b>Gros</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2" id="gros_number"> - </span>
+                    </div>
+                    <div class="mb-2">
+                        <b>Article</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2" id="article_number"> - </span> &nbsp; <span class="badge bg-success p-2" id="badge-vuaquai"></span>
+                    </div>
+                    <div class="mb-2">
+                        <b>Désignation</b> &nbsp; &nbsp;  <span id="designation"> - </span>
+                    </div>
+                    <div class="mb-2">
+                        <b>Client</b> &nbsp; &nbsp;  <span id="client"> - </span>
+                    </div>
+                </div>
+            </div>
+        </div> 
+
+    </div>
+
+    <div class="card" id="frais_card" style="display: none;">
+        <div class="card-body p-2 p-lg-3 pb-0">
+
+            
+
+            <div class="row mb-3">
+                <div class="col-12 col-lg-6">
+                    <div class="card border-0">
+                        <div class="card-body">
+                            <div class="mb-2">
+                                Frais portuaires &nbsp; &nbsp; <span class="badge bg-primary p-2" id="text_frais_portuaires"> 0 DA </span>
+                            </div>         
+                            <div class="row">
+                                <div class="col-7">
+                                    <input type="number" min="0.001" step="0.001"  class="form-control w-100" id="frais-input" placeholder="Frais portuaires"  >
+                                </div>
+                                <div class="col-5">    
+                                    <button type="button" class="btn btn-primary w-100" id="add-btn" onclick="add_frais()">Sumettre</button>
+                                </div>
+                            </div>
+                    
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6 mt-2 mt-lg-0">
+                    <div class="card border-0">
+                        <div class="card-body">
+                            <div class="mb-2">
+                                Immobilisation &nbsp; &nbsp; <span class="badge bg-primary p-2" id="text_immobilisation"> 0 DA </span>
+                            </div>             
+                            <div class="row">
+                                <div class="col-7">
+                                    <input type="number" min="0.001" step="0.001"  class="form-control w-100" id="immobilisation-input" placeholder="Immobilisation"  >
+                                </div>
+                                <div class="col-5">    
+                                    <button type="button" class="btn btn-primary w-100" id="add-immo-btn" onclick="add_immobilisation()">Sumettre</button>
+                                </div>
+                            </div>
+                    
+                        </div>
+                    </div>
+            
+                </div>
+            
+            </div>
+        
+        </div>
+    </div>
+    {% include 'app/components/update_bulletins.html'  %}
+
+<!-- Confirmation Modal -->
+<div class="modal fade " id="add-frais" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+      <div class="modal-content">
+          <div class="modal-body">
+              <h6 class="mt-3">Confirmer les modifications ?</h6>
+          </div>
+          
+          <div class="modal-footer">
+              <button type="button" class="btn btn-light shadow-none" data-bs-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-danger shadow-none" id="yes-button-add-frais" data-bs-dismiss="modal">Confirmer</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+
+<script> 
+window.onload = function() {
+    printitems('nav30')
+    get_articles();
+};
+
+
+gros_search_box = document.getElementById("gros-search-box");
+gros_options = document.getElementById("select-gros");
+articles_search_box = document.getElementById("articles-search-box");
+artcile_options = document.getElementById("select-article");
+
+
+
+function searchGros(){
+    var text = gros_search_box.value;
+    searchSelect(gros_options.options,text );  
+}
+
+function searchArticle(){
+    var text = articles_search_box.value;
+    searchSelect(artcile_options.options,text );  
+}
+
+
+function searchSelect(opetions, text){
+    var options = opetions; //select options
+    for (var i = 0; i < options.length; i++) {
+        var option = options[i]; //current option
+        var optionText = option.text; //option text ("Somalia")
+        var lowerOptionText = optionText.toLowerCase(); //option text lowercased for case insensitive testing
+        var lowerText = text.toLowerCase(); //searchBox value lowercased for case insensitive testing
+        var regex = new RegExp("^" + text, "i"); //regExp, explained in post
+        var match = optionText.match(regex); //test if regExp is true
+        var contains = lowerOptionText.indexOf(lowerText) != -1; //test if searchBox value is contained by the option text
+        if (match || contains) { //if one or the other goes through
+            option.selected = true; //select that option
+            return; //prevent other code inside this event from executing
+        }
+    }
+}
+
+
+
+gros_search_box.addEventListener("keypress", function(event) {
+    // If the user presses the "Enter" key on the keyboard
+    if (event.key === "Enter") {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      get_articles(gros_options.value);
+    }
+});
+
+
+
+
+function get_articles(){
+    let gros = document.getElementById('select-gros');
+    let selected_gros_id = gros.options[gros.selectedIndex].id;
+    let select_article = document.getElementById('select-article');
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'articles_by_gros' %}",
+            data: {
+                "gros_id": selected_gros_id,
+            },
+            success: function (response) { 
+                select_article.innerHTML = "";
+                response.data.forEach(item => {
+                    var option = document.createElement("option");
+                    option.text = item.numero;
+                    option.id = item.id;
+                    select_article.add(option);
+                    }
+                )
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        })  
+}
+function setValue(value,type){
+    if((typeof value != 'undefined') && (value!=null)){
+        value = value.replace('T',' ');
+        value = value.replace(':00Z','');
+        return value;
+    }else{
+        return "-";
+    }
+}
+
+function setInfo(data){
+    console.log(data)
+    document.getElementById('article_number').innerHTML =  data.article;
+    document.getElementById('gros_number').innerHTML =  data.gros;
+    document.getElementById('client').innerHTML =  data.client;
+    document.getElementById('designation').innerHTML =  data.designation;
+}
+
+
+
+function get_tcs(){
+    let article = document.getElementById('select-article');
+    let selected_article_id = article.options[article.selectedIndex].id;
+
+    console.log("called")
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'get_tcs_by_article_frais' %}",
+            data: {
+                "selected_article_id": selected_article_id,
+            },
+            success: function (response) { 
+               console.log(response)
+                setInfo(response.data);
+                if(response.data.regime === "OT"){
+                    document.getElementById("frais_card").style.display = "block";
+                }else{
+                    document.getElementById("frais_card").style.display = "none";
+                }
+                document.getElementById("text_frais_portuaires").innerHTML = response.data.frais_portuaires + " DA"
+                document.getElementById("text_immobilisation").innerHTML = response.data.immobilisation + " DA"
+
+                response.data.forEach(item => {
+                    addSelectedRow(table, item);         
+                })             
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        })  
+}
+
+function add_immobilisation(id){
+
+    let article = document.getElementById('select-article');
+    let selected_article_id = article.options[article.selectedIndex].id;
+
+    var message = document.getElementById("add-frais");
+    var yes_button = document.getElementById("yes-button-add-frais");
+    var add_btn = document.getElementById("add-immo-btn");
+    url = "{% url 'add_immobilisation' %}"; 
+
+    let immobilisation = document.getElementById("immobilisation-input");
+    errors = false;
+    if(immobilisation.value == ""){
+        errors = true ;
+    }
+    
+    if(errors){
+        alert("error")
+    }else{
+            yes_button.onclick = function (){
+                add_btn.disabled = true;
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        "immobilisation": immobilisation.value,
+                        "article_id": selected_article_id,
+                    },
+                    dataType: 'json', 
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (response) { 
+                            add_btn.disabled = false;
+                            Notification('Succès',"L'opération a été effectuée avec succès.",'success'); 
+                            document.getElementById("text_immobilisation").innerHTML = response.data + " DA"
+                            immobilisation.value = ""
+                                },
+                    error: function (response) {
+                        add_btn.disabled = false;
+                        console.log(response);
+                    }
+                  }) 
+        }
+                    
+        var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+        visits_panel.show();
+    }
+
+}
+
+function add_frais(){
+
+    let article = document.getElementById('select-article');
+    let selected_article_id = article.options[article.selectedIndex].id;
+
+    var message = document.getElementById("add-frais");
+    var yes_button = document.getElementById("yes-button-add-frais");
+    var add_btn = document.getElementById("add-btn");
+    url = "{% url 'add_frais_portuaires' %}"; 
+
+    let frais = document.getElementById("frais-input");
+    errors = false;
+    if(frais.value == ""){
+        errors = true ;
+    }
+    
+    if(errors){
+        alert("error")
+    }else{
+            yes_button.onclick = function (){
+                add_btn.disabled = true;
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        "frais": frais.value,
+                        "article_id": selected_article_id,
+                    },
+                    dataType: 'json', 
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (response) { 
+                            add_btn.disabled = false;
+                            Notification('Succès',"L'opération a été effectuée avec succès.",'success'); 
+                            document.getElementById("text_frais_portuaires").innerHTML = response.data + " DA"
+                            frais.value = ""       
+                    },
+                    error: function (response) {
+                        add_btn.disabled = false;
+                        console.log(response);
+                    }
+                  }) 
+        }
+                    
+        var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+        visits_panel.show();
+    }
+
+}
+
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+ }
+
+
+</script>
+
+{% endblock content %}
+

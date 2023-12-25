@@ -1,0 +1,222 @@
+<!-- Add new visite modal dialog -->
+<div class="modal fade" id="modal-visite" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content ">
+
+          <form id="form-visite" name="visiteForm" method="POST" autocomplete="off">
+          {% csrf_token %}
+          <div class="modal-body">
+            <span class="badge bg-gray-100 text-primary p-2 mb-3"> + Visite Groupage</span>
+
+          {% csrf_token %}
+              {% for field in form_visite %}
+  
+              {% if  field.id_for_label == "id_transitaire" %}
+                  
+              <div class="row mb-3">
+
+                    
+                    <div class="col-8 col-md-6">
+                      <div class="form-floating ">
+                          {{field}}             
+                          <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                      </div>
+                    </div>
+                    <div class="col-4">
+
+                        <div class="form-floating">
+                          <input type="search" class="form-control" id="transitaires-search-box"  oninput="searchTransitaire()">
+                          <label for="floatingInput">Search</label>
+                        </div>
+                      </div>
+                
+                      <div class="col-2 d-none d-md-block">
+                        <a class="btn btn-outline-primary shadow-none w-100 h-100" data-bs-toggle="modal" href="#transitaire_model_id" role="button" >
+                            <div class="container-fluid d-flex align-items-center justify-content-center h-100">
+                                <div class="text-center">
+                                   + 
+                                </div>
+                            </div>                                        
+                        </a>           
+                    </div>
+                  
+
+              </div>
+           
+              {% elif  field.id_for_label == "id_gros" %}
+          
+              <div class="row mb-3">
+
+                  <div class="col-12">
+                    <div class="row">
+                    <div class="col-8">
+                      <div class="form-floating ">
+
+                          {{field}}             
+                          <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                      </div>
+                    </div>
+                    
+                    <div class="col-4">
+
+                      <div class="form-floating">
+                        <input type="search" class="form-control" id="gros-search-box" oninput="searchGros()"  data-bs-toggle="tooltip" data-bs-placement="top" title="Vous devez cliquer sur ENTRÉE pour valider la Search">
+                        <label for="floatingInput">Search</label>
+                      </div>
+                    </div>
+                </div>
+                  </div>
+
+              </div>
+
+                                 
+            {% elif  field.id_for_label == "id_article" %}
+          
+              <div class="row mb-3">
+
+                  <div class="col-12">
+                    <div class="row">
+                    <div class="col-8">
+                      <div class="form-floating ">
+
+                          {{field}}             
+                          <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                      </div>
+                    </div>
+                    <div class="col-4">
+
+                      <div class="form-floating">
+                        <input type="search" class="form-control" id="articles-search-box"  oninput="searchArticles()" data-bs-toggle="tooltip" data-bs-placement="top" title="Vous devez cliquer sur ENTRÉE pour valider la Search">
+                        <label for="floatingInput">Search</label>
+                      </div>
+                    </div>
+                </div>
+                  </div>
+
+              </div>
+              {% elif  field.id_for_label == "id_sous_article" %}
+          
+              <div class="row mb-3">
+
+                  <div class="col-12">
+                    <div class="row">
+                    <div class="col-8">
+                      <div class="form-floating ">
+
+                          {{field}}             
+                          <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                      </div>
+                    </div>
+                    <div class="col-4">
+
+                      <div class="form-floating">
+                        <input type="search" class="form-control" id="sous-articles-search-box"  oninput="searchSousArticles()">
+                        <label for="floatingInput">Search</label>
+                      </div>
+                    </div>
+                </div>
+                  </div>
+
+              </div>
+                  {% else %}
+  
+                      <div class="form-floating mb-3">
+                          {{field}}             
+                          <label for="{{field.id_for_label}}" >{{field.label}}</label>
+                      </div>
+  
+                     
+                  {% endif %}
+  
+
+          {% endfor %}
+                    <div class="form-floating mb-3">
+                        <input type="number" name="volume" class="form-control shadow-none disable" step=".001" maxlength="50" id="id_volume">             
+                        <label for="id_volume" >Volume</label>
+                    </div>
+          </div>
+  
+          <div class="modal-footer">
+              <a  class="btn btn-gray-100 float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+              <input type="submit" class="btn btn-primary float-right" id="butt"  name="SUBMIT" value="Soumettre"></a>
+  
+          </div>
+  
+          </form>
+      </div>
+    </div>
+  </div>
+  
+
+  <script>
+
+
+    gros_search_box = document.getElementById("gros-search-box");
+    articles_search_box = document.getElementById("articles-search-box");
+    transitaires_search_box = document.getElementById("transitaires-search-box");
+    sous_article_search_box = document.getElementById("sous-articles-search-box");
+    gros_options = document.getElementById("id_gros");
+    artcile_options = document.getElementById("id_article");
+    sous_artcile_options = document.getElementById("id_sous_article");
+    transitaire_options = document.getElementById("id_transitaire");
+    
+    function searchSelect(opetions, text){
+      var options = opetions; //select options
+      for (var i = 0; i < options.length; i++) {
+          var option = options[i]; //current option
+          var optionText = option.text; //option text ("Somalia")
+          var lowerOptionText = optionText.toLowerCase(); //option text lowercased for case insensitive testing
+          var lowerText = text.toLowerCase(); //searchBox value lowercased for case insensitive testing
+          var regex = new RegExp("^" + text, "i"); //regExp, explained in post
+          var match = optionText.match(regex); //test if regExp is true
+          var contains = lowerOptionText.indexOf(lowerText) != -1; //test if searchBox value is contained by the option text
+          if (match || contains) { //if one or the other goes through
+              option.selected = true; //select that option
+              return; //prevent other code inside this event from executing
+          }
+      }
+  }
+
+  
+    
+    function searchGros(){
+        var text = gros_search_box.value;
+        searchSelect(gros_options.options,text );  
+    }
+    
+    function searchArticles(){
+        var text = articles_search_box.value;
+        searchSelect(artcile_options.options,text );  
+    }
+
+    function searchSousArticles(){
+        var text = sous_article_search_box.value;
+        searchSelect(sous_artcile_options.options,text );  
+    }
+    
+    function searchTransitaire(){
+        var text = transitaires_search_box.value;
+        searchSelect(transitaire_options.options,text );  
+    }
+    
+    gros_search_box.addEventListener("keypress", function(event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          get_articles(gros_options.value);
+        }
+    });
+ 
+    articles_search_box.addEventListener("keypress", function(event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          get_sous_articles(artcile_options.value);
+        }
+    });    
+    
+    </script>

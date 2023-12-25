@@ -1,0 +1,21 @@
+{% load static %}
+{% load side_menu %}
+
+
+<nav class="navbar navbar-expand-lg navbar-transparent rounded-bottom navbar-light bg-white mb-4 px-4 d-none d-lg-block">
+    <div class="container-fluid px-0">
+      <div class="d-flex justify-content-between w-100" id="navbarSupportedContent">
+        <div class="d-flex align-items-center">
+            {{ title }}
+        </div>
+        <!-- Navbar links -->
+    
+          <a class="btn btn-sm btn-gray-100 shadow-none" type="button" style="margin: -8px;" href="/admin" > 
+            <img class="avatar" alt="Image placeholder" src="{%static 'img/user.png' %}">
+            <small>{{ request.user.last_name }} {{ request.user.first_name }}</small>
+          </a >
+       
+        
+      </div>
+    </div>
+</nav>

@@ -1,0 +1,35 @@
+<div class="table-responsive table-hover">
+  <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+      <thead class="thead-light border-0">
+    <tr>
+          <th class="rounded-start">Date de préstation</th>
+          <th>Tc</th>
+          <th>Type</th>
+          <th>rubrique</th>
+          <th class="rounded-end">Traif</th>
+          
+    </tr>
+    </thead>
+    <tbody id="prestation_occasionnelle_table">
+    {% if data|length > 0 %}
+        {% for item in data %}
+            <tr>
+                  <td class="rounded-start">{{ item.date }}</td>
+                  <td>{{ item.tc.tc }}</td>
+                  <td>{{ item.tc.type_tc }}</td>
+                  <td>{{ item.rubrique }}</td>                         
+                  <td class="rounded-end">{{ item.prix }}</td>                         
+                  
+            </tr>
+        {% endfor %}
+    {% else %}
+          <tr>
+              <td colspan="6" class="text-lg-center p-4 rounded-start rounded-end">
+                <svg  fill="currentColor"  xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="40" height="40"><path d="M21.469,1.027A3,3,0,0,0,19.209,0H4.791A3,3,0,0,0,1.819,3.405L2.309,7H16.1a1,1,0,0,1,0,2H2.582L4.038,19.675A5.017,5.017,0,0,0,8.992,24h6.016a5.017,5.017,0,0,0,4.954-4.324L22.181,3.405A3,3,0,0,0,21.469,1.027Z"/></svg>
+              </td>
+          </tr> 
+    {% endif %}
+
+    </tbody>
+  </table>                 
+</div>

@@ -1,0 +1,22 @@
+{% if messages %}
+
+{% for message in messages %}
+
+<div class="alert {{ 'alert-'|add:message.extra_tags }} alert-dismissible fade show mt-3 h-25" role="alert" id="return-message" >
+    {{ message }}
+</div>
+{% endfor %}
+
+{% endif %} 
+
+
+<script>
+
+let return_message = document.getElementById("return-message");
+return_message.addEventListener("load", removeMessage(return_message));
+function removeMessage(message){
+    setTimeout(function (){
+            return_message.remove();
+        }, 4000);
+}
+</script>

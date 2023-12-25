@@ -1,0 +1,39 @@
+{% load static %}
+<div class="table-responsive mb-4">
+    <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+        <thead class="thead-light border-0 mb-4">
+            <tr class="mb-4">
+                <th class="rounded-start ">Numéro Bulletins</th>
+                <th >Gros</th>
+                <th >Date</th>
+                <th class="rounded-end">Chargé Transfert</th>
+            </tr>
+        </thead>
+        <tbody id="reception_table">
+            <!-- Item -->
+          {% for item in data %}
+          <tr id="{{ item.id }}" >
+
+              <td class="border-0 rounded-start">
+                {% if item.receved %}
+                <a class="btn btn-sm  btn-success shadow-none text-white" type="button" style="margin: -4px;" href="{% url 'reception_details' item.id %}"> 
+                  <small>{{ item.bulletins }} </small>
+                </a>
+                {% else %}
+                <a class="btn btn-sm  btn-danger shadow-none text-white" type="button" style="margin: -4px;" href="{% url 'reception_details' item.id %}"> 
+                  <small>{{ item.bulletins }} </small>
+                </a>
+                {% endif %}
+              </td>
+              <td class="align-middle">{{ item.gros }}</td>
+              <td class="align-middle">{{ item.date_creation|date:"l, d-m-Y" }}</td>
+              <td class="align-middle rounded-end">{{ item.charge_chargement }}</td>
+  
+          </tr>
+        {% endfor %}  
+  
+        </tbody>
+    </table>
+  </div>
+  
+  {% include 'app/components/pagination.html' %}

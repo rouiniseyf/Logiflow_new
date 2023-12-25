@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+
+  database:
+    container_name: logixpert_db
+    image: postgres:12.8
+    # make sur the the database starts whenever the system starts 
+    restart: always
+    environment:
+      - POSTGRES_DB=logiflow
+      - POSTGRES_USER=rouini
+      - POSTGRES_PASSWORD=1813830
+
+    #----- Production ------------
+    ports:
+      - "5432:5432"
+    command: -p 5432
+    #----- Développement ---------
+    # ports:
+    #   - "5436:5436" 
+    # command: -p 5436
+
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+  web:
+    container_name: logixpert
+    build: .
+    restart: always
+
+    command: gunicorn src.wsgi:application --bind 0.0.0.0:8080
+    volumes:
+      - static:/home/project/static
+    expose:
+      - 8080
+      #- 8080
+    env_file:
+      - ./.env
+    depends_on:
+      - database
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static:/home/project/static
+    ports:
+      #- 8888:8888
+      - 80:80
+    depends_on:
+      - web
+  # backups:
+  #   container_name: logixpert_backups
+  #   image: prodrigestivill/postgres-backup-local:10-alpine
+  #   restart: always
+  #   volumes:
+  #     - /$HOME/logixpert:/backups
+  #   links:
+  #     - database
+  #   depends_on:
+  #     - database
+  #   environment:
+  #     - POSTGRES_HOST=database
+  #     - POSTGRES_PORT=5433
+  #     - POSTGRES_DB=logixpert
+  #     - POSTGRES_USER=rouini
+  #     - POSTGRES_PASSWORD=1813830
+  #     #  - POSTGRES_PASSWORD_FILE=/run/secrets/db_password <-- alternative for POSTGRES_PASSWORD (to use with docker secrets)
+  #     - POSTGRES_EXTRA_OPTS=-Z9 --schema=public --blobs
+  #     - SCHEDULE=@hourly
+  #     - BACKUP_KEEP_DAYS=7
+  #     - BACKUP_KEEP_WEEKS=30
+  #     - BACKUP_KEEP_MONTHS=30
+  #     - HEALTHCHECK_PORT=8099
+
+volumes:
+  pg_data:
+  static:
+
+

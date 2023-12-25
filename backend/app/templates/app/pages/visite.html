@@ -1,0 +1,161 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Visite' %}
+
+
+
+<div class="row mt-4 mt-lg-0">
+
+    <div class="col-12 col-lg-4 ">
+        {% include 'app/components/search.html' with form=form%}
+    </div>
+
+    <div class="col-12 col-lg-2 offset-lg-6">
+        <a type="link" class="btn btn btn-secondary shadow-none float-end w-100" data-bs-toggle="modal" href="#modal-visite">
+            + Visite
+        </a>   
+    </div>
+
+</div>
+
+<div class='card border-0 mt-4 mt-lg-2'>
+    <div class="body p-2 p-lg-3 pb-0">
+
+        {% include 'app/components/visite_table.html' with data=records %}
+        {% include "app/components/pagination.html" with data=records %}
+
+    </div>
+</div>
+
+{% include 'app/components/model_visite.html' %}
+
+
+{% include 'app/components/custom_add.html' with form=form_transitaire form_id='transitaire_form_id' model_id='transitaire_model_id' form_title='+ Transitaire'  %}
+
+
+<script>
+
+    window.onload = (event) => {
+        printitems('nav9');
+    };
+
+document.getElementById("id_article").onchange = function() {myFunction()};
+
+function myFunction() {
+    let articles = document.getElementById("id_article");
+    let selected_article = articles.options[articles.selectedIndex].id;
+   
+}
+
+$("#transitaire_form_id").submit(function(e){
+       var select_field = $('#id_transitaire');
+       form = $("#transitaire_form_id");
+       can_add_new(e, select_field, form,"{% url 'post_transitaire' %}");
+   }) ;
+
+var now = new Date();
+
+var day = ("0" + now.getDate()).slice(-2);
+var month = ("0" + (now.getMonth() + 1)).slice(-2);
+
+var today = now.getFullYear()+"-"+(month)+"-"+(day) ;
+
+$('#id_date_visite').val(today);
+
+function close_model(model_id) {
+  var myModalEl = model_id
+  var modal = bootstrap.Modal.getInstance(myModalEl)
+  modal.hide();
+}
+
+function can_add_new(e, select_field, form, api) {
+    e.preventDefault();
+    var serializedData = form.serialize();
+    $.ajax({
+        type: 'POST',
+        url: api,
+        data: serializedData,
+        success: function (response) {
+            data = JSON.parse(response.instance)[0].fields;
+            id = JSON.parse(response.instance)[0].pk;
+            console.log(data);
+            select_field.append(`<option value="`+ id +`"> `+ data.raison_sociale +` </option>`);     
+            select_field.val(id);
+            close_model("transitaire_model_id");
+        },
+        error: function (response) {
+            // alert the error if any error occured
+            console.log(response.responseText);
+        }
+    })
+}
+
+let select_gros =  document.getElementById("id_gros");
+select_gros.addEventListener('change', function() {
+    get_articles(select_gros.value);
+});
+
+
+function get_articles(selected_gros_id){
+    let select_article = document.getElementById('id_article');
+    $.ajax({
+            type: 'GET',
+            url: "{% url 'articles_by_gros_visite' %}",
+            data: {
+                "gros_id": selected_gros_id,
+            },
+            success: function (response) { 
+                select_article.innerHTML = "";
+                console.log(response.data);
+                if(response.data.length > 0 ){
+                    console.log(response.data)
+                    var option = document.createElement("option");
+                        option.text = "---------";
+                        option.value = "";
+                        select_article.add(option);
+
+                    response.data.forEach(item => {
+                        var option = document.createElement("option");
+                        option.text = item.numero;
+                        option.value = item.id;
+                        select_article.add(option);
+                    }
+                )
+                } 
+              
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["error"]);
+            }
+        })  
+}
+
+let form = document.getElementById('form-visite');
+form.onsubmit = createVsiste;
+
+function createVsiste(event){
+    event.preventDefault();
+    form = $("#form-visite");
+    var serializedData = form.serialize();
+
+    $.ajax({
+            type: 'POST',
+            url: "{% url 'post_visite' %}" ,
+            data: serializedData,
+            success: function (response) { 
+                id = JSON.parse(response.instance)[0].pk;
+                link = "{% url 'visite_details' 5 %}"
+                window.location.href = link.replace('5',id);
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        }) 
+}
+ 
+</script>
+{% endblock content %}
+
+

@@ -1,0 +1,199 @@
+
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Etats' %}
+
+{% include 'app/components/messages.html' %}
+
+
+<div class="container-fluid">
+    <div class="row gx-5 p-2">
+      <div class="col" style="min-height: 200px;">
+        <button type="button" class="btn btn-primary w-100 h-100" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Etat de caisse</button>
+      </div>
+      <div class="col">
+        
+      </div>
+      <div class="col">
+        
+      </div>
+      <div class="col">
+        
+      </div>
+      <div class="col">
+        
+      </div>
+     
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Etat de caisse</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            
+            <form  method="POST" action="{% url 'etat_de_case' %}" >
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-2" style="display:flex;align-items: center;">
+                        Depuis
+                    </div>
+                    <div class="col" style="display:flex;align-items: center;">
+                        <input type="date" class="form-control shadow-none w-100" id="depuis" name="depuis" required></input>
+                    </div>
+                </div>
+                <div class="row mt-2" style="display:flex;align-items: center;">
+                    <div class="col-2" style="display:flex;align-items: center;">
+                        Jusqu'à 
+                    </div>
+                    <div class="col">
+                        <input type="date" class="form-control shadow-none w-100" id="jusqua" name="jusqua"  required></input>
+                    </div>
+                </div>
+                <div class="row mt-2" style="display:flex;align-items: center;">
+                    <div class="col-2" style="display:flex;align-items: center;">
+                        Numéro
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control shadow-none w-100" id="numero" name="numero"  required></input>
+                    </div>
+                </div>
+        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" type="submit" >Télécharger</button>
+            </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+    window.onload = (event) => {
+        printitems('nav21');
+    };
+function setSelected(tc){
+    {% for tc in  records %}
+        if("{{ tc.tc }}" == tc){
+            document.getElementById("row{{ tc.id }}").classList.add("bg-light");
+        }else{
+            document.getElementById("row{{ tc.id }}").classList.remove("bg-light");
+        }
+    {% endfor %}
+}
+
+function etatDeCase(){
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'etat_de_case' %}",
+        data: {
+            "test": "value",
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            if (response.message == 'success'){
+            
+                Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+            }
+        },
+        error: function (response) {
+            console.log(response);
+        }
+    });
+}
+
+function zoom(tc,scelle_number,registration_number){
+    //setSelected(tc);
+    scelle.classList.remove('bg-danger');
+    scelle.classList.add('bg-primary');
+
+    container = document.getElementById("container");
+    registration = document.getElementById("registration");
+    scelle = document.getElementById("scelle");
+    container.innerHTML = tc;
+    registration.innerHTML = registration_number; 
+    if(scelle_number != "None"){
+        scelle.innerHTML = scelle_number;
+    }else{
+        scelle.innerHTML = "-";
+        scelle.classList.remove('bg-primary');
+        scelle.classList.add('bg-danger');
+    }
+    
+}
+function enregistrer(id){
+
+    var message = document.getElementById("delete_bulletins");
+    var yes_button = document.getElementById("yes-button");
+    saved_data = [];
+    good_to_go = true;
+
+    observation = document.getElementById(id).value;
+
+    if( observation == '' || (observation==null)) {
+        good_to_go = false;
+    }
+        
+ 
+    // If all the observation fields are filled out then you can proced with action else show an error message
+    if(good_to_go){
+        yes_button.onclick = function (){
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'entrer_port_sec' %}",
+            data: {
+                "observation": observation,
+                "tc_id" : id
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) { 
+                if (response.message == 'success'){
+                    document.getElementById("row"+id).remove();
+                    zoom("#CONTENEUR","#MATRICULE","#SCELLE");
+                    Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+                }
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        });
+        }
+        var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+        visits_panel.show();
+         
+    }else{
+       Notification('error','Certains <b>champs obligatoires</b> sont vides, veuillez les remplir tous puis réessayer ','danger');
+    }
+  
+}
+
+
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+}
+</script>
+{% endblock content %}
+
+

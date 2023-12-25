@@ -1,0 +1,128 @@
+{% load static %}
+
+<div class="table-responsive mb-4">
+  <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+      <thead class="thead-light border-0">
+        <tr>
+          <th class="rounded-start">Conteneur</th>
+          <th >TAR</th>
+          <th >Poids</th>
+          <th >Client</th>
+          <th >Type</th>
+          <th class="text-center">Dangereux</th>
+          <th class="text-center rounded-end">Frigo</th>
+        </tr>
+      </thead>
+
+
+  <tbody>
+    
+  {% if data|length > 0 %}
+      {% for item in data %}
+      <tr>
+
+          <td class="rounded-start align-middle" >{{ item.tc }}</td>
+          <td class="align-middle">{{ item.tar }}</td>
+          <td class="align-middle">{{ item.poids }}</td>
+          <td class="align-middle">{{ item.article__client__raison_sociale }}</td>
+          <td >
+            <select class="form-select form-select-sm shadow-none" aria-label="Default select example" style="min-width:100px;" id="{{ item.id }}selected_type" onchange="setType({{ item.id }}, 'selected_type')">
+              {% if item.type_tc == None %}
+                  <option selected>-------</option>
+              {% endif %}
+              {% for type in types %}
+                {% if type.id == item.type_tc.id %}
+                  <option value="{{ type.id }}" selected>{{ type }} </option>
+                {% else %}
+                  <option value="{{ type.id }}">{{ type }}</option>
+                {% endif %}
+              {% endfor %}
+            
+            </select>
+          </td>
+
+          <td class="text-center align-middle">
+            {% if item.dangereux %}
+              <input class="form-check-input shadow-none" type="checkbox" value="" id="{{ item.id }}dangereux" onchange="updateDangereux({{ item.id }})" checked>
+            {% else %}
+              <input class="form-check-input shadow-none" type="checkbox" value="" id="{{ item.id }}dangereux" onchange="updateDangereux({{ item.id }})">
+            {% endif %}
+          </td>
+          <td class="text-center align-middle rounded-end">
+            {% if item.frigo %}
+              <input class="form-check-input shadow-none" type="checkbox" value="" id="{{ item.id }}frigo" onchange="updateFrigo({{ item.id }})" checked>
+            {% else %}
+              <input class="form-check-input shadow-none" type="checkbox" value="" id="{{ item.id }}frigo" onchange="updateFrigo({{ item.id }})">
+            {% endif %}
+          </td>
+      </tr>
+    {% endfor %}
+    {% else %}
+          <tr>
+              <td colspan="7" class="text-center p-4">
+                  <h1><i class="bi bi-inboxes mt-4" ></i></h1>
+              </td>
+          </tr> 
+  {% endif %} 
+
+    </tbody>
+  </table>
+</div>
+{% include 'app/components/pagination.html' %}
+
+
+<script>
+
+function setType(id , select){
+    let select_elemnt = document.getElementById(id+"selected_type");
+    selected_id = select_elemnt.options[select_elemnt.selectedIndex].value;
+    update(id,selected_id,"{% url 'update_type' %}");
+}
+
+
+function update(tc, selected_id, api) {
+       $.ajax({
+         type: 'GET',
+         url: api,
+         data: {
+             "tc": tc,
+             "selected_id": selected_id
+         },
+         success: function (response) { 
+                 Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+         },
+         error: function (response) {
+             console.log(response);
+         }
+     })
+   }
+   
+function updateDangereux(id){
+    let selected_item = document.getElementById(id+"dangereux");
+    updateDangereuxFrigo(id,selected_item.checked,"{% url 'update_dangereux' %}");
+}
+
+function updateFrigo(id){
+    let selected_item = document.getElementById(id+"frigo");
+    updateDangereuxFrigo(id,selected_item.checked,"{% url 'update_frigo' %}");
+}
+
+ function updateDangereuxFrigo(tc,checked_value, api) {
+        $.ajax({
+          type: 'GET',
+          url: api,
+          data: {
+              "tc": tc,
+              "checked_value": checked_value
+          },
+          success: function (response) { 
+                  Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+          },
+          error: function (response) {
+              console.log(response);
+          }
+      })
+    }
+    
+</script>
+

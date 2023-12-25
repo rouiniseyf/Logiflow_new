@@ -1,0 +1,247 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+{% load humanize %}
+
+{% include 'app/components/navbar.html' with title=article.numero  %}
+{% include 'app/components/messages.html' %}
+
+<div class="card bg-gray-200 mb-3 mt-4">
+    <div class="card-body p-3">
+        <div class="row">
+            <div class="col-lg-6">
+                {% if article.depote %}
+
+                    <span class="badge bg-success p-2 mb-3"> Depoté {{ article.date_depotage|date:"l, d F Y" }}</span>
+                {% else %}
+                    <span class="badge bg-white text-primary p-2 mb-3"> Non depoté </span>
+                {% endif %}
+                <div class="mb-2">
+                    BL &nbsp; &nbsp; <span class="badge bg-primary p-2"> {{ article.bl }} </span>
+                </div> 
+
+                <div class="mb-2">
+                    Transitaire &nbsp; &nbsp; 
+                    
+                    <span class="badge bg-primary p-2"> 
+                        {% if article.transitaire == None %}  
+                            -
+                        {% else %}
+                            {{ article.transitaire }}
+                        {% endif %}
+                    </span>
+                </div> 
+
+
+            </div> 
+
+            {% comment %} col 2 {% endcomment %}
+            <div class="col-lg-6">
+
+                <div class="mb-2">
+                    <b>Client</b> <br>
+                    <small> {{ article.client }}</small>
+                </div> 
+
+                <div class="mb-2">
+                    <b>Désignation</b> <br>
+                    <small>{{ article.designation }}</small>
+                </div> 
+                <div class="mb-2 w-50">
+                    <div class="form-floating mb-2 mt-3 mt-lg-0 border-0">
+                        <select class="form-select shadow-none" aria-label="Default select example" id="select-bareme" onchange="updateBareme()">
+                            {% if article.client.bareme == None %}
+                                <option id="bareme_none_selected" selected>-------</option>
+                            {% endif %}
+                            {% for bareme in baremes %}
+                                {% if bareme.id == article.client.bareme.id %}
+                                <option value="{{ article.client.bareme.id }}" selected> {{ article.client.bareme }} </option>
+                                {% else %}
+                                <option value="{{ bareme.id }}">{{ bareme }}</option>
+                                {% endif %}
+                            {% endfor %} 
+                        </select>   
+                        <label for="select-bareme" >bareme</label>
+                    </div>
+
+                    
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% if article.groupage %}
+<div class="card border-0 mb-4">
+    <div class="card-body p-2 p-lg-3">
+        <div class="row mb-3 mt-2">
+            <div class="col-12 col-lg-6 d-none d-lg-block">
+                 <b>Sous Articles</b> 
+            </div>
+            <div class="col-12 col-lg-6 justify-content-end">
+                {% if article.depote == False %}
+
+
+                    <a type="link" class="btn btn-sm btn-secondary shadow-none float-end w-50 d-block d-lg-none" data-bs-toggle="modal" href="#depotage_modal">
+                        Depoter
+                    </a>  
+              
+                    <a type="link" class="btn btn-sm btn-secondary shadow-none float-end d-none d-lg-block" data-bs-toggle="modal" href="#depotage_modal">
+                        Depoter
+                    </a>     
+
+                    {% endif %}
+
+                    <input type="date" class="form-control shadow-none float-end mx-2" style="width: 200px;" id="date-depotage-input" onchange="updateDepotage()" required></input>
+
+                    <a href={% url 'print_ticktage' article.id %} target="_blank" class="btn btn-sm btn-secondary shadow-none float-end d-none d-lg-block mx-2" tabindex="-1" role="button" aria-disabled="true">       
+                        Ticktage
+                    </a>  
+                        
+                    <a href={% url 'print_ticktage' article.id %} target="_blank" class="btn btn-sm btn-secondary shadow-none float-end w-50 d-block d-lg-none mt-2 " tabindex="-1" role="button" aria-disabled="true">       
+                        Ticktage
+                    </a>       
+                   
+                   
+
+            </div>
+        </div>
+        
+        {% include 'app/components/sousArticles_table.html' with data=sous_articles  %}
+    </div>
+</div>
+{% endif %}
+
+
+
+<!-- First modal dialog -->
+
+<div class="modal fade" id="depotage_modal" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+  <div class="modal-dialog  modal-lg modal-dialog-centered">
+    <div class="modal-content ">
+
+        <form   method="POST" id="tonerForm">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">Depoté le</label>
+                <input type="datetime-local" class="form-control shadow-none" id="date-depotage" rows="3" required></input>
+              </div>
+            <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">Observation</label>
+                <textarea class="form-control shadow-none" id="observation" rows="3"></textarea>
+              </div>
+            </div>
+        <div class="modal-footer">
+            <a  class="btn btn-gray-200 float-right mr-2" data-bs-dismiss="modal">Annuler</a>
+            <button  class="btn btn-primary float-right" onclick="depoter()"> Depoter</button>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+
+
+
+</section>
+<script>
+
+    window.onload = (event) => {
+        printitems('nav16');
+    };
+
+    function updateBareme(){
+        url = "{% url 'update_bareme_client' %}"; 
+        selected_bareme = document.getElementById("select-bareme");
+        selected_option = selected_bareme.options[selected_bareme.selectedIndex].value;
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+                "bareme_id": selected_option,
+                "cleint_id": "{{ article.client.id }}",
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) { 
+                Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+            },
+            error: function (response) {
+                console.log(response);
+            }
+          }) 
+    }
+
+    function updateDepotage(){
+        
+        date_depotage = document.getElementById("date-depotage-input").value;
+        console.log(date_depotage)
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'update_depotage' %}",
+            data: {
+                "date_depotage": date_depotage,
+                "article_id": "{{ article.id }}",
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) { 
+                if (response.depoter == "success"){
+                    location.reload();
+                }         
+            },
+            error: function (response) {
+                Notification('error','Sothing happened ','danger');
+                console.log(response);
+            }
+          })
+    }
+
+    function depoter(){
+        observation = document.getElementById("observation").value;
+        date_depotage = document.getElementById("date-depotage").value;
+
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'depoter' %}",
+            data: {
+                "observation": observation,
+                "date_depotage": date_depotage,
+                "article_id": "{{ article.id }}",
+            },
+            dataType: 'json', 
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) { 
+                if (response.depoter == "success"){
+                    success()
+                }         
+            },
+            error: function (response) {
+                Notification('error','Sothing happened ','danger');
+                console.log(response);
+            }
+          })
+
+    }
+
+function getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start,c_end));
+        }
+    }
+    return "";
+ }
+
+</script>
+{% endblock content %}
+
+

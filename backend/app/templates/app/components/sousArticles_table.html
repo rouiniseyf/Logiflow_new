@@ -1,0 +1,142 @@
+{% load static %}
+
+<div class="table-responsive">
+    <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+        <thead class="thead-light border-0">
+        <tr>
+        <th class="rounded-start">Sous Article</th>
+        <th >Dangereux</th>
+        <th>Position</th>
+        <th >Poids</th>
+        <th >Nombre de colis</th>
+        <th >Client</th>
+        <th class="rounded-end">Designation</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    
+    {% if data|length > 0 %}
+         {% for item in data %}
+            <tr>
+                <td class="rounded-start align-middle">{{ item.numero }}</td>
+                <td class="text-center">   
+                    {% if item.dangereux is False %}
+                        <input class="form-check-input align-middle" type="checkbox" id="{{ item.id }}" onchange="set_dangereux({{ item.id }})">
+                    {% else %}
+                        <input class="form-check-input align-middle" type="checkbox" id="{{ item.id }}" onchange="set_dangereux({{ item.id }})" checked>
+                    {% endif %}
+                </td>
+                <td class="align-middle">
+                    <select class="form-select form-select-sm shadow-none" aria-label="Default select example" style="min-width:100px;" id="{{ item.id }}selected_box" onchange="updateBox({{ item.id }})">
+                      {% if item.box == None %}
+                          <option selected></option>
+                      {% endif %}
+                      {% for box in boxs %}
+                        {% if box.id == item.box.id %}
+                          <option value="{{ box.id }}" selected>{{ box }} </option>
+                        {% else %}
+                          <option value="{{ box.id }}">{{ box }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    
+                    </select>
+                </td>
+                <td class="align-middle">{{ item.poids }}</td>
+                <td class="align-middle">{{ item.nombre_colis }}</td>
+                <td class="align-middle">{{ item.client }}</td>
+                <td class="rounded-end align-middle">{{ item.designation }}</td>
+            </tr>
+        {% endfor %}   
+    {% else %}
+          <tr>
+              <td colspan="4" class="text-center p-4">
+                  <h1><i class="bi bi-inboxes mt-4" ></i></h1>
+              </td>
+          </tr>   
+    {% endif %}
+
+
+    </tbody>
+
+  </table>
+ 
+</div>
+
+
+<script>
+
+
+
+function set_dangereux(sous_article_id)
+{
+  if (document.getElementById(sous_article_id).checked == true) 
+  {
+    update_sous_article_type(sous_article_id,true);
+  } 
+  
+  if (document.getElementById(sous_article_id).checked == false) 
+  {
+    update_sous_article_type(sous_article_id,false);   
+  }
+}
+
+function update_sous_article_type(id,dangereux){
+    
+    $.ajax({
+        type: 'POST',
+        url: '{% url 'update_sous_article_type' %} ',
+        data: {
+            "dangereux": dangereux,
+            'sous_article_id': id,
+        },
+        dataType: 'json', 
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+        success: function (response) { 
+            success();
+        },
+        error: function (response) {
+            console.log(response["responseJSON"]["error"]);
+        }
+    });
+}
+
+
+
+function updateBox(id){
+let select_elemnt = document.getElementById(id+"selected_box");
+selected_id = select_elemnt.options[select_elemnt.selectedIndex].value;
+update_position(id,selected_id,"{% url 'update_position_groupage' %}");
+
+}
+function update_position(sous_article, selected_box_id, api) {
+    $.ajax({
+      type: 'POST',
+      url: api,
+      data: {
+          "sous_article": sous_article,
+          "selected_box_id": selected_box_id
+      },
+      dataType: 'json', 
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+      success: function (response) { 
+        success();
+      },
+      error: function (response) {
+          console.log(response);
+      }
+  })
+}
+
+
+</script>
+
+
+
+{% comment %} <script>
+ $(document).ready(function(){
+    $(document).click(function(event){
+        alert("You've clicked: " + event.target.nodeName + ", id: " + event.target.id);
+    });
+});
+</script> {% endcomment %}

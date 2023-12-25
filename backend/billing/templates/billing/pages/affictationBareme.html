@@ -1,0 +1,139 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+
+<section class="row">
+    <!-- The table column -->
+
+        <div class="card" style="min-height: 94vh;">
+             <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h4 class="card-title">Affictation bareme</h4>
+                    </div>
+                    <div class="col-6">
+                       <div class="row">
+                            <div class="col">
+                                <form method="POST" id="form-affictation">
+                                {% csrf_token %}
+                                <div class="form-floating mb-3">
+                                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-gros" name="gros" >
+                                        {% for item in gros %}
+                                            <option id="{{ item.id }}">{{ item }}</option> 
+                                        {% endfor %}
+                                    </select>                     
+                                    <label for="gros" >Gros</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-bareme" name="bareme" >  
+                                        {% for item in baremes %}
+                                            <option id="{{ item.id }}">{{ item }}</option> 
+                                        {% endfor %}
+                                    </select>     
+                                    </select>
+                                    <label for="article" >Bareme</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                 <button type="submit" class="btn btn-primary w-100 py-3">Afficter</button>
+                            </div>  
+                            </form>                                                      
+                       </div>
+
+                    </div>
+                </div>
+
+                 {% include 'billing/components/affictation_bareme_table.html' %}
+            </div>
+            
+
+        
+
+
+    {% comment %} <div class="col-12 col-lg-3">
+        <div class="card">
+            <div class="card-body"> 
+            <form method="POST" id="form-affictation">
+            {% csrf_token %}
+                <div class="form-floating mb-3">
+                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-gros" name="gros" >
+                        {% for item in gros %}
+                            <option id="{{ item.id }}">{{ item }}</option> 
+                        {% endfor %}
+                    </select>                     
+                    <label for="gros" >Gros</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-bareme" name="bareme" >  
+                        {% for item in baremes %}
+                            <option id="{{ item.id }}">{{ item }}</option> 
+                        {% endfor %}
+                    </select>     
+                    </select>
+                    <label for="article" >Bareme</label>
+                </div>
+                <button type="submit" class="btn btn-outline-primary w-100">Afficter</button>
+            </form>
+            </div>  
+        </div> {% endcomment %}
+
+</section>
+
+
+<script>
+    let form = document.getElementById('form-affictation');
+    form.onsubmit = createVsiste;
+
+    function createVsiste(event){
+        form = $("#form-affictation");
+        // Get the selected gros 
+        let gros = document.getElementById('select-gros');
+        let selected_gros_id = gros.options[gros.selectedIndex].id;
+
+        // Get the selcted bareme 
+        let bareme = document.getElementById('select-bareme');
+        let selected_bareme_id = bareme.options[bareme.selectedIndex].id;
+
+        $.ajax({
+                type: 'POST',
+                url: "{% url 'afficter_bareme' %}" ,
+                data: {
+                        "selected_gros_id" : selected_gros_id,
+                        "selected_bareme_id": selected_bareme_id
+                    },
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                success: function (response) {
+                    Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+                    console.log(response);
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            }) 
+    }
+
+    function getCookie(c_name)
+    {
+        if (document.cookie.length > 0)
+        {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1)
+            {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+
+</script>
+
+{% endblock content %}
+

@@ -1,0 +1,90 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Groupage' %}
+{% include 'app/components/messages.html' %}
+
+<div class="row mb-2">
+    <div class="col-md-4 mt-4 mt-lg-0">
+        {% include 'app/components/search.html' with form=search_form%}
+    </div> 
+ 
+</div>
+
+
+<div class="card">
+    <div class="card-body p-2 p-lg-3 pb-0">
+ 
+        <!-- Add gros modal trigger -->
+
+        {% include 'app/components/messages.html' %}
+        
+        <div class="table-responsive mb-2">
+            <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                <thead class="thead-light border-0">
+                    <tr class="mb-4">
+                        <th class="rounded-start">Numero</th>
+                        <th >Régime</th>
+                        <th >Accosstage</th>
+                        <th >Navire</th>
+                        <th >Armateur</th>
+                        <th class="rounded-end">Consignataire</th>
+                       
+                    </tr>
+                </thead>
+                <tbody id="gross">
+                    <!-- Item -->
+                  {% if data|length > 0 %}
+                  {% for item in data %}
+                  <tr id="{{ item.id }}">
+                    <td class="rounded-start">
+                        <a class="btn btn-sm btn-gray-100 shadow-none" type="button"  href="{% url 'groupage_gros_details' item.id %}"> 
+                          {{ item.gros }}
+                        </a>              
+                    </td>
+                    <td class="border-0 align-middle">
+                      {% if item.regime__designation == 'D1' %}
+                          <span class="badge bg-success p-2">{{ item.regime__designation }}</span> 
+                      {% elif item.regime__designation == 'OT'%}
+                          <span class="badge bg-info p-2">{{ item.regime__designation }}</span> 
+                      {% elif item.regime__designation == 'D15'%}
+                          <span class="badge bg-secondary p-2">{{ item.regime__designation }}</span>
+                      {% else %} 
+                          <span class="badge bg-light p-2">{{ item.regime__designation }}</span>
+                      {% endif %} 
+                    </td>
+                    <td class="border-0 align-middle">
+                      {{ item.accostage|date:"l, d-m-Y" }}  
+                    </td>
+                    <td class="border-0 align-middle">
+                      {{ item.navire__nom }}
+                    </td>
+                    <td class="border-0 align-middle align-middle">
+                      {{ item.armateur__raison_sociale }}
+                    </td>
+                    <td class="rounded-end align-middle">
+                      {{ item.consignataire__raison_sociale }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  {% endif %}             
+        
+        
+                </tbody>
+            </table>
+        </div>
+        {% include 'app/components/pagination.html' %}
+
+        
+
+    </div>
+</div>
+
+
+<script>
+    window.onload = (event) => {
+        printitems('nav16');
+    };
+</script>
+{% endblock content %}

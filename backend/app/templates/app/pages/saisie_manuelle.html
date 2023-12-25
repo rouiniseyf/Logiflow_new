@@ -1,0 +1,174 @@
+{% extends 'app/components/base.html' %}
+
+{% block content %}
+
+
+ <section class="row"> 
+ <section class="col-12 col-xl-9">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body px-3 py-3">
+            <div class="row">
+                <div class="col-4">
+                    {% include 'app/components/condition_select.html' %}
+                </div> 
+                <div class="col d-flex justify-content-end">
+                    <nav aria-label="...">
+                        <ul class="pagination" id="ul_navigation">
+                            
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+                <table class="table table-hover" >
+                    <thead>
+                        <tr>
+                        <th scope="col">Article</th>
+                        <th scope="col">Tc</th>
+                        <th scope="col">tar</th>
+                        <th scope="col">bl</th>
+                        <th scope="col">poids</th>
+                        <th scope="col">Client</th>
+                        <th scope="col">Transitaire</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tcs_table" />
+                </table> 
+              
+       </div>
+        </div>
+    </div>
+</section>
+
+<section class="col-12 col-xl-3 ">
+   
+        <div class="row">
+        <!-- card-height class makes the cards hight 90%%-->
+            <div class="card ">
+                <div class="card-header">
+                    <h4>{{ gros.numero }} / {{ gros.accostage|date:"Y"}}</h4>
+                </div>
+                <div class="card-body">
+                   <div class="row">
+                        <div class="col">
+                           <div><p>Escale <b class="text-dark m-3">{{ gros.escale }}</b></div>
+                           <div>Accostage <b class="text-dark m-3">{{ gros.accostage|date:"d/m/Y" }}</b></div>
+                            <hr>
+                           <div>Narive</div>
+                           <b><h6> {{ gros.navire }}</h6></b>
+                           <div>Port d'emission</div>
+                           <b><h6> {{ gros.port_emission }}</h6></b>
+
+                           <div>Port de réception</div>
+                           <b><h6> {{ gros.port_reception }}</h6></b>
+
+                           <div>Armateur</div>
+                           <b><h6> {{ gros.armateur }}</h6></b>
+
+                           <div>Consignatire</div>
+                           <b><h6> {{ gros.consignataire }}</h6></b>
+
+                           <div>Methode de calcule</div>
+                           <b><h6> {{ gros.methode_calcule }}</h6></b>
+
+                        </div>
+                        
+                       
+                   </div>
+            </div>  
+        </div>
+        </div>         
+            <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Saisie manuelle du manifeste</h4>
+                </div>
+                <div class="card-body">
+                       <button  class="btn btn-primary w-100 shadow-none" onclick="get_data()">Ajouter Article</a>
+                </div>
+            </div>
+    </div>
+</section>
+
+
+</section>
+
+<script>
+window.onload = function() {
+    get_data();
+}
+function addRow(table, data){
+    var row = table.insertRow(0);
+    row.id = data.id;
+    var article_cell = row.insertCell(0);
+    var tc_cell = row.insertCell(1);
+    var tar_cell = row.insertCell(2);
+    var bl_cell = row.insertCell(3);
+    var poids_cell = row.insertCell(4);
+    var client_cell = row.insertCell(5);
+    var transitaire_cell = row.insertCell(6);
+    article_cell.innerHTML= data.article;
+    tc_cell.innerHTML= data.tc;
+    tar_cell.innerHTML= data.tar;
+    bl_cell.innerHTML= data.bl;
+    poids_cell.innerHTML= data.poids;
+    client_cell.innerHTML= data.article__client__raison_sociale;
+    transitaire_cell.innerHTML= data.article__transitaire__raison_sociale;
+   
+}
+function get_data(page){
+    table = document.getElementById("tcs_table");
+    while(table.hasChildNodes()){
+        table.removeChild(table.firstChild);
+    }
+      $.ajax({
+          type: 'GET',
+          url: "{% url 'get_tcs_by_gros' %}",
+          data: {
+              "id":"{{ gros.id }}",
+              "page": page
+          },
+          success: function (response) { 
+            data = response.data; 
+            for(i=0;i<data.length; i++){
+                addRow(table, data[i]);     
+            }  
+              set_navigation(response.pagination) ;
+          },
+          error: function (response) {
+              alert(response["responseJSON"]["error"]);
+          }
+      })
+}
+function set_navigation(pagination){
+    let ul = $("#ul_navigation");
+    ul.empty();
+    if (pagination.has_previous){
+        ul.append('<li class="page-item"><button class="btn btn-small btn-light" onclick="get_data('+pagination.previous_page+')">Previous</button></li>');
+    }else{
+        ul.append('<li class="page-item disabled"><a class="page-link" >Previous</a></li>');
+    }
+    //if(pagination.page_count > 3){       
+       // add_navigation_item(ul, pages, false, true);
+    //}else{
+
+    //}
+    if (pagination.has_next){
+        ul.append('<li class="page-item"><button class="btn btn-small btn-light shadow-none" onclick="get_data('+pagination.next_page+')">Next</button></li>');
+    }else{
+        ul.append('<li class="page-item disabled"><a class="page-link" >Next</a></li>');
+
+    }
+
+}
+
+function add_navigation_item(navigation, pages_number, last, first){
+    navigation.append('<li class="page-item"><a class="page-link" href="#"  id="elem">'+ pages_number +'</a></li>');
+}
+document.addEventListener('DOMContentLoaded', (event) => {
+    get_data(1);
+})
+  
+</script>
+{% endblock content %}

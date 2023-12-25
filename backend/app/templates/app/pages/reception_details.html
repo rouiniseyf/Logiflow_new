@@ -1,0 +1,554 @@
+{% extends 'app/components/base.html' %}
+{% load static %}
+{% block content %}
+{% include 'app/components/navbar.html' with title=bulletins.bulletins %}
+
+
+<div class="card mt-3 mb-0 mb-lg-3 bg-gray-200">
+    <div class="card-body p-3 ">
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                {% if is_mobile %}
+                <div class="mb-2">
+                    <b>Bulletins</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ bulletins.bulletins }}</span>
+                </div>
+                {% endif %}
+                <div class="mb-2">
+                    <b>Gros</b>  &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ bulletins.gros }}</span>
+                </div>
+                <div class="mb-2">
+                    <b>Date de création</b> &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ bulletins.date_creation|date:"D, d M Y" }}</span>
+                </div>
+
+    
+            </div> 
+
+            <div class="col-12 col-lg-6">
+
+                <div class="mb-2">
+                    <b>Chargé de transfert</b> &nbsp; &nbsp; 
+                    <span class="badge bg-primary p-2">
+
+                        {{ bulletins.charge_chargement }}
+                    
+                    </span>
+                </div> 
+                <div>
+                    <b>Chargé de réception</b> &nbsp; &nbsp; <span class="badge bg-primary p-2">{{ request.user.last_name }} {{ request.user.first_name }}</span>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
+                      
+
+           
+    <div class="card mt-3 mt-lg-0">
+        <div class="card-body p-2 p-lg-3 pb-0" >
+            <div class="row d-flex justify-content-end mb-3">
+                <div class="col-12 col-lg-2">
+                    <button class="btn btn-secondary w-100 shadow-none" onclick="enregistrer()">
+                        <img src="{% static 'img/disk.svg' %}" width="16">
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive mb-4">
+                <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="rounded-start"><input class="form-check-input shadow-none" type="checkbox" value="" id="th_check" onchange="checkAll('th_check')"></th>
+                            <th scope="col">Article</th>
+                            <th scope="col">Tc</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Matricule camion</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Reçu par</th>
+                            <th class="rounded-end">Observation</th>
+                        </tr>
+                    </thead>
+                <tbody id="chargement_table" />
+                </table>
+            </div>
+        </div>
+        </div>
+
+</div>
+       
+
+        
+<!-- save confirmation Modal -->
+<div class="modal fade " id="delete_bulletins" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+      <div class="modal-content">
+          <div class="modal-body">
+              <h6 class="mt-3">Voulez-vous enregistrer les modifications ?</h6>
+          </div>
+          
+          <div class="modal-footer">
+              <button type="button" class="btn btn-light shadow-none" data-bs-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-danger shadow-none" id="yes-button" data-bs-dismiss="modal">Enregistrer les modifications</button>
+          </div>
+      </div>
+    </div>
+</div>
+  
+
+  
+{% for item in records %}
+<!-- Delete confirmation Modal -->
+<div class="modal fade " id="_{{ item.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6 class="mt-3">Positionnement</h6>
+
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <select class="form-select mb-3 shadow-none" aria-label="Default select example" id="select-parc{{ item.id }}" name="parc" onchange="getZones({{ item.id }})">
+                            {% for item in parcs %}
+                                <option id="{{ item.id }}">{{ item.designation }}</option> 
+                            {% endfor %}
+                        </select>                     
+                        <label for="parc" >Parc</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 col-lg">
+                    <div class="form-floating mb-3">
+                        <select class="form-select mb-3 shadow-none" disabled aria-label="Default select example" id="select-zone{{ item.id }}" name="zone" onchange="getZoneInfo({{ item.id }})">
+                        </select>                     
+                        <label for="zone" >Zone</label>
+                    </div>
+                </div>
+                <div class="col-6 col-lg">
+                    <div class="form-floating mb-3">
+                        <select class="form-select mb-3 shadow-none" disabled aria-label="Default select example" id="select-ligne{{ item.id }}" name="ligne">
+                        </select>                     
+                        <label for="ligne" >Ligne</label>
+                    </div>
+                </div>
+                <div class="col-6 col-lg">
+                    <div class="form-floating mb-3">
+                        <select class="form-select mb-3 shadow-none" disabled aria-label="Default select example" id="select-range{{ item.id }}" name="gros">
+                        </select>                     
+                        <label for="range" >Range</label>
+                    </div>
+                </div>
+                <div class="col-6 col-lg">
+                    <div class="form-floating mb-3">
+                        <select class="form-select mb-3 shadow-none" disabled aria-label="Default select example" id="select-gerbage{{ item.id }}" name="gerbage">
+                        </select>                     
+                        <label for="gerbage" >Gerbage</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light shadow-none" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-danger shadow-none" id="yes-button-position{{ item.id }}" data-bs-dismiss="modal" onclick="savePosition({{ item.id }})">Enregistrer les modifications</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+{% endfor %} 
+<script>
+
+
+    function savePosition(id){
+        let parc_select = document.getElementById("select-parc"+id);
+        let selected_parc = parc_select.options[parc_select.selectedIndex].id;
+
+        let zone_select = document.getElementById("select-zone"+id);
+        let selected_zone = zone_select.options[zone_select.selectedIndex].id;
+
+        let ligne_select = document.getElementById("select-ligne"+id);
+        let selected_ligne = ligne_select.options[ligne_select.selectedIndex].id;
+
+        let range_select = document.getElementById("select-range"+id);
+        let selected_range = range_select.options[range_select.selectedIndex].id;
+
+        let gerbage_select = document.getElementById("select-gerbage"+id);
+        let selected_gerbage = gerbage_select.options[gerbage_select.selectedIndex].id;
+
+        let position_button = document.getElementById("position-button"+id);
+
+        position_button.classList.remove('btn-danger');
+        position_button.classList.add('btn-success');
+
+    }
+    function getZones(id){
+        let parc_select = document.getElementById("select-parc"+id);
+        let selected_parc = parc_select.options[parc_select.selectedIndex].id;
+        let zone_select = document.getElementById("select-zone"+id);
+        let ligne_select = document.getElementById("select-ligne"+id);
+        let range_select = document.getElementById("select-range"+id);
+        let gerbage_select = document.getElementById("select-gerbage"+id);
+
+        {% for item in parcs %}
+            if("{{ item.id }}" == selected_parc){
+                zone_select.innerHTML = null;
+                {% if item.zones|length == 0 %}
+                    zone_select.disabled = true;
+                    ligne_select.disabled = true;
+                    range_select.disabled = true;
+                    gerbage_select.disabled = true;
+                {% else %}
+                    zone_select.disabled = false;
+                {% endif %}   
+                {% for zone in item.zones %}
+                    var option = document.createElement("option");
+                    option.text = "{{ zone.zone }}";
+                    option.id = "{{ zone.id }}";
+                    zone_select.add(option);
+                {% endfor %}
+                getZoneInfo(id);
+            }
+        {% endfor %}
+    }
+
+    function getZoneInfo(id){
+
+        let zone_select = document.getElementById("select-zone"+id);
+        let selected_zone = zone_select.options[zone_select.selectedIndex].id;
+
+        let ligne_select = document.getElementById("select-ligne"+id);
+        let range_select = document.getElementById("select-range"+id);
+        let gerbage_select = document.getElementById("select-gerbage"+id);
+
+     
+        {% for item in zones %}
+
+            if( "{{ item.id }}" == selected_zone ){
+                ligne_select.innerHTML = null;
+                ligne_select.disabled = false;
+                for (let i = 0; i< "{{ item.lignes }}"; i++) {
+                    var option = document.createElement("option");
+                    option.text = i + 1;
+                    option.value = i + 1;
+                    ligne_select.add(option);   
+                }
+                range_select.innerHTML = null;
+                range_select.disabled = false;
+                for (let i = 0; i < "{{ item.ranges }}"; i++) {
+                    var option = document.createElement("option");
+                    option.text = i + 1;
+                    option.value = i + 1;
+                    range_select.add(option);   
+                }
+                gerbage_select.innerHTML = null;
+                gerbage_select.disabled = false;
+                for (let i = 0; i < "{{ item.gerbage }}"; i++) {
+                    var option = document.createElement("option");
+                    option.text = i + 1;
+                    option.value = i + 1;
+                    gerbage_select.add(option);   
+                }
+            }
+
+        {% endfor %}
+    }
+    
+    window.onload = (event) => {
+        printitems('nav6');
+        get_data_bulletins();
+    };
+    var checks = []
+       // check if the string has more then 20 caracters in length, if so slice it to 20 caracters and add 3 dots at the end 
+    function slice(str){
+        if(str.length > 20){
+            return (str.slice(0, 20) + "...");
+        }
+        return str;
+    }
+    
+    //Get the current time 
+    function getDateTimeNow(){
+        now = new Date(Date.now());
+        year = now.getFullYear().toString();
+        month = (now.getMonth()+1).toString();
+        if(month.length==1){
+            month = "0" + month;
+        }
+        day = now.getDate().toString();
+        if(day.length==1){
+            day = "0" + day;
+        }
+        hour = now.getHours().toString();
+        if(hour.length==1){
+            hour = "0" + hour;
+        }
+        minute = now.getMinutes().toString();
+        if(minute.length==1){
+            minute = "0" + minute;
+        }
+        return(year+"-"+month+"-"+day+"T"+hour+":"+minute);
+    }
+
+    // check if a row exists in a table 
+    function rowExist(table, id){
+        exist = false;
+        for (let i in table.rows) {
+            let row = table.rows[i];
+            if (row.id == id){
+                exist = true;
+            }
+        }  
+        return exist;
+    }
+
+    // Global variable checks for all the checked boxs 
+
+    var results = [];
+    var selected_rows = [];
+    var saved_data = [];
+
+    function setValue(value){
+        if (typeof value != 'undefined' && (value!=null)){
+            return (value);
+        }else{
+            return ""
+        }
+    }
+    function setObservationValue(value){
+        if (typeof value != 'undefined' && (value!=null)){
+            return (value);
+        }else{
+            return ""
+        }
+    }
+    function setDateSortieValue(value){
+        if ((typeof value != 'undefined') && (value!=null)){
+            return (value.slice(0,-1));
+        }else{   
+            return getDateTimeNow();
+        }
+    }
+
+
+    function addSelectedRow(table, data){
+        if(!rowExist(table, data.tc)){
+
+            var row = table.insertRow(0);
+            if( data.date_entree_port_sec == null ){
+                row.classList.add("bg-light");
+                document.getElementById("th_check").disabled = true;
+            }
+            var checkbox = row.insertCell(0);
+            checkbox.classList.add("rounded-start");
+            checkbox.classList.add("align-middle");
+            var article_cell = row.insertCell(1);
+            article_cell.classList.add("align-middle");
+            var tc_cell = row.insertCell(2);
+            tc_cell.classList.add("align-middle");
+            var type_cell = row.insertCell(3);
+            type_cell.classList.add("align-middle");
+            var matricule_cell = row.insertCell(4);
+            matricule_cell.classList.add("align-middle");
+            var position_cell = row.insertCell(5);
+            position_cell.classList.add("align-middle");
+            var receved_by_cell = row.insertCell(6);
+            receved_by_cell.classList.add("align-middle");
+            var observation_reception_cell = row.insertCell(7);
+            observation_reception_cell.classList.add("rounded-end");
+            observation_reception_cell.classList.add("align-middle");
+
+
+            row.id = data.tc;
+            article_cell.innerHTML= data.article__numero;
+            tc_cell.innerHTML= data.tc;
+            type_cell.innerHTML= data.type_tc__designation;
+            if (data.receved){
+                checkbox.innerHTML = '<i class="bi bi-clipboard-check text-success" ></i>';
+                matricule_cell.innerHTML = data.matricule_camion;
+                position_cell.innerHTML = data.date_entree_port_sec;
+                receved_by_cell.innerHTML = "<p id='receved"+ data.id +"' > "+ data.receved_by__first_name + " " + data.receved_by__last_name + "</p>";
+                observation_reception_cell.innerHTML = data.observation_reception;
+            }else{
+                getZones(data.id);
+                checks.push(data.id);
+                if( data.date_entree_port_sec == null ){
+                    checkbox.innerHTML= ('<input type="checkbox" disabled class="form-check-input shadow-none" id="' + data.id + '"/>');
+                    position_cell.innerHTML = ('<a class="btn btn-danger disabled shadow-none" data-bs-toggle="modal" id="position-button'+data.id+'" href="#_'+ data.id +'" role="button">Position</a>');
+
+                }else{
+                    checkbox.innerHTML= ('<input type="checkbox" class="form-check-input shadow-none" id="' + data.id + '"/>');
+                    position_cell.innerHTML = ('<a class="btn btn-danger shadow-none" data-bs-toggle="modal" id="position-button'+data.id+'" href="#_'+ data.id +'" role="button">Position</a>');
+                }
+                matricule_cell.innerHTML = data.matricule_camion;
+                observation_reception_cell.innerHTML = ('<input type="text" class="form-control shadow-none form-control-sm"  id="observation_reception' + data.id + '" value ="'+setObservationValue(data.observation_reception)+'">');
+            }
+
+
+        }   
+    }
+
+    Array.prototype.remove = function() {
+        var what, a = arguments, L = a.length, ax;
+        while (L && this.length) {
+            what = a[--L];
+            while ((ax = this.indexOf(what)) !== -1) {
+                this.splice(ax, 1);
+            }
+        }
+        return this;
+    };
+
+    function enregistrer(){
+
+        var message = document.getElementById("delete_bulletins");
+        var yes_button = document.getElementById("yes-button");
+        saved_data = [];
+        good_to_go = true;
+        getCheckedBoxs().forEach(row =>{
+
+            position = document.getElementById("select-parc"+row);
+            selected_parc = position.options[position.selectedIndex].id;
+            observation = document.getElementById("observation_reception"+row).value;
+            // Check id all the observation fiels are filled 
+            if( observation == '' || (observation==null || selected_parc == null || selected_parc == 'undefined')) {
+                good_to_go = false;
+            }else{
+                saved_data.push(
+                {
+                "id":row,
+                "position": selected_parc , 
+                "observation": observation, 
+                });
+            }
+            
+        }); 
+        // If all the observation fields are filled out then you can proced with action else show an error message
+        if(good_to_go){
+            yes_button.onclick = function (){
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'save_reception' %}",
+                data: {
+                    "saved_data": JSON.stringify(saved_data),
+                    "bulletins" : "{{ bulletins.id }}"
+                },
+                dataType: 'json', 
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                success: function (response) { 
+                    if (response.message == 'success'){
+                        getCheckedBoxs().forEach(row =>{
+
+                        // Get the check box and replace it with the checked icon.    
+                        let check_box = document.getElementById(row.toString());
+                        checks.remove(row);
+                        let icon = document.createElement("div");
+                        icon.innerHTML = '<i class="bi bi-clipboard-check text-success"></i>';
+                        check_box.replaceWith(icon);
+
+                        // Get the date input and replace it with a span with the value of the date input.
+                       
+
+                        // get the observation input and replace it with the value of the input observation.
+                        let observation = document.getElementById("observation_reception"+row);
+                        let observation_text = document.createElement("span");
+                        observation_text.innerHTML = observation.value;
+                        observation.replaceWith(observation_text);  
+                    }); 
+                        Notification('Succès',"L'opération a été effectuée avec succès.",'success');       
+                    }
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+            }
+            var visits_panel = new bootstrap.Modal(message, { keyboard: false});
+            visits_panel.show();
+             
+        }else{
+            alert("error");
+            var error_message = document.createElement("div")
+            error_message.innerHTML = '<div class="alert alert-danger  alert-dismissible fade show" style="border-radius: 12px;" role="alert"> Certains <b>champs obligatoires</b> sont vides, veuillez les remplir tous puis réessayer<button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            var main_card = document.getElementById("main-card");
+            main_card.insertBefore(error_message, main_card.firstChild);
+            setTimeout(function (){
+                error_message.remove();
+            }, 3000);      
+        }
+      
+    }
+
+
+    // Ajax request - get all the manifest within the current bulletins 
+    function get_data_bulletins(){
+        
+        table = document.getElementById("chargement_table");
+
+        while(table.hasChildNodes()){
+            table.removeChild(table.firstChild);
+        }
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'get_reception' %}",
+            data: {
+                "selected_bulletins_id": "{{ bulletins.id }}",
+            },
+            
+            success: function (response) { 
+                data = response.data;
+                selected_rows = [];
+                data.forEach(row => {
+                    selected_rows.push(row);   
+                    addSelectedRow(table, row);
+                });           
+            },
+            error: function (response) {
+               console.log(response)
+            }
+        })
+    }
+
+// loop true the checks array and check the chekced element then add them to the chekced list 
+    function getCheckedBoxs(){
+        var checked_list = [];
+        checks.forEach(item => {
+                if ( document.getElementById(item).checked){
+                    checked_list.push(item);
+                }
+            });
+        return checked_list;
+    }
+
+// when the top check box is checks, check all the boxs end if unchecked, uncheck all the boxs 
+    function checkAll(){
+        let check_all = document.getElementById("th_check");
+        console.log(checks);
+        if(check_all.checked){
+            checks.forEach(item => document.getElementById(item).checked = true );
+        }else{
+            checks.forEach(item => document.getElementById(item).checked = false );
+        }     
+    }
+
+    function getCookie(c_name)
+    {
+        if (document.cookie.length > 0)
+        {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1)
+            {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+    // show notification 
+</script>
+{% endblock content %}
+
+

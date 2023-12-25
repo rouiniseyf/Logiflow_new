@@ -1,0 +1,107 @@
+{% extends 'app/components/base.html' %}
+{% load slice_to_20 %}
+{% load humanize %}
+{% block content %}
+
+{% include 'app/components/navbar.html' with title='Factures' %}
+{% include 'app/components/messages.html' %}
+
+<div class="row mt-4 mt-lg-0">
+
+    <div class="col-12 col-lg-4">
+        {% include 'app/components/search.html' with form=search_form%}
+    </div>
+
+
+</div>
+
+<div class='card border-0 mt-2 mb-4 mt-lg-2'>
+    <div class="body p-2 p-lg-3 pb-0">
+
+    
+        
+        
+        <div class="table-responsive table-hover">
+          <table class="table table-hover table-borderless table-centered table-nowrap mb-0 rounded" id="test_table">
+              <thead class="thead-light border-0">
+            <tr>
+                  <th class="rounded-start">Numéro</th>
+                  <th>Gros</th>
+                  <th>Sous Article</th>
+                  <th>Date</th>
+                  <th>Proforma</th>
+                  <th>Client</th>
+                  <th>Transitaire</th>
+                  <th>TTC</th>
+                  <th class="rounded-end">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if data|length > 0  %}
+                {% for item in data %}
+        
+                    <tr>
+        
+                      <td class="rounded-start">
+                        {% if item.paid %}
+                              <a href={% url 'facture_groupage_details' item.id %} class="btn btn-success text-white btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>           
+                        {% elif not item.paid and not item.a_terme %}
+                              <a href={% url 'facture_groupage_details' item.id %} class="btn btn-danger btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>           
+                        {% elif item.a_terme %}
+                              <a href={% url 'facture_groupage_details' item.id %} class="btn btn-gray-200 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.numero }}</a>           
+                        {% endif %}
+                      </td>
+                        <td class="align-middle">{{ item.proforma.gros }}</td>
+                        <td class="align-middle">{{ item.proforma.article.numero }} - {{ item.proforma.sous_article.numero }} </td>
+                        <td class="align-middle">{{ item.proforma.date_proforma|date:"d-m-Y" }}</td>
+                        <td class="align-middle"> <a href={% url 'proforma_groupage_details' item.proforma.id %} class="btn btn-gray-200 btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">{{ item.proforma.numero }}</a></td>
+        
+                          {% if item.proforma.article.client == None %}
+                            <td class="align-middle"> - </td>
+                          {% else %}
+                            <td class="align-middle">{{ item.proforma.sous_article.client|sliceText }}</td>
+                          {% endif %}
+        
+                          {% if item.proforma.article.transitaire == None %}
+                            <td class="align-middle"> - </td>
+                          {% else %}
+                            <td class="align-middle">{{ item.proforma.article.transitaire|sliceText }}</td>
+                          {% endif %}
+        
+                          {% if item.TTC == None %}
+                            <td class="align-middle"> - </td>
+                          {% else %}
+                            <td class="align-middle">{{ item.TTC| intcomma }}</td>
+                          {% endif %}
+                               
+                        <td class="rounded-end"> 
+                          <a  href="{% url 'print_facture_groupage' item.id %}" target="_blank" class="btn btn-secondary btn-sm  shadow-none" tabindex="-1" role="button" aria-disabled="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width="16" height="16"><path d="M19,4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V5H19Z"/><rect x="5" y="15" width="14" height="9" rx="3"/><path d="M19,7H5a5.006,5.006,0,0,0-5,5v4a5,5,0,0,0,3,4.576V18a5.006,5.006,0,0,1,5-5h8a5.006,5.006,0,0,1,5,5v2.576A5,5,0,0,0,24,16V12A5.006,5.006,0,0,0,19,7Zm-1,4H16a1,1,0,0,1,0-2h2a1,1,0,0,1,0,2Z"/></svg>
+                          </a>
+                        </td>     
+                    </tr>
+                {% endfor %}
+        
+            {% else %}
+                  <tr>
+                      <td colspan="7" class="text-center p-4">
+                          <h1><i class="bi bi-inboxes mt-4" ></i></h1>
+                      </td>
+                  </tr>
+            {% endif %}
+            </tbody>
+          </table>                 
+        </div>        
+        {% include 'app/components/pagination.html' %}
+
+    </div>
+</div>
+
+
+<script>
+    window.onload = (event) => {
+        printitems('nav18');
+    };
+
+</script>
+{% endblock content %}
